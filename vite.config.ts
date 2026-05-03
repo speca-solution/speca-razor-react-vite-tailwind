@@ -157,7 +157,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, './Apps/Portal/Assets'),
+            '@app': path.resolve(__dirname, './Apps/Portal/Assets'),
             '@ui': path.resolve(__dirname, './Libs/UI/Assets')
         }
     },

@@ -12,7 +12,7 @@
     "noEmit": true, // Vite yang akan menangani kompilasi, bukan tsc
     "baseUrl": ".",
     "paths": {
-      "@/*": [ "Apps/Portal/Assets/*" ],
+      "@app/*": [ "Apps/Portal/Assets/*" ],
       "@ui/*": [ "Libs/UI/Assets/*" ]
     }
   },
