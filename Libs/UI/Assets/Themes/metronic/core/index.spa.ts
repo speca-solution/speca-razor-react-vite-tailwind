@@ -4,12 +4,12 @@
  * Copyright 2024 Keenthemes
  */
 
-import KTDom from './helpers/dom';
-import KTUtils from './helpers/utils';
-import KTEventHandler from './helpers/event-handler';
-import { KTMenu } from './components/menu';
+import KTDom from './helpers/_dom';
+import KTUtils from './helpers/_utils';
+import KTEventHandler from './helpers/_event-handler';
+import { KTMenu } from './components/menu/_index';
 
-export { KTMenu } from './components/menu';
+export { KTMenu } from './components/menu/_index';
 
 const KTComponents = {
 	init(): void {

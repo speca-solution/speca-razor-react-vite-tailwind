@@ -14,6 +14,8 @@ function getEntryPoints(pattern: any, regex: any, keyBuilder: any) {
     const files = glob.sync(pattern, { ignore: ['**/node_modules/**'] });
     const entries = files.map((filePath) => {
         const normalizedPath = normalize(filePath);
+        const fileName = path.basename(normalizedPath);
+        if (fileName.startsWith('_')) return null;
         const match = normalizedPath.match(regex);
         if (!match && keyBuilder) return null;
         const key = keyBuilder ? keyBuilder(match) : normalizedPath;
@@ -24,8 +26,8 @@ function getEntryPoints(pattern: any, regex: any, keyBuilder: any) {
 }
 
 const getThemes = getEntryPoints(
-    '{Apps,Libs}/**/Assets/Themes/**/_*.{jsx,tsx,vue,js,ts,css,scss}',
-    /(Apps|Libs)\/([^/]+)\/Assets\/Themes\/.*?([^/]+)\/(?:app\/)?(?:([^/]+)\/)?_([^/.]+)\.(?:jsx|tsx|vue|js|ts|css|scss)$/i,
+    '{Apps,Libs}/**/Assets/Themes/**/*.{jsx,tsx,vue,js,ts,css,scss}',
+    /(Apps|Libs)\/([^/]+)\/Assets\/Themes\/.*?([^/]+)\/(?:app\/)?(?:(.*)\/)?([^/.]+)\.(?:jsx|tsx|vue|js|ts|css|scss)$/i,
     (m) => {
         if (!m) return null;
 
@@ -63,27 +65,25 @@ const getEntries = getEntryPoints(
 );
 
 const getVendors = getEntryPoints(
-    '{Apps,Libs}/**/Assets/Vendors/**/_*.{jsx,tsx,vue,js,ts,css,scss}',
-    /(Apps|Libs)\/([^/]+)\/Assets\/Vendors\/.*?([^/]+)\/(?:app\/)?(?:([^/]+)\/)?_([^/.]+)\.(?:jsx|tsx|vue|js|ts|css|scss)$/i,
+    '{Apps,Libs}/**/Assets/Vendors/**/*.{jsx,tsx,vue,js,ts,css,scss}',
+    /(Apps|Libs)\/([^/]+)\/Assets\/Vendors\/(?:(.*)\/)?([^/.]+)\.(?:jsx|tsx|vue|js|ts|css|scss)$/i,
     (m) => {
         if (!m) return null;
+
         //const category = m[1].toLowerCase(); // Apps atau Libs
         //const project = m[2].toLowerCase().replace(/\./g, '-'); // Contoh: portal atau ui
         const vendorFolder = m[3].toLowerCase(); // Nama folder vendor
-        const folderCategory = m[4] ? m[4].toLowerCase() : ''; // Menangkap apa pun: widgets, pages, layouts, components, dll
-        const fileName = m[5].toLowerCase();    // Nama file asli
-        const categoryPath = folderCategory ? `${folderCategory}/` : '';
+        const fileName = m[4].toLowerCase();    // Nama file asli
 
         const isMainFile = fileName === vendorFolder ||
             fileName === 'index' ||
-            fileName === 'style' ||
-            fileName === 'theme'
+            fileName === 'style'
 
         if (isMainFile) {
-            return `vendors/${vendorFolder}/${folderCategory}`.replace(/\/$/, '');
+            return `vendors/${vendorFolder}`.replace(/\/$/, '');
         }
 
-        return `vendors/${vendorFolder}/${categoryPath}${fileName}`;
+        return `vendors/${vendorFolder}/${fileName}`;
     }
 );
 
@@ -91,7 +91,7 @@ const entryPoint = {
     ...getThemes,
     ...getEntries,
     ...getVendors,
-    'style': path.resolve(__dirname, 'Libs', 'UI', 'Assets', 'Styles', 'styles.css'),
+    'style': path.resolve(__dirname, 'Libs', 'UI', 'Assets', 'Styles', 'style.css'),
 }
 
 const webAppPath = path.join(__dirname, 'Apps', 'Portal');
@@ -190,11 +190,21 @@ export default defineConfig({
                         {
                             name: 'libs/react',
                             test: /node_modules[\\/]react/,
+                            priority: 22,
+                        },
+                        {
+                            name: 'libs/react-dom',
+                            test: /node_modules[\\/]react-dom/,
+                            priority: 21,
+                        },
+                        {
+                            name: 'libs/popperjs',
+                            test: /node_modules[\\/]@popperjs\/core/,
                             priority: 20,
                         },
                         {
                             name: 'libs/keenthemes',
-                            test: /node_modules[\\/]@keenthemes/,
+                            test: /node_modules[\\/]@keenthemes\/ktui/,
                             priority: 19,
                         },
                         {
@@ -204,7 +214,12 @@ export default defineConfig({
                         },
                         {
                             name: 'libs/simonwep',
-                            test: /node_modules[\\/]@simonwep/,
+                            test: /node_modules[\\/]@simonwep\/pickr/,
+                            priority: 18,
+                        },
+                        {
+                            name: 'libs/sortablejs',
+                            test: /node_modules[\\/]sortablejs/,
                             priority: 18,
                         },
                         {
