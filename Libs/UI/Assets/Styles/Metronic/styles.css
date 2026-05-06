@@ -1,5 +1,4 @@
-/* Tailwind core – base path so scan/watch covers whole src */
-@import 'tailwindcss';
+@import "tailwindcss";
 
 /* Tailwind scan sources */
 @source '@keenthemes/ktui/dist/ktui.min.js';
@@ -7,13 +6,13 @@
 @source '@keenthemes/ktui/src/components/toast/';
 
 /* Theme configs */
-@import "./_config.ktui";
+@import "./config.ktui.css";
 
 /* KTUI styles */
 @import '@keenthemes/ktui/styles.css';
 
 /* Metronic components  */
-@import "./components/_index";
+@import "./components/index.css";
 
 /* Demos */
-@import "./layouts/_layout1.css";
+@import "./layouts/layout1.css";

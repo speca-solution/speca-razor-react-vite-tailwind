@@ -27,16 +27,19 @@ function getEntryPoints(pattern: any, regex: any, keyBuilder: any) {
 
 const getThemes = getEntryPoints(
     '{Apps,Libs}/**/Assets/Themes/**/*.{jsx,tsx,vue,js,ts,css,scss}',
-    /(Apps|Libs)\/([^/]+)\/Assets\/Themes\/.*?([^/]+)\/(?:app\/)?(?:(.*)\/)?([^/.]+)\.(?:jsx|tsx|vue|js|ts|css|scss)$/i,
+    /(Apps|Libs)\/([^/]+)\/Assets\/Themes\/(?:([^/]+)\/)?(?:app\/)?(?:(.*)\/)?([^/.]+)\.(?:jsx|tsx|vue|js|ts|css|scss)$/i,
     (m) => {
         if (!m) return null;
 
         //const category = m[1].toLowerCase();
         //const project = m[2].toLowerCase().replace(/\./g, '-');
-        const themeFolder = m[3].toLowerCase();
+        const themeFolder = m[3] ? m[3].toLowerCase() : '';
         const folderCategory = m[4] ? m[4].toLowerCase() : ''; // Menangkap apa pun: widgets, pages, layouts, components, dll
         const fileName = m[5].toLowerCase();    // Nama file asli
+        let entryPath = themeFolder ? `${themeFolder}/` : '';
         const categoryPath = folderCategory ? `${folderCategory}/` : '';
+
+        entryPath = `${entryPath}${categoryPath}`;
 
         const isMainFile = fileName === themeFolder ||
             fileName === 'index' ||
@@ -53,14 +56,31 @@ const getThemes = getEntryPoints(
 
 const getEntries = getEntryPoints(
     '{Apps,Libs}/**/Assets/Entries/**/*.{jsx,tsx,vue,js,ts}',
-    /(Apps|Libs)\/([^/]+)\/Assets\/Entries\/(?:(.*)\/)?([^/.]+)\.(?:jsx|tsx|vue|js|ts)$/i,
+    /(Apps|Libs)\/([^/]+)\/Assets\/Entries\/(?:([^/]+)\/)?(?:app\/)?(?:(.*)\/)?([^/.]+)\.(?:jsx|tsx|vue|js|ts)$/i,
     (m) => {
         if (!m) return null;
+
         const category = m[1].toLowerCase(); // Apps atau Libs
         const project = m[2].toLowerCase().replace(/\./g, '-'); // Contoh: portal
-        const subPath = m[3] ? m[3].toLowerCase() : ''; // Sub-folder di dalam Entries
-        const fileName = m[4].toLowerCase(); // Nama file
-        return `${category}/${project}/${subPath}${fileName}`;
+        const entryFolder = m[3] ? m[3].toLowerCase() : ''; // entry-folder di dalam Entries
+        const subAppFolder = m[4] ? m[4].toLowerCase() : ''; // Menangkap apa didalam app folder
+        const fileName = m[5].toLowerCase();    // Nama file asli
+
+        let entryPath = entryFolder ? `${entryFolder}/` : '';
+        const subAppPath = subAppFolder ? `${subAppFolder}/` : '';
+
+        entryPath = `${entryPath}${subAppPath}`;
+
+        const isMainFile =
+            fileName === entryFolder ||
+            fileName === 'index' ||
+            fileName === 'main' ||
+            fileName === 'core'
+
+        if (isMainFile) return `${category}/${project}/${entryPath}`.replace(/\/$/, '');
+        if (entryPath == '') return `${category}/${project}/${fileName}`;
+        return `${category}/${project}/${entryPath}/${fileName}`;
+
     }
 );
 
@@ -69,6 +89,7 @@ const getVendors = getEntryPoints(
     /(Apps|Libs)\/([^/]+)\/Assets\/Vendors\/(?:(.*)\/)?([^/.]+)\.(?:jsx|tsx|vue|js|ts|css|scss)$/i,
     (m) => {
         if (!m) return null;
+
 
         //const category = m[1].toLowerCase(); // Apps atau Libs
         //const project = m[2].toLowerCase().replace(/\./g, '-'); // Contoh: portal atau ui
@@ -91,7 +112,7 @@ const entryPoint = {
     ...getThemes,
     ...getEntries,
     ...getVendors,
-    'style': path.resolve(__dirname, 'Libs', 'UI', 'Assets', 'Styles', 'style.css'),
+    'style': path.resolve(__dirname, 'Libs', 'UI', 'Assets', 'Styles', 'Metronic', 'styles.css'),
 }
 
 const webAppPath = path.join(__dirname, 'Apps', 'Portal');
