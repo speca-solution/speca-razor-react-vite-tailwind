@@ -6,33 +6,34 @@ import path from 'path';
 import child_process from 'child_process';
 import fs from 'fs';
 
-function normalize(p) {
+function normalize(p: string) {
     return p.replace(/\\/g, '/');
 }
 
-function getEntryPoints(pattern: any, regex: any, keyBuilder: any) {
+type KeyBuilder = (m: RegExpMatchArray | null) => string | null;
+
+function getEntryPoints(pattern: string, regex: RegExp, keyBuilder: KeyBuilder) {
     const files = glob.sync(pattern, { ignore: ['**/node_modules/**'] });
     const entries = files.map((filePath) => {
         const normalizedPath = normalize(filePath);
         const fileName = path.basename(normalizedPath);
         if (fileName.startsWith('_')) return null;
         const match = normalizedPath.match(regex);
-        if (!match && keyBuilder) return null;
-        const key = keyBuilder ? keyBuilder(match) : normalizedPath;
-        return [key, path.resolve(__dirname, filePath)];
-    }).filter(entry => entry !== null);
+        if (!match) return null;
+        const key = keyBuilder(match);
+        if (!key) return null;
+        return [key, path.resolve(__dirname, filePath)] as [string, string];
+    }).filter((entry): entry is [string, string] => entry !== null);
 
     return Object.fromEntries(entries);
 }
 
 const getThemes = getEntryPoints(
-    '{Apps,Libs}/**/Assets/Themes/**/*.{jsx,tsx,vue,js,ts,css,scss}',
-    /(Apps|Libs)\/([^/]+)\/Assets\/Themes\/(?:([^/]+)\/)?(?:app\/)?(?:(.*)\/)?([^/.]+)\.(?:jsx|tsx|vue|js|ts|css|scss)$/i,
+    '{Apps,Libs}/**/Assets/Themes/**/*.{jsx,tsx,js,ts,css,scss}',
+    /(Apps|Libs)\/([^/]+)\/Assets\/Themes\/(?:([^/]+)\/)?(?:app\/)?(?:(.*)\/)?([^/.]+)\.(?:jsx|tsx|js|ts|css|scss)$/i,
     (m) => {
         if (!m) return null;
 
-        //const category = m[1].toLowerCase();
-        //const project = m[2].toLowerCase().replace(/\./g, '-');
         const themeFolder = m[3] ? m[3].toLowerCase() : '';
         const folderCategory = m[4] ? m[4].toLowerCase() : ''; // Menangkap apa pun: widgets, pages, layouts, components, dll
         const fileName = m[5].toLowerCase();    // Nama file asli
@@ -55,8 +56,8 @@ const getThemes = getEntryPoints(
 );
 
 const getEntries = getEntryPoints(
-    '{Apps,Libs}/**/Assets/Entries/**/*.{jsx,tsx,vue,js,ts}',
-    /(Apps|Libs)\/([^/]+)\/Assets\/Entries\/(?:([^/]+)\/)?(?:app\/)?(?:(.*)\/)?([^/.]+)\.(?:jsx|tsx|vue|js|ts)$/i,
+    '{Apps,Libs}/**/Assets/Entries/**/*.{jsx,tsx,js,ts}',
+    /(Apps|Libs)\/([^/]+)\/Assets\/Entries\/(?:([^/]+)\/)?(?:app\/)?(?:(.*)\/)?([^/.]+)\.(?:jsx|tsx|js|ts)$/i,
     (m) => {
         if (!m) return null;
 
@@ -85,14 +86,11 @@ const getEntries = getEntryPoints(
 );
 
 const getVendors = getEntryPoints(
-    '{Apps,Libs}/**/Assets/Vendors/**/*.{jsx,tsx,vue,js,ts,css,scss}',
-    /(Apps|Libs)\/([^/]+)\/Assets\/Vendors\/(?:(.*)\/)?([^/.]+)\.(?:jsx|tsx|vue|js|ts|css|scss)$/i,
+    '{Apps,Libs}/**/Assets/Vendors/**/*.{jsx,tsx,js,ts,css,scss}',
+    /(Apps|Libs)\/([^/]+)\/Assets\/Vendors\/(?:(.*)\/)?([^/.]+)\.(?:jsx|tsx|js|ts|css|scss)$/i,
     (m) => {
         if (!m) return null;
 
-
-        //const category = m[1].toLowerCase(); // Apps atau Libs
-        //const project = m[2].toLowerCase().replace(/\./g, '-'); // Contoh: portal atau ui
         const vendorFolder = m[3].toLowerCase(); // Nama folder vendor
         const fileName = m[4].toLowerCase();    // Nama file asli
 
@@ -112,55 +110,69 @@ const entryPoint = {
     ...getThemes,
     ...getEntries,
     ...getVendors,
-    'style': path.resolve(__dirname, 'Libs', 'UI', 'Assets', 'Styles', 'Metronic', 'styles.css'),
 }
 
-const webAppPath = path.join(__dirname, 'Apps', 'Portal');
+// ---------------------------------------------------------------------------
+// Multi-app: target app dipilih lewat env SPECA_APP (default: Portal).
+// `pnpm build` (scripts/build-apps.mjs) membangun semua app di Apps/*.
+// ---------------------------------------------------------------------------
+const appName = process.env.SPECA_APP || 'Portal';
+const webAppPath = path.join(__dirname, 'Apps', appName);
+
+if (!fs.existsSync(webAppPath)) {
+    console.error(`Error: folder app '${appName}' tidak ditemukan di Apps/.`);
+    console.error(`Set env SPECA_APP ke salah satu: ${fs.readdirSync(path.join(__dirname, 'Apps')).join(', ')}`);
+    process.exit(1);
+}
+
+const appsettingsPath = path.join(webAppPath, 'appsettings.json');
 let appsettings;
 try {
-    appsettings = require(path.join(webAppPath,"./appsettings.json"));
+    appsettings = JSON.parse(fs.readFileSync(appsettingsPath, 'utf-8'));
 } catch (error) {
-    console.error("Error: appsettings.json tidak ditemukan atau tidak valid.");
+    console.error(`Error: ${appsettingsPath} tidak ditemukan atau tidak valid.`);
     console.error("Pastikan file ada dan terformat dengan benar.");
     process.exit(1);
 }
 
 const config = appsettings.Application;
-const certPath = path.join(__dirname, 'certs');
-const certificateName = config.name;
-const certFilePath = path.join(certPath, `${certificateName}.pem`);
-const keyFilePath = path.join(certPath, `${certificateName}.key`);
 
-if (!fs.existsSync(certPath)) {
-    fs.mkdirSync(certPath, { recursive: true });
-}
+// Sertifikat dev HTTPS hanya dibutuhkan oleh dev server (command 'serve').
+// Saat 'build' (termasuk CI tanpa dev-certs) blok ini dilewati.
+function loadDevCerts() {
+    const certPath = path.join(__dirname, 'certs');
+    const certificateName = config.name;
+    const certFilePath = path.join(certPath, `${certificateName}.pem`);
+    const keyFilePath = path.join(certPath, `${certificateName}.key`);
 
-if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
-    if (0 !== child_process.spawnSync('dotnet', [
-        'dev-certs',
-        'https',
-        '--export-path',
-        certFilePath,
-        '--format',
-        'Pem',
-        '--no-password',
-    ], { stdio: 'inherit', }).status) {
-        throw new Error("Could not create certificate.");
+    if (!fs.existsSync(certPath)) {
+        fs.mkdirSync(certPath, { recursive: true });
     }
+
+    if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
+        if (0 !== child_process.spawnSync('dotnet', [
+            'dev-certs',
+            'https',
+            '--export-path',
+            certFilePath,
+            '--format',
+            'Pem',
+            '--no-password',
+        ], { stdio: 'inherit', }).status) {
+            throw new Error("Could not create certificate.");
+        }
+    }
+
+    return {
+        key: fs.readFileSync(keyFilePath),
+        cert: fs.readFileSync(certFilePath),
+    };
 }
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
     plugins: [react(), tailwindcss()],
-    content: {
-        files: [
-            "./Apps/**/*.cshtml",
-            "./Apps/**/*.tsx",
-            "./Libs/**/*.cshtml",
-            "./Libs/**/*.tsx",
-        ]
-    },
     base: '/dist/',
-    server: {
+    server: command !== 'serve' ? undefined : {
         strictPort: true,
         host: "localhost",
         cors: true,
@@ -168,42 +180,49 @@ export default defineConfig({
             protocol: 'wss',
             port: config.vite.server.port,
         },
-        https: {
-            key: fs.readFileSync(keyFilePath),
-            cert: fs.readFileSync(certFilePath),
-        }
+        https: loadDevCerts(),
     },
     define: {
         'process.env': {}
     },
+    css: {
+        preprocessorOptions: {
+            scss: {
+                // Theme bootstrap: bare import "bootstrap/scss/..." dari node_modules
+                loadPaths: ['node_modules'],
+                // Bootstrap 5.x masih pakai sintaks @import legacy — bukan kode kita, jangan banjiri log
+                quietDeps: true,
+                silenceDeprecations: ['import', 'global-builtin', 'color-functions', 'if-function'],
+            },
+        },
+    },
     resolve: {
         alias: {
-            '@app': path.resolve(__dirname, './Apps/Portal/Assets'),
+            '@app': path.resolve(webAppPath, 'Assets'),
             '@ui': path.resolve(__dirname, './Libs/UI/Assets')
         }
     },
     build: {
         outDir: path.join(webAppPath, "wwwroot", "dist"),
         emptyOutDir: true,
-        manifest: false,
+        // manifest.json = satu-satunya sumber kebenaran nama file produksi;
+        // tag helper <vite-entry src="..."> me-resolve lewat file ini.
+        // Ditulis ke dist/manifest.json (bukan default .vite/) karena Web SDK
+        // meng-exclude dot-folder dari publish.
+        manifest: 'manifest.json',
         rolldownOptions: {
             input: entryPoint,
-            external: ['jquery'],
             output: {
-                globals: {
-                    jquery: '$',
-                },
-                cleanDir: true,
-                // format: 'umd',
-                entryFileNames: 'js/[name]-dist.js',
+                // Hash di nama file = cache busting; tidak perlu query ?v= lagi.
+                entryFileNames: 'js/[name]-[hash].js',
                 chunkFileNames: 'js/[name]-[hash].js',
-                assetFileNames: (asset: any) => {
+                assetFileNames: (asset) => {
                     const name = asset.name;
-                    if (!name) return 'assets/[name]-dist[extname]';
-                    else if (/\.(gif|jpe?g|png|svg)$/.test(name)) return 'assets/images/[name]-dist[extname]';
-                    else if (/\.(ttf|woff)$/.test(name)) return 'assets/fonts/[name]-dist[extname]';
-                    else if (/\.css$/.test(name)) return 'css/[name]-dist[extname]';
-                    return 'assets/[name]-dist[extname]';
+                    if (!name) return 'assets/[name]-[hash][extname]';
+                    else if (/\.(gif|jpe?g|png|svg)$/.test(name)) return 'assets/images/[name]-[hash][extname]';
+                    else if (/\.(ttf|woff2?)$/.test(name)) return 'assets/fonts/[name]-[hash][extname]';
+                    else if (/\.css$/.test(name)) return 'css/[name]-[hash][extname]';
+                    return 'assets/[name]-[hash][extname]';
                 },
                 codeSplitting: {
                     minSize: 20000,
@@ -224,24 +243,9 @@ export default defineConfig({
                             priority: 20,
                         },
                         {
-                            name: 'libs/keenthemes',
-                            test: /node_modules[\\/]@keenthemes\/ktui/,
+                            name: 'libs/bootstrap',
+                            test: /node_modules[\\/]bootstrap/,
                             priority: 19,
-                        },
-                        {
-                            name: 'libs/vanilla-calendar-pro',
-                            test: /node_modules[\\/]vanilla-calendar-pro/,
-                            priority: 18,
-                        },
-                        {
-                            name: 'libs/simonwep',
-                            test: /node_modules[\\/]@simonwep\/pickr/,
-                            priority: 18,
-                        },
-                        {
-                            name: 'libs/sortablejs',
-                            test: /node_modules[\\/]sortablejs/,
-                            priority: 18,
                         },
                         {
                             name: 'libs/vendor',
@@ -253,4 +257,4 @@ export default defineConfig({
             }
         }
     }
-} as any);
+}));

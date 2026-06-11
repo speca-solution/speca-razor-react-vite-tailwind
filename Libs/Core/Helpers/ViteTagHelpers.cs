@@ -1,114 +1,123 @@
-﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 namespace Speca.Core.Helpers
 {
-    public static class ViteTagHelpersExtentions
+    /// <summary>
+    /// Loader manifest Vite (wwwroot/dist/.vite/manifest.json).
+    /// Manifest adalah satu-satunya sumber kebenaran nama file produksi —
+    /// entry yang tidak ditemukan langsung melempar exception (fail fast),
+    /// bukan 404 diam-diam di browser.
+    /// </summary>
+    internal static class ViteManifest
     {
-        public static string GetVersionedUrl(this ViteEntryTagHelper entry, IWebHostEnvironment env, string path)
+        private sealed record Entry(string File, IReadOnlyList<string> Css);
+
+        private static Dictionary<string, Entry>? _entries;
+        private static readonly object SyncLock = new();
+
+        /// <summary>Kosongkan cache manifest — dipakai unit test.</summary>
+        internal static void Reset()
         {
-            if (env.IsDevelopment())
+            lock (SyncLock)
             {
-                return GetContentRootPathVersionedUrl(path, env);
-            }
-            else
-            {
-                return GetWebRootPathVersionedUrl(path, env);
+                _entries = null;
             }
         }
 
-        public static string GetVersionedUrl(this ViteAssetTagHelper asset, IWebHostEnvironment env, string path)
+        public static (string File, IReadOnlyList<string> Css) Resolve(IWebHostEnvironment env, string src)
         {
-            if(env.IsDevelopment())
+            if (_entries is null)
             {
-                return GetContentRootPathVersionedUrl(path, env);   
-            }
-            else
-            {
-                return GetWebRootPathVersionedUrl(path, env);
-            }
-        }
-
-        private static string GetWebRootPathVersionedUrl(string path, IWebHostEnvironment env)
-        {
-            if (env?.WebRootPath == null) return path;
-            try
-            {
-                var filePath = Path.Combine(env.WebRootPath, path.TrimStart('/'));
-                if (File.Exists(filePath))
+                lock (SyncLock)
                 {
-                    using (var md5 = MD5.Create())
-                    using (var stream = File.OpenRead(filePath))
-                    {
-                        var hash = md5.ComputeHash(stream);
-                        var hashString = Convert.ToHexString(hash).Substring(0, 8).ToLower();
-                        return $"{path}?v={hashString}";
-                    }
+                    _entries ??= Load(env);
                 }
             }
-            catch { }
-            return path;
+
+            if (!_entries.TryGetValue(src, out var entry))
+            {
+                throw new InvalidOperationException(
+                    $"Entry '{src}' tidak ada di manifest Vite. " +
+                    "Pastikan path persis sama dengan path sumber relatif solution (forward slash), " +
+                    "file terdaftar sebagai entry di vite.config.ts, dan 'pnpm build' sudah dijalankan.");
+            }
+
+            return (entry.File, entry.Css);
         }
 
-        private static string GetContentRootPathVersionedUrl(string path, IWebHostEnvironment env)
+        private static Dictionary<string, Entry> Load(IWebHostEnvironment env)
         {
-            if (env?.ContentRootPath == null) return path;
-            try
+            var manifestPath = Path.Combine(env.WebRootPath ?? "", "dist", "manifest.json");
+            if (!File.Exists(manifestPath))
             {
-                var parent = Directory.GetParent(env.ContentRootPath);
-                var solutionPath = parent?.Parent?.FullName;
-                if (string.IsNullOrEmpty(solutionPath)) return path;
-                var filePath = Path.Combine(solutionPath, path.TrimStart('/'));
+                throw new FileNotFoundException(
+                    $"Manifest Vite tidak ditemukan di '{manifestPath}'. Jalankan 'pnpm build' (atau publish Release).",
+                    manifestPath);
+            }
 
-                if (File.Exists(filePath))
+            using var stream = File.OpenRead(manifestPath);
+            using var doc = JsonDocument.Parse(stream);
+
+            var entries = new Dictionary<string, Entry>(StringComparer.OrdinalIgnoreCase);
+            foreach (var prop in doc.RootElement.EnumerateObject())
+            {
+                var file = prop.Value.TryGetProperty("file", out var f) ? f.GetString() : null;
+                if (string.IsNullOrEmpty(file)) continue;
+
+                var css = new List<string>();
+                if (prop.Value.TryGetProperty("css", out var cssArray) && cssArray.ValueKind == JsonValueKind.Array)
                 {
-                    using (var md5 = MD5.Create())
-                    using (var stream = File.OpenRead(filePath))
+                    foreach (var item in cssArray.EnumerateArray())
                     {
-                        var hash = md5.ComputeHash(stream);
-                        var hashString = Convert.ToHexString(hash)[..8].ToLower();
-                        return $"dist/{path}?v={hashString}";
+                        var value = item.GetString();
+                        if (!string.IsNullOrEmpty(value)) css.Add(value);
                     }
                 }
+
+                entries[prop.Name] = new Entry(file, css);
             }
-            catch { }
-            return path;
+
+            return entries;
         }
     }
 
-
-    [HtmlTargetElement("vite-entry")]
-    public class ViteEntryTagHelper(IWebHostEnvironment env) : TagHelper
+    /// <summary>
+    /// Tag helper aset Vite. Satu atribut untuk dev dan produksi:
+    ///   &lt;vite-entry src="Apps/Portal/Assets/Entries/main.tsx" /&gt;
+    /// Development : URL /dist/{src} di-proxy ke Vite dev server (plus preamble HMR React, sekali per halaman).
+    /// Production  : nama file (ber-hash) di-resolve dari manifest; CSS milik entry ikut dirender sebagai &lt;link&gt;.
+    /// </summary>
+    [HtmlTargetElement("vite-entry", Attributes = "src")]
+    [HtmlTargetElement("vite-asset", Attributes = "src")]
+    public class ViteTagHelper(IWebHostEnvironment env) : TagHelper
     {
-        private bool IsDevelopment => env.IsDevelopment();
+        private static readonly string[] StyleExtensions = [".css", ".scss", ".sass"];
 
-
-        [HtmlAttributeName("srcdev")]
-        public string Srcdev { get; set; } = "";
-
-
-        [HtmlAttributeName("srcpro")]
-        public string Srcpro { get; set; } = "";
-
-        [HtmlAttributeName("asp-append-version")]
-        public bool AppendVersion { get; set; } = false;
+        [HtmlAttributeName("src")]
+        public string Src { get; set; } = "";
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            if (IsDevelopment && string.IsNullOrEmpty(Srcdev)) return;
-            if (!IsDevelopment && string.IsNullOrEmpty(Srcpro)) return;
-
             output.TagName = null;
+
+            if (string.IsNullOrWhiteSpace(Src))
+            {
+                output.SuppressOutput();
+                return;
+            }
+
+            var src = Src.Replace('\\', '/').TrimStart('/');
             var sb = new StringBuilder();
 
-            if (IsDevelopment)
+            if (env.IsDevelopment())
             {
-                if (!context.Items.ContainsKey("ViteScriptsInjected"))
+                var isStyle = StyleExtensions.Any(ext => src.EndsWith(ext, StringComparison.OrdinalIgnoreCase));
+
+                if (!isStyle && !context.Items.ContainsKey("ViteScriptsInjected"))
                 {
                     sb.AppendLine("<script type=\"module\">");
                     sb.AppendLine("  import RefreshRuntime from '/dist/@react-refresh'");
@@ -120,71 +129,36 @@ namespace Speca.Core.Helpers
                     sb.AppendLine("<script type=\"module\" src=\"/dist/@vite/client\"></script>");
                     context.Items["ViteScriptsInjected"] = true;
                 }
-                var src = AppendVersion ? this.GetVersionedUrl(env, $"{Srcdev}") : $"/dist/{Srcdev}";
-                sb.AppendLine($"<script type=\"module\" src=\"{src}\"></script>");
-            }
-            else
-            {
-                var src = AppendVersion ? this.GetVersionedUrl(env, $"/dist/{Srcpro}") : $"/dist/{Srcpro}";
-                sb.AppendLine($"<script type=\"module\" src=\"{src}\" ></script>");
-            }
-            output.Content.SetHtmlContent(sb.ToString());
-        }
-    }
 
-
-    [HtmlTargetElement("vite-asset")]
-    public class ViteAssetTagHelper(IWebHostEnvironment env) : TagHelper
-    {
-        private bool IsDevelopment => env.IsDevelopment();
-
-        [HtmlAttributeName("srcdev")]
-        public string Srcdev { get; set; } = "";
-
-
-        [HtmlAttributeName("srcpro")]
-        public string Srcpro { get; set; } = "";
-
-        [HtmlAttributeName("asp-append-version")]
-        public bool AppendVersion { get; set; } = false;
-
-        public override void Process(TagHelperContext context, TagHelperOutput output)
-        {
-            if (IsDevelopment && string.IsNullOrEmpty(Srcdev)) return;
-            if (!IsDevelopment && string.IsNullOrEmpty(Srcpro)) return;
-
-            output.TagName = null;
-            var sb = new StringBuilder();
-
-            if (IsDevelopment)
-            {
-                if (Srcdev.EndsWith(".css"))
+                if (isStyle)
                 {
-                    var href = AppendVersion ? this.GetVersionedUrl(env, $"{Srcdev}") : $"/dist/{Srcdev}";
-                    sb.AppendLine($"<link rel=\"stylesheet\" href=\"{href}\" />");
+                    sb.AppendLine($"<link rel=\"stylesheet\" href=\"/dist/{src}\" />");
                 }
                 else
                 {
-                    var src = AppendVersion ? this.GetVersionedUrl(env, $"{Srcdev}") : $"/dist/{Srcdev}";
-                    sb.AppendLine($"<script type=\"module\" src=\"{src}\"></script>");
+                    sb.AppendLine($"<script type=\"module\" src=\"/dist/{src}\"></script>");
                 }
             }
             else
             {
-                if (Srcpro.EndsWith(".css"))
+                var (file, css) = ViteManifest.Resolve(env, src);
+
+                foreach (var cssFile in css)
                 {
-                    var href = AppendVersion ? this.GetVersionedUrl(env, $"/dist/{Srcpro}") : $"/dist/{Srcpro}";
-                    sb.AppendLine($"<link rel=\"stylesheet\" href=\"{href}\" />");
+                    sb.AppendLine($"<link rel=\"stylesheet\" href=\"/dist/{cssFile}\" />");
+                }
+
+                if (file.EndsWith(".css", StringComparison.OrdinalIgnoreCase))
+                {
+                    sb.AppendLine($"<link rel=\"stylesheet\" href=\"/dist/{file}\" />");
                 }
                 else
                 {
-                    var src = AppendVersion ? this.GetVersionedUrl(env, $"/dist/{Srcpro}") : $"/dist/{Srcpro}";
-                    sb.AppendLine($"<script type=\"module\" src=\"{src}\" ></script>");
+                    sb.AppendLine($"<script type=\"module\" src=\"/dist/{file}\"></script>");
                 }
             }
 
             output.Content.SetHtmlContent(sb.ToString());
         }
-
     }
 }

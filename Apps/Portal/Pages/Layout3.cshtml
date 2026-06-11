@@ -1,0 +1,42 @@
+@page
+@model Speca.Portal.Pages.Layout3Model
+@{
+    Layout = "Tailwind/_Layout3";
+    ViewData["Title"] = "Layout 3 — Vuexy look, Tailwind";
+}
+
+@section Breadcrumb {
+    <div class="flex flex-wrap items-center justify-between gap-5 pb-7.5">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-mono text-xl leading-none font-medium">Layout 3</h1>
+            <div class="text-secondary-foreground text-sm">Design ala Vuexy, stack Tailwind 4 (skin .theme-vuexy)</div>
+        </div>
+        <a class="btn-outline" href="/">Ke Layout 1</a>
+    </div>
+}
+
+@await Html.PartialAsync("Tailwind/_DemoWidgets")
+
+<div class="mt-5 mb-10 grid gap-5 lg:grid-cols-2">
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Icon dua set</h3></div>
+        <div class="card-body">
+            <div class="text-secondary-foreground mb-2 flex gap-4 text-2xl">
+                <i class="ti ti-home"></i>
+                <i class="ti ti-rocket"></i>
+                <i class="icon-house"></i>
+                <i class="icon-rocket"></i>
+            </div>
+            <span class="text-muted-foreground text-xs">Tabler (ti ti-*) &amp; Lucide (icon-*)</span>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Tombol</h3></div>
+        <div class="card-body flex gap-3">
+            <button class="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm font-medium shadow-md">
+                Primary ala Vuexy
+            </button>
+            <button class="btn-outline">Outline</button>
+        </div>
+    </div>
+</div>

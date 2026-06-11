@@ -1,0 +1,38 @@
+/*
+ * Layout4 — Bootstrap 5 murni, design language ala Metronic. Entry: themes/bootstrap/layout4
+ * Palet biru/putih, border tipis, flat — terinspirasi Metronic (nilai dipilih sendiri).
+ * ISOLASI: jangan dimuat bersama Tailwind di halaman yang sama.
+ */
+$primary: #1b84ff;
+$body-bg: #ffffff;
+$body-color: #4b5675;
+$headings-color: #071437;
+$border-radius: 0.425rem;
+$border-radius-sm: 0.35rem;
+$border-radius-lg: 0.625rem;
+$font-family-sans-serif: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+$border-color: #f1f1f4;
+$card-border-color: #f1f1f4;
+$card-cap-bg: transparent;
+
+@import 'bootstrap/scss/bootstrap';
+@import './scss/shell';
+
+// ---- Skin Metronic: flat, bordered ----
+.speca-sidebar {
+  // !important: offcanvas-lg Bootstrap memaksa transparent !important di >= lg
+  background-color: var(--bs-tertiary-bg) !important;
+  border-right: var(--bs-border-width) solid var(--bs-border-color);
+
+  // Item aktif lembut: bg abu + teks primary — khas Metronic
+  .nav-link.active {
+    color: var(--bs-primary);
+    background-color: var(--bs-secondary-bg);
+    font-weight: 600;
+  }
+}
+
+.speca-navbar {
+  background-color: var(--bs-body-bg);
+  border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+}

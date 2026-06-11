@@ -264,3 +264,6 @@ __pycache__/
 
 /apps/portal/wwwroot/dist
 /publish
+
+# Dev certificates (auto-generated oleh vite.config.ts via dotnet dev-certs)
+certs/

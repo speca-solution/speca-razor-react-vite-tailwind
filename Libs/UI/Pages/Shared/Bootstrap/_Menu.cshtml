@@ -1,0 +1,78 @@
+@using Speca.UI.Navigation
+@inject Microsoft.Extensions.Options.IOptions<SpecaMenuOptions> MenuOptions
+@{
+    var menuItems = MenuOptions.Value.Items;
+    var currentPath = (ViewContext.HttpContext.Request.Path.Value ?? "/").TrimEnd('/');
+    if (currentPath.Length == 0) { currentPath = "/"; }
+
+    bool IsActive(MenuItem item)
+    {
+        if (item.Url is null) { return false; }
+        var url = item.Url.TrimEnd('/');
+        if (url.Length == 0) { url = "/"; }
+        return string.Equals(url, currentPath, StringComparison.OrdinalIgnoreCase);
+    }
+
+    bool HasActiveDescendant(MenuItem item) =>
+        item.Children.Any(c => IsActive(c) || HasActiveDescendant(c));
+
+    var collapseIndex = 0;
+}
+
+@* Sidebar: offcanvas di < lg, fixed di >= lg (offcanvas-lg) *@
+<aside class="speca-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="specaSidebar"
+       aria-labelledby="specaSidebarLabel">
+    <div class="offcanvas-header border-bottom">
+        <a class="navbar-brand fw-bold" href="/" id="specaSidebarLabel"><span class="sidebar-brand-text">Speca</span><span class="sidebar-brand-mini d-none">S</span></a>
+        <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas"
+                data-bs-target="#specaSidebar" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body speca-scroll flex-column p-3">
+        <ul class="nav nav-pills flex-column gap-1 w-100">
+            @foreach (var item in menuItems)
+            {
+                @if (item.IsHeading)
+                {
+                    <li class="speca-menu-heading text-uppercase fw-semibold px-3 mt-3 mb-1">
+                        @item.Title
+                    </li>
+                }
+                else if (item.Children.Count == 0)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center gap-2 @(IsActive(item) ? "active" : "")"
+                           href="@(item.Url ?? "#")">
+                            <i class="@(item.BootstrapIcon ?? "bi bi-circle")"></i>
+                            <span class="menu-label">@item.Title</span>
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    var collapseId = $"specaMenu{collapseIndex++}";
+                    var open = HasActiveDescendant(item);
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center gap-2 @(open ? "" : "collapsed")"
+                           data-bs-toggle="collapse" href="#@collapseId"
+                           role="button" aria-expanded="@(open ? "true" : "false")" aria-controls="@collapseId">
+                            <i class="@(item.BootstrapIcon ?? "bi bi-circle")"></i>
+                            <span class="menu-label">@item.Title</span>
+                            <i class="menu-chevron bi bi-chevron-down ms-auto small"></i>
+                        </a>
+                        <ul class="menu-sub nav flex-column ms-4 mt-1 collapse @(open ? "show" : "")" id="@collapseId">
+                            @foreach (var child in item.Children)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link py-1 @(IsActive(child) ? "active" : "")"
+                                       href="@(child.Url ?? "#")">
+                                        @child.Title
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+</aside>

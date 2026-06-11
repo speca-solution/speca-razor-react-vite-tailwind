@@ -1,0 +1,52 @@
+@page
+@model Speca.Portal.Pages.Layout4Model
+@{
+    Layout = "Bootstrap/_Layout4";
+    ViewData["Title"] = "Layout 4 — Metronic look, Bootstrap";
+}
+
+<div class="row g-4 mb-2">
+    <div class="col-12">
+        <h4 class="mb-1">Layout 4 — design ala Metronic, stack Bootstrap 5</h4>
+        <p class="text-body-secondary mb-0">Flat & bordered, primary biru, font Inter.</p>
+    </div>
+</div>
+
+@await Html.PartialAsync("Bootstrap/_DemoWidgets")
+
+<div class="row g-4 mt-1">
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Card bordered</h5>
+                <p class="card-text">Bootstrap murni + variabel SCSS rasa Metronic.</p>
+                <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" title="Tooltip aktif">
+                    Tombol Primary
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Alert</h5>
+                <div class="alert alert-primary mb-0" role="alert">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Satu shell layout, dua skin SCSS.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Badge</h5>
+                <span class="badge text-bg-primary">Primary</span>
+                <span class="badge text-bg-light border">Light</span>
+            </div>
+        </div>
+    </div>
+</div>

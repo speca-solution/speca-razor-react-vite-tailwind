@@ -1,36 +1,42 @@
-﻿// Apps/Portal/Assets/Components/App.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-const App = () => {
-    const [count, setCount] = useState(0);
+// Bentuk data harus selaras dengan IndexModel.DashboardData (camelCase via JsonSerializerDefaults.Web)
+export interface DashboardData {
+    userName: string;
+    projects: number;
+    openTasks: number;
+}
+
+const App = ({ initialData }: { initialData: DashboardData | null }) => {
+    const [count, setCount] = useState(initialData?.openTasks ?? 0);
 
     return (
-        <div className="card border-gray-200 shadow-sm">
-            <div className="card-header border-0 pt-5">
-                <h3 className="card-title flex-col items-start">
-                    <span className="card-label text-xl font-bold text-gray-900">Dashboard Speca</span><br/>
-                    <span className="mt-1 text-sm font-semibold text-gray-500">Metronic + Tailwind 4 Mode</span>
-                </h3>
+        <div className="bg-background border-border rounded-lg border p-8">
+            <h2 className="text-mono mb-1 text-lg font-semibold">
+                Halo, {initialData?.userName ?? 'Tamu'} 👋
+            </h2>
+            <p className="text-secondary-foreground mb-6 text-sm">
+                Data awal dari Razor PageModel — {initialData?.projects ?? 0} project aktif.
+            </p>
+
+            <div className="bg-accent mb-5 rounded-xl p-8 text-center">
+                <div className="text-primary mb-1 text-4xl font-extrabold">{count}</div>
+                <div className="text-secondary-foreground text-sm">Open tasks (interaktif, state React)</div>
             </div>
-            <div className="card-body">
-                <div className="mb-5 rounded-xl bg-gray-100 p-8 text-center dark:bg-neutral-800">
-                    <h1 className="text-primary mb-2 text-4xl font-extrabold">{count}</h1>
-                    <p className="text-gray-600">Total Interaksi Klien</p>
-                </div>
-                <div className="flex gap-3">
-                    <button
-                        className="kt-btn btn-primary px-6 py-3 font-bold tracking-wider uppercase"
-                        onClick={() => setCount(count + 1)}
-                    >
-                        Tambah
-                    </button>
-                    <button
-                        className="kt-btn btn-light-danger px-6 py-3 font-bold uppercase"
-                        onClick={() => setCount(0)}
-                    >
-                        Reset
-                    </button>
-                </div>
+
+            <div className="flex gap-3">
+                <button
+                    className="bg-primary text-primary-foreground rounded-md px-5 py-2.5 text-sm font-semibold"
+                    onClick={() => setCount(count + 1)}
+                >
+                    Tambah
+                </button>
+                <button
+                    className="btn-outline"
+                    onClick={() => setCount(initialData?.openTasks ?? 0)}
+                >
+                    Reset
+                </button>
             </div>
         </div>
     );

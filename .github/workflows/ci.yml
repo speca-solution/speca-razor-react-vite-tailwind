@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-test-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install frontend deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: dotnet test Tests/Speca.Core.Tests/Speca.Core.Tests.csproj --nologo
+
+      # Publish Release sekaligus menjalankan vite build (target MSBuild ViteBuildProduction)
+      - name: Publish (Release)
+        run: dotnet publish Apps/Portal/Speca.Portal.csproj -c Release -o out --nologo
+
+      - name: Smoke test (5 halaman + asset + isolasi stack)
+        run: |
+          ASPNETCORE_ENVIRONMENT=Production ASPNETCORE_URLS=http://localhost:5599 \
+            dotnet out/Speca.Portal.dll &
+          APP_PID=$!
+          for i in $(seq 1 30); do
+            curl -sf -o /dev/null http://localhost:5599/ && break
+            sleep 1
+          done
+          node scripts/smoke-test.mjs http://localhost:5599
+          STATUS=$?
+          kill $APP_PID || true
+          exit $STATUS

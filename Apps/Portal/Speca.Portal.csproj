@@ -4,6 +4,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- SolutionDir kosong/*Undefined* saat build langsung ke csproj (CI, dotnet publish) -->
+    <SpecaRootDir Condition="'$(SolutionDir)' != '' and '$(SolutionDir)' != '*Undefined*'">$(SolutionDir)</SpecaRootDir>
+    <SpecaRootDir Condition="'$(SpecaRootDir)' == ''">$(MSBuildProjectDirectory)\..\..\</SpecaRootDir>
+    <!-- Nama app untuk vite build (folder di Apps/) -->
+    <SpecaAppName>Portal</SpecaAppName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,18 +33,20 @@
     <ProjectReference Include="..\..\Libs\UI\Speca.UI.csproj" />
   </ItemGroup>
 
-  <Target Name="CheckAndInstallPnpm" BeforeTargets="Build" Condition="'$(Configuration)' == 'Debug'">
+  <Target Name="CheckAndInstallPnpm" BeforeTargets="Build">
 	<Message Importance="high" Text="[Speca] Memeriksa pnpm dan dependensi..." />
-	<Exec Command="pnpm --version" ContinueOnError="true" IgnoreExitCode="true" WorkingDirectory="$(SolutionDir)">
+	<Exec Command="pnpm --version" ContinueOnError="true" IgnoreExitCode="true" WorkingDirectory="$(SpecaRootDir)">
 		<Output TaskParameter="ExitCode" PropertyName="PnpmExitCode" />
 	</Exec>
 	<Error Condition="'$(PnpmExitCode)' != '0'" Text="pnpm tidak ditemukan. Silakan install pnpm (npm install -g pnpm) untuk melanjutkan." />
-	<Exec Condition="!Exists('$(SolutionDir)node_modules')" Command="pnpm i" WorkingDirectory="$(SolutionDir)" />
+	<Exec Condition="!Exists('$(SpecaRootDir)node_modules')" Command="pnpm i" WorkingDirectory="$(SpecaRootDir)" />
   </Target>
 
-  <Target Name="ViteBuildProduction" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
-	<Message Importance="high" Text="[Speca] Menjalankan pnpm build untuk mode produksi..." />
-	<Exec Command="pnpm build" WorkingDirectory="$(SolutionDir)" />
+  <!-- BeforeTargets=AssignTargetPaths: dist harus final SEBELUM Static Web Assets memindai wwwroot,
+       kalau tidak cache kompresi obj/ menunjuk file hash lama dan publish gagal -->
+  <Target Name="ViteBuildProduction" BeforeTargets="AssignTargetPaths" DependsOnTargets="CheckAndInstallPnpm" Condition="'$(Configuration)' == 'Release'">
+	<Message Importance="high" Text="[Speca] Menjalankan vite build (app: $(SpecaAppName)) untuk mode produksi..." />
+	<Exec Command="pnpm build:app" WorkingDirectory="$(SpecaRootDir)" EnvironmentVariables="SPECA_APP=$(SpecaAppName)" />
   </Target>
 
   <Target Name="ViteClean" BeforeTargets="Clean">

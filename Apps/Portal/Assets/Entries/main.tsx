@@ -1,10 +1,19 @@
 import { createRoot } from 'react-dom/client';
-import App from '@app/Components/App';
+import App, { type DashboardData } from '@app/Components/App';
 
-// Mengambil elemen yang sudah di-render oleh Razor di server
+// Elemen mount di-render Razor; data awal dari model server (Index.cshtml.cs)
+// di-serialize ke attribute data-initial.
 const rootElement = document.getElementById('root');
 
 if (rootElement) {
-    // 'Hydrate' HTML tersebut agar menjadi komponen React aktif
-    createRoot(rootElement).render(<App />);
+    let initialData: DashboardData | null = null;
+    try {
+        initialData = rootElement.dataset.initial
+            ? (JSON.parse(rootElement.dataset.initial) as DashboardData)
+            : null;
+    } catch {
+        console.error('[speca] data-initial bukan JSON valid.');
+    }
+
+    createRoot(rootElement).render(<App initialData={initialData} />);
 }

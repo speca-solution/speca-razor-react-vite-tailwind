@@ -1,0 +1,140 @@
+@* Widget contoh (KPI, tabel, aktivitas) — markup milik sendiri, gaya referensi Metronic/Vuexy.
+   Dipakai Layout1 (Index) dan Layout3; tampilan menyesuaikan skin token otomatis. *@
+
+<!-- KPI -->
+<div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="card">
+        <div class="card-body pt-5">
+            <i class="ti ti-currency-dollar text-primary mb-3 inline-block text-2xl"></i>
+            <div class="text-mono text-2xl font-bold">Rp 52,4 jt</div>
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-secondary-foreground text-sm">Pendapatan bulan ini</span>
+                <span class="badge badge-success"><i class="ti ti-trending-up"></i>+12%</span>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body pt-5">
+            <i class="ti ti-shopping-cart text-primary mb-3 inline-block text-2xl"></i>
+            <div class="text-mono text-2xl font-bold">1.235</div>
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-secondary-foreground text-sm">Order</span>
+                <span class="badge badge-danger"><i class="ti ti-trending-down"></i>-3%</span>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body pt-5">
+            <i class="ti ti-users text-primary mb-3 inline-block text-2xl"></i>
+            <div class="text-mono text-2xl font-bold">89</div>
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-secondary-foreground text-sm">User baru</span>
+                <span class="badge badge-success"><i class="ti ti-trending-up"></i>+8%</span>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body pt-5">
+            <i class="ti ti-percentage text-primary mb-3 inline-block text-2xl"></i>
+            <div class="text-mono text-2xl font-bold">4,6%</div>
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-secondary-foreground text-sm">Konversi</span>
+                <span class="badge badge-warning"><i class="ti ti-minus"></i>0%</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabel + aktivitas -->
+<div class="mt-5 grid gap-5 xl:grid-cols-3">
+    <div class="card xl:col-span-2">
+        <div class="card-header">
+            <h3 class="card-title">Order Terbaru</h3>
+            <a class="text-primary text-sm font-medium hover:underline" href="#">Lihat semua</a>
+        </div>
+        <div class="card-body overflow-x-auto pt-0">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-border text-muted-foreground border-b text-start text-xs uppercase">
+                        <th class="py-2.5 text-start font-medium">Order</th>
+                        <th class="py-2.5 text-start font-medium">Pelanggan</th>
+                        <th class="py-2.5 text-start font-medium">Status</th>
+                        <th class="py-2.5 text-end font-medium">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-border border-b">
+                        <td class="text-mono py-3 font-medium">#10231</td>
+                        <td class="text-secondary-foreground py-3">Budi Santoso</td>
+                        <td class="py-3"><span class="badge badge-success">Lunas</span></td>
+                        <td class="text-mono py-3 text-end">Rp 1.250.000</td>
+                    </tr>
+                    <tr class="border-border border-b">
+                        <td class="text-mono py-3 font-medium">#10230</td>
+                        <td class="text-secondary-foreground py-3">Siti Aminah</td>
+                        <td class="py-3"><span class="badge badge-warning">Menunggu</span></td>
+                        <td class="text-mono py-3 text-end">Rp 480.000</td>
+                    </tr>
+                    <tr class="border-border border-b">
+                        <td class="text-mono py-3 font-medium">#10229</td>
+                        <td class="text-secondary-foreground py-3">Andi Wijaya</td>
+                        <td class="py-3"><span class="badge badge-danger">Batal</span></td>
+                        <td class="text-mono py-3 text-end">Rp 2.100.000</td>
+                    </tr>
+                    <tr>
+                        <td class="text-mono py-3 font-medium">#10228</td>
+                        <td class="text-secondary-foreground py-3">Dewi Lestari</td>
+                        <td class="py-3"><span class="badge badge-primary">Dikirim</span></td>
+                        <td class="text-mono py-3 text-end">Rp 760.000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Aktivitas</h3>
+        </div>
+        <div class="card-body flex flex-col gap-4 pt-1">
+            <div class="flex gap-3">
+                <span class="bg-primary mt-1.5 size-2 shrink-0 rounded-full"></span>
+                <div>
+                    <div class="text-sm">Order <span class="text-mono font-medium">#10231</span> dibayar</div>
+                    <div class="text-muted-foreground text-xs">5 menit lalu</div>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <span class="mt-1.5 size-2 shrink-0 rounded-full bg-green-500"></span>
+                <div>
+                    <div class="text-sm">User baru <span class="text-mono font-medium">rina@contoh.id</span> mendaftar</div>
+                    <div class="text-muted-foreground text-xs">32 menit lalu</div>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <span class="mt-1.5 size-2 shrink-0 rounded-full bg-amber-500"></span>
+                <div>
+                    <div class="text-sm">Stok <span class="text-mono font-medium">SKU-88</span> hampir habis</div>
+                    <div class="text-muted-foreground text-xs">1 jam lalu</div>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <span class="mt-1.5 size-2 shrink-0 rounded-full bg-red-500"></span>
+                <div>
+                    <div class="text-sm">Pembayaran <span class="text-mono font-medium">#10229</span> gagal</div>
+                    <div class="text-muted-foreground text-xs">2 jam lalu</div>
+                </div>
+            </div>
+
+            <div class="border-border mt-1 border-t pt-4">
+                <div class="mb-1.5 flex justify-between text-sm">
+                    <span class="text-secondary-foreground">Target bulan ini</span>
+                    <span class="text-mono font-medium">68%</span>
+                </div>
+                <div class="bg-accent h-2 w-full overflow-hidden rounded-full">
+                    <div class="bg-primary h-full rounded-full" style="width: 68%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

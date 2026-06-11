@@ -20,4 +20,8 @@
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="10.0.6" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Speca.Core.Tests" />
+  </ItemGroup>
+
 </Project>

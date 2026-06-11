@@ -10,18 +10,23 @@
     "forceConsistentCasingInFileNames": true,
     "allowImportingTsExtensions": true, // Diperlukan untuk vite.config.ts jika mengimpor file .ts lain
     "noEmit": true, // Vite yang akan menangani kompilasi, bukan tsc
-    "baseUrl": ".",
     "paths": {
-      "@app/*": [ "Apps/Portal/Assets/*" ],
-      "@ui/*": [ "Libs/UI/Assets/*" ]
+      "@app/*": [ "./Apps/Portal/Assets/*" ],
+      "@ui/*": [ "./Libs/UI/Assets/*" ]
     }
   },
   "include": [
     "vite.config.ts",
     "Libs/UI/Assets/**/*.ts",
     "Libs/UI/Assets/**/*.tsx",
-    "Apps/Portal/Assets/**/*.ts",
-    "Apps/Portal/Assets/**/*.tsx"
+    "Apps/*/Assets/**/*.ts",
+    "Apps/*/Assets/**/*.tsx"
   ],
-  "node_modules": [ "node_modules" ]
+  // Themes & Vendors = kode vendored (KeenThemes/KTUI dkk), tidak ditulis dengan strict mode.
+  // Tetap dikompilasi Vite, hanya dikecualikan dari type check.
+  "exclude": [
+    "node_modules",
+    "Libs/UI/Assets/Themes",
+    "Libs/UI/Assets/Vendors"
+  ]
 }

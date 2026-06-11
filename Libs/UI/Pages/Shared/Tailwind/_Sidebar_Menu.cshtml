@@ -1,0 +1,61 @@
+@using Speca.UI.Navigation
+@inject Microsoft.Extensions.Options.IOptions<SpecaMenuOptions> MenuOptions
+@{
+    var menuItems = MenuOptions.Value.Items;
+    var currentPath = (ViewContext.HttpContext.Request.Path.Value ?? "/").TrimEnd('/');
+    if (currentPath.Length == 0) { currentPath = "/"; }
+
+    bool IsActive(MenuItem item)
+    {
+        if (item.Url is null) { return false; }
+        var url = item.Url.TrimEnd('/');
+        if (url.Length == 0) { url = "/"; }
+        return string.Equals(url, currentPath, StringComparison.OrdinalIgnoreCase);
+    }
+
+    bool HasActiveDescendant(MenuItem item) =>
+        item.Children.Any(c => IsActive(c) || HasActiveDescendant(c));
+
+    const string LeafClasses = "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium";
+    const string LeafIdle = "text-foreground hover:bg-accent";
+    const string LeafActive = "bg-accent text-primary";
+}
+
+@* Accordion memakai <details> native — tanpa JS. *@
+<nav class="flex flex-col gap-0.5" id="sidebar_menu">
+    @foreach (var item in menuItems)
+    {
+        @if (item.IsHeading)
+        {
+            <div class="menu-heading text-muted-foreground px-2.5 pt-4 pb-1 text-xs font-medium uppercase">
+                @item.Title
+            </div>
+        }
+        else if (item.Children.Count == 0)
+        {
+            <a href="@(item.Url ?? "#")" class="@LeafClasses @(IsActive(item) ? $"menu-active {LeafActive}" : LeafIdle)">
+                <i class="@(item.TailwindIcon ?? "ti ti-category") text-muted-foreground text-lg"></i>
+                <span class="menu-label">@item.Title</span>
+            </a>
+        }
+        else
+        {
+            <details class="group" open="@(HasActiveDescendant(item))">
+                <summary class="@LeafClasses @LeafIdle cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                    <i class="@(item.TailwindIcon ?? "ti ti-category") text-muted-foreground text-lg"></i>
+                    <span class="menu-label">@item.Title</span>
+                    <i class="menu-chevron ti ti-chevron-down text-muted-foreground ms-auto text-xs transition-transform group-open:rotate-180"></i>
+                </summary>
+                <div class="menu-sub border-border ms-5 mt-0.5 flex flex-col gap-0.5 border-s ps-3">
+                    @foreach (var child in item.Children)
+                    {
+                        <a href="@(child.Url ?? "#")"
+                           class="rounded-md px-2.5 py-1.5 text-2sm @(IsActive(child) ? "menu-active bg-accent text-primary font-semibold" : "text-secondary-foreground hover:bg-accent hover:text-foreground")">
+                            @child.Title
+                        </a>
+                    }
+                </div>
+            </details>
+        }
+    }
+</nav>

@@ -12,9 +12,8 @@
     "./*": "./Assets/*"
   },
   "dependencies": {
-    "@keenthemes/ktui": "^1.2.4",
-    "@simonwep/pickr": "^1.9.1",
-    "sortablejs": "^1.15.7",
-    "vanilla-calendar-pro": "^3.1.0"
+    "@tabler/icons-webfont": "^3.44.0",
+    "bootstrap-icons": "^1.13.1",
+    "lucide-static": "^1.17.0"
   }
 }

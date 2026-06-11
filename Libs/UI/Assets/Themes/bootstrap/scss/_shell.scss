@@ -1,0 +1,98 @@
+/*
+ * Shell struktural app-layout (palette-neutral) — dipakai semua skin Bootstrap.
+ * Sidebar fixed di >= lg, offcanvas di bawahnya.
+ */
+
+$speca-sidebar-width: 16.25rem !default;
+
+.speca-layout {
+  min-height: 100vh;
+}
+
+// Icon toggle dark mode: moon saat light, sun saat dark
+[data-bs-theme='dark'] .icon-when-light {
+  display: none;
+}
+
+html:not([data-bs-theme='dark']) .icon-when-dark {
+  display: none;
+}
+
+.speca-sidebar {
+  width: $speca-sidebar-width;
+
+  .nav-link {
+    color: var(--bs-body-color);
+    border-radius: var(--bs-border-radius);
+
+    &:hover {
+      background-color: var(--bs-tertiary-bg);
+    }
+  }
+
+  .speca-menu-heading {
+    font-size: 0.6875rem;
+    letter-spacing: 0.05em;
+    color: var(--bs-secondary-color);
+  }
+}
+
+@include media-breakpoint-up(lg) {
+  .speca-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: $zindex-fixed;
+  }
+
+  .speca-main {
+    margin-left: $speca-sidebar-width;
+  }
+
+  // Collapse sidebar desktop = icon rail, melebar lagi saat hover
+  // (class .sidebar-collapsed di <html>, toggle oleh layout.js)
+  $speca-sidebar-rail: 5rem;
+
+  .sidebar-collapsed {
+    .speca-main {
+      margin-left: $speca-sidebar-rail;
+    }
+
+    .speca-sidebar {
+      width: $speca-sidebar-rail;
+      transition: width 0.2s ease;
+
+      &:hover {
+        width: $speca-sidebar-width;
+        box-shadow: 0 0 1.5rem rgba(0, 0, 0, 0.12);
+      }
+
+      &:not(:hover) {
+        .menu-label,
+        .speca-menu-heading,
+        .menu-chevron,
+        .menu-sub,
+        .sidebar-brand-text {
+          display: none;
+        }
+
+        .sidebar-brand-mini {
+          display: inline !important;
+        }
+
+        .nav-link {
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
+
+// Scrollbar halus (sidemenu): tipis, thumb baru tampak saat hover
+.speca-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
+  &:hover {
+    scrollbar-color: var(--bs-border-color) transparent;
+  }
+}

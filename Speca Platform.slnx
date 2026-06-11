@@ -6,11 +6,15 @@
     <Project Path="Libs/Core/Speca.Core.csproj" />
     <Project Path="Libs/UI/Speca.UI.csproj" />
   </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/Speca.Core.Tests/Speca.Core.Tests.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".gitignore" />
+    <File Path="BACKLOG.md" />
+    <File Path="README.md" />
     <File Path="package.json" />
     <File Path="pnpm-workspace.yaml" />
-    <File Path="read.me" />
     <File Path="tsconfig.json" />
     <File Path="vite.config.ts" />
   </Folder>

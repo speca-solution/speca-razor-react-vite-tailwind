@@ -26,12 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Assets\Entries\" />
-    <Folder Include="Assets\Styles\Default\" />
-    <Folder Include="Assets\Styles\Vuexy\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="package.json" CopyToOutputDirectory="Never" />
   </ItemGroup>
 

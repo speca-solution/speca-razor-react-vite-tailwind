@@ -1,0 +1,14 @@
+@* Sidebar fixed 270px ala Metronic — drawer (translate) di mobile. *@
+<aside id="sidebar"
+       class="bg-sidebar border-border fixed inset-y-0 start-0 z-50 flex w-[270px] -translate-x-full flex-col border-e transition-transform duration-200 lg:translate-x-0">
+
+    <!-- Brand -->
+    <div class="flex h-[70px] shrink-0 items-center gap-2 px-6">
+        <a href="/" class="text-mono text-lg font-semibold tracking-tight"><span class="sidebar-brand-text">Speca</span><span class="sidebar-brand-mini hidden">S</span></a>
+    </div>
+
+    <!-- Menu -->
+    <div class="speca-scroll grow overflow-y-auto px-3 pb-6">
+        @await Html.PartialAsync("Tailwind/_Sidebar_Menu")
+    </div>
+</aside>
