@@ -68,9 +68,10 @@
   --text-2sm--line-height: 1.125rem;
 }
 
-/* ---- Skin Layout3: design language ala Vuexy di atas token yang sama ----
-   Aktifkan dengan class .theme-vuexy di <html>. (Light mode only untuk saat ini.) */
-.theme-vuexy {
+/* ---- THEME2: design language kedua (referensi rasa Vuexy) ----
+   theme1 = token default :root di atas (referensi rasa Metronic).
+   Pilih per halaman: ViewData["Theme"] = "theme2" -> class di <html>. */
+.theme2 {
   --background: #f8f7fa;
   --foreground: #444050;
   --mono: #444050;
@@ -86,24 +87,49 @@
   font-family: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
 }
 
-.theme-vuexy #sidebar {
+/* Dark variant theme2 — .theme2.dark menang atas .theme2 dan .dark (0-2-0) */
+.theme2.dark {
+  --background: #25293c;
+  --foreground: #cfd3ec;
+  --mono: #e6e8f5;
+  --muted: #2f3349;
+  --muted-foreground: #7e82a3;
+  --secondary-foreground: #a5a8c5;
+  --accent: #3a3f5c;
+  --border: #44475b;
+  --input: #595e7e;
+  --primary: #7367f0;
+  --primary-foreground: #ffffff;
+  --sidebar: #2f3349;
+}
+
+.theme2 #sidebar {
   border-inline-end: 0;
   box-shadow: 0 0.125rem 0.5rem rgba(75, 70, 92, 0.12);
 }
 
-.theme-vuexy .app-header {
+.theme2.dark #sidebar,
+.theme2.dark .app-header {
+  box-shadow: 0 0.125rem 0.5rem rgba(12, 14, 26, 0.45);
+}
+
+.theme2.dark .card {
+  box-shadow: 0 0.125rem 0.375rem rgba(12, 14, 26, 0.35);
+}
+
+.theme2 .app-header {
   border-bottom: 0;
   box-shadow: 0 0.125rem 0.5rem rgba(75, 70, 92, 0.08);
 }
 
 /* Item menu aktif blok solid primary — khas Vuexy */
-.theme-vuexy .menu-active {
+.theme2 .menu-active {
   background: var(--primary);
   color: var(--primary-foreground);
   box-shadow: 0 0.125rem 0.375rem rgba(115, 103, 240, 0.4);
 }
 
-.theme-vuexy .menu-active i {
+.theme2 .menu-active i {
   color: var(--primary-foreground);
 }
 
@@ -121,7 +147,7 @@
     @apply inline-flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground;
   }
 
-  /* Card — flat & bordered ala Metronic; di-skin ulang oleh .theme-vuexy */
+  /* Card — flat & bordered ala Metronic; di-skin ulang oleh .theme2 */
   .card {
     @apply bg-background border-border rounded-xl border;
   }
@@ -168,6 +194,11 @@
   }
 }
 
+/* Chevron accordion menu berputar saat terbuka (semua level rekursif) */
+#sidebar_menu details[open] > summary .menu-chevron {
+  transform: rotate(180deg);
+}
+
 /* Scrollbar halus (sidemenu): tipis, thumb baru tampak saat hover */
 .speca-scroll {
   scrollbar-width: thin;
@@ -202,6 +233,7 @@
   .sidebar-collapsed #sidebar:not(:hover) .menu-heading,
   .sidebar-collapsed #sidebar:not(:hover) .menu-chevron,
   .sidebar-collapsed #sidebar:not(:hover) .menu-sub,
+  .sidebar-collapsed #sidebar:not(:hover) .menu-badge,
   .sidebar-collapsed #sidebar:not(:hover) .sidebar-brand-text {
     display: none;
   }
@@ -216,8 +248,9 @@
   }
 }
 
-/* Card melayang khas Vuexy di Layout3 */
-.theme-vuexy .card {
+/* Card melayang khas theme2: putih di light, panel gelap di dark (var --muted) */
+.theme2 .card {
+  background: var(--muted);
   border-color: transparent;
   box-shadow: 0 0.125rem 0.375rem rgba(75, 70, 92, 0.08);
 }

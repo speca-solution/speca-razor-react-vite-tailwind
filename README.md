@@ -1,17 +1,19 @@
 # Speca Platform
 
-Template web application: **ASP.NET Core Razor Pages (.NET 10) + Vite 8 + React 19** dengan
-**4 layout** (2 stack × 2 design language), semua open source & terisolasi per-halaman:
+Template web application: **ASP.NET Core Razor Pages (.NET 10) + Vite 8 + React 19 + Tailwind CSS 4**.
+**Theme** (kulit) dan **Layout** (struktur) adalah dua sumbu independen:
 
-| Layout | Design language | Stack | Pakai di halaman |
-|---|---|---|---|
-| Layout 1 | ala Metronic | Tailwind 4 | default (`_ViewStart`) |
-| Layout 2 | ala Vuexy | Bootstrap 5 | `Layout = "Bootstrap/_Layout2"` |
-| Layout 3 | ala Vuexy | Tailwind 4 | `Layout = "Tailwind/_Layout3"` |
-| Layout 4 | ala Metronic | Bootstrap 5 | `Layout = "Bootstrap/_Layout4"` |
+| Sumbu | Pilihan | Cara pakai di halaman |
+|---|---|---|
+| **Theme** = warna & rasa desain | `theme1` (biru, flat, bordered — referensi rasa Metronic) · `theme2` (ungu, soft, melayang — referensi rasa Vuexy) | `ViewData["Theme"] = "theme2"` (default theme1) |
+| **Layout** = struktur & fungsi | `_Layout1` (sidebar vertikal + rail collapse) · `_Layout2` (horizontal topbar) | `Layout = "Tailwind/_Layout2"` (default _Layout1) |
+
+Semua kombinasi valid (2×2), dan semua layout adaptif mobile (drawer + overlay).
+Demo: `/` = L1+T1 · `/Theme2` = L1+T2 · `/Layout2` = L2+T1.
 
 Metronic dan Vuexy dipakai murni sebagai *referensi desain* — tidak ada kode mereka yang dibundel.
-Skin Tailwind via CSS variables (`.theme-vuexy`); skin Bootstrap via 2 entry SCSS dengan shell bersama.
+Keputusan Tailwind-only (2026-06-12): stack Bootstrap dihapus demi satu jalur pemeliharaan;
+versi dual-stack tersimpan di git tag `with-bootstrap`.
 Roadmap lengkap: [BACKLOG.md](BACKLOG.md).
 
 ## Prasyarat
@@ -52,7 +54,7 @@ Type check: `pnpm typecheck`.
 ## Quality gates
 
 - **Unit test** tag helper: `dotnet test Tests/Speca.Core.Tests/Speca.Core.Tests.csproj`
-- **Smoke test** produksi (5 halaman + semua asset + isolasi stack):
+- **Smoke test** produksi (semua halaman + semua asset):
   jalankan app hasil publish, lalu `node scripts/smoke-test.mjs http://localhost:5599`
 - **CI** ([.github/workflows/ci.yml](.github/workflows/ci.yml)): typecheck → unit test →
   publish Release → smoke test, di setiap push/PR.
@@ -91,7 +93,6 @@ Nama output ditentukan aturan di `vite.config.ts`:
 | `Apps/Portal/Assets/Entries/checkout.tsx` | `apps/portal/checkout` |
 | `Libs/UI/Assets/Themes/tailwind/theme.css` | `themes/tailwind` |
 | `Libs/UI/Assets/Themes/tailwind/app/layouts/layout.js` | `themes/tailwind/layouts/layout` |
-| `Libs/UI/Assets/Themes/bootstrap/layout4.scss` | `themes/bootstrap/layout4` |
 | `Libs/UI/Assets/Vendors/tabler-icons/style.css` | `vendors/tabler-icons` |
 
 Aturan collapse: file bernama `main`, `index`, `core` (Entries), `style`, `theme` (Themes/Vendors),
@@ -127,22 +128,31 @@ Libs/Core            → integrasi Vite: tag helper + dev-server middleware
 Libs/UI              → Razor Class Library: layout, partial, asset theme
 Libs/UI/Assets
   ├─ Entries/        → entry milik library UI
-  ├─ Themes/         → kode theme per stack: tailwind (theme.css + JS), bootstrap (SCSS + shell)
-  └─ Vendors/        → vendor frontend (bootstrap, bootstrap-icons, tabler-icons, lucide)
+  ├─ Themes/         → theme tailwind (theme.css + layout JS)
+  └─ Vendors/        → icon fonts (tabler-icons, lucide)
 ```
 
 ## Menu sidebar (data-driven)
 
-Menu didefinisikan sekali di `Program.cs` via `AddSpecaMenu(...)` (model: `Speca.UI.Navigation.MenuItem`
-— `Title`, `Url`, `TailwindIcon`, `BootstrapIcon`, `IsHeading`, `Children`). Renderer per theme:
-`Shared/Tailwind/_Sidebar_Menu.cshtml` dan `Shared/Bootstrap/_Menu.cshtml`. Active state otomatis dari path.
+Menu didefinisikan sekali di `Program.cs` via `AddSpecaMenu(...)` — model `Speca.UI.Navigation.MenuItem`:
+`Title`, `Url`, `Icon` (Tabler/Lucide), `IsHeading`, `Badge` + `BadgeVariant`
+(primary/success/warning/danger), `Disabled`, `OpenInNewTab`, `MatchPrefix`
+(`/products` aktif untuk `/products/123`), `Children` (rekursif, multi-level).
+Opsi: `SpecaMenuOptions.AccordionSingleOpen` (default true — buka satu, saudara menutup).
 
-## Vendor frontend per theme
+Renderer vertical (`_Sidebar_Menu.cshtml`): rekursif tanpa batas kedalaman, accordion
+`<details>` native + auto-scroll ke item aktif. Renderer horizontal (`_Menu_Horizontal.cshtml`):
+**dibatasi 2 level dropdown** — level-3 dirender sebagai grup berlabel di dalam dropdown
+(bukan flyout bersarang), demi kesederhanaan dan UX touch. Logika active ada di
+`MenuItemExtensions` (ter-unit-test).
 
-| Stack | CSS | JS | Icon |
-|---|---|---|---|
-| Tailwind | `Themes/tailwind/theme.css` — token + skin `.theme-vuexy` | `themes/tailwind/layouts/layout` (dark mode + drawer; accordion `<details>` native) | **Tabler** (`ti ti-*`, MIT) + **Lucide** (`icon-*`, ISC) |
-| Bootstrap | `Themes/bootstrap/theme.scss` (Vuexy-look) & `layout4.scss` (Metronic-look), shell bersama `scss/_shell.scss` | `vendors/bootstrap` (MIT) | Bootstrap Icons (`bi bi-*`, MIT) |
+## Vendor frontend
+
+| Apa | Detail |
+|---|---|
+| Icon | **Tabler** (`ti ti-*`, MIT) + **Lucide** (`icon-*`, ISC) — dua-duanya dimuat |
+| Theme CSS | `Themes/tailwind/theme.css` — token + skin `.theme-vuexy` + komponen (`.card`, `.badge-*`) |
+| Theme JS | `themes/tailwind/layouts/layout` — dark mode, drawer/rail sidebar, dropdown, Ctrl+/ |
 
 Menambah vendor lain: install ke `Libs/UI`, buat `Assets/Vendors/<nama>/index.js`
 yang meng-import-nya — otomatis jadi entry `vendors/<nama>`.
@@ -153,6 +163,5 @@ jalankan ulang setelah upgrade paket icon. File ber-prefix `_` tidak menjadi ent
 ## Lisensi
 
 Semua kode theme (token, layout, partial, JS) **milik sendiri**. Dependensi yang dibundel
-seluruhnya open source: Bootstrap (MIT), Bootstrap Icons (MIT), Tabler Icons (MIT),
-Lucide (ISC). Metronic & Vuexy hanya **referensi desain** (folder master terpisah,
-tidak dibundel). Tidak ada lagi aset berlisensi komersial di repo ini.
+seluruhnya open source: Tabler Icons (MIT), Lucide (ISC). Metronic & Vuexy hanya
+**referensi desain** (folder master terpisah, tidak dibundel).

@@ -1,61 +1,23 @@
 @page
 @model Speca.Portal.Pages.Layout2Model
 @{
-    Layout = "Bootstrap/_Layout2";
-    ViewData["Title"] = "Layout 2 — Vuexy look, Bootstrap";
+    Layout = "Tailwind/_Layout2";
+    ViewData["Title"] = "Layout 2 — Horizontal";
+    @* Theme bebas dipilih juga di sini, mis.: ViewData["Theme"] = "theme2"; *@
 }
 
-<div class="row g-4 mb-2">
-    <div class="col-12">
-        <h4 class="mb-1">Layout 2 — design ala Vuexy, stack Bootstrap 5</h4>
-        <p class="text-body-secondary mb-0">Card melayang, primary ungu, menu aktif blok solid.</p>
-    </div>
-</div>
-
-@await Html.PartialAsync("Bootstrap/_DemoWidgets")
-
-<div class="row g-4 mt-1">
-
-    <div class="col-md-6 col-lg-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Card</h5>
-                <p class="card-text">Bootstrap murni + variabel SCSS rasa Vuexy.</p>
-                <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" title="Tooltip aktif">
-                    Tombol Primary
-                </button>
+@section Breadcrumb {
+    <div class="flex flex-wrap items-center justify-between gap-5 pb-7.5">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-mono text-xl leading-none font-medium">Layout 2 — Horizontal</h1>
+            <div class="text-secondary-foreground text-sm">
+                Menu di topbar (desktop), drawer saat mobile. Theme tetap theme1 — buktinya theme &amp; layout independen.
             </div>
         </div>
+        <a class="btn-outline" href="/">Ke Layout 1</a>
     </div>
+}
 
-    <div class="col-md-6 col-lg-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Icon</h5>
-                <p class="card-text fs-3 d-flex gap-3">
-                    <i class="bi bi-house"></i>
-                    <i class="bi bi-palette"></i>
-                    <i class="bi bi-rocket"></i>
-                </p>
-                <span class="text-body-secondary">Bootstrap Icons (MIT)</span>
-            </div>
-        </div>
-    </div>
+@await Html.PartialAsync("Tailwind/_DemoWidgets")
 
-    <div class="col-md-6 col-lg-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Dropdown</h5>
-                <div class="dropdown">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        Buka dropdown
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Aksi pertama</a></li>
-                        <li><a class="dropdown-item" href="#">Aksi kedua</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="mt-5 mb-10"></div>

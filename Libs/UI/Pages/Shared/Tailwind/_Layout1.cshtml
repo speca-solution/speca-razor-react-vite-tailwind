@@ -2,15 +2,18 @@
 @*
     Layout Tailwind 4 murni — app shell ala Metronic (sidebar fixed + header + footer).
     Markup & style milik sendiri; Metronic hanya referensi desain. Tanpa KTUI.
-    ISOLASI THEME: jangan campur dengan asset Bootstrap di halaman yang sama.
+
 *@
-<html class="h-full" lang="en" dir="ltr">
+@{
+    var theme = ViewData["Theme"] as string ?? "theme1";
+}
+<html class="h-full @theme" lang="en" dir="ltr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     <vite-asset src="Libs/UI/Assets/Vendors/tabler-icons/style.css" />
     <vite-asset src="Libs/UI/Assets/Vendors/lucide/style.css" />

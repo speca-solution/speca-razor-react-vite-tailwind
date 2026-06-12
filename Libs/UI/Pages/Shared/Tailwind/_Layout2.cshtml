@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+@*
+    Layout2 — struktur HORIZONTAL: topbar berisi brand + menu horizontal (desktop),
+    drawer sidebar untuk mobile. Theme dipilih bebas via ViewData["Theme"] (theme1/theme2).
+    Adaptif: < lg menu pindah ke drawer (burger), >= lg menu di topbar.
+*@
+@{
+    var theme = ViewData["Theme"] as string ?? "theme1";
+    var stickyNavbar = ViewData["StickyNavbar"] as bool? ?? true;
+    ViewData["SidebarDrawerOnly"] = true;
+}
+<html class="h-full @theme" lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <vite-asset src="Libs/UI/Assets/Vendors/tabler-icons/style.css" />
+    <vite-asset src="Libs/UI/Assets/Vendors/lucide/style.css" />
+    <vite-asset src="Libs/UI/Assets/Themes/tailwind/theme.css" />
+
+    @RenderSection("Styles", false)
+
+    <!-- Set theme sebelum render untuk hindari flash -->
+    <script>
+        (function () {
+            var mode = localStorage.getItem('speca-theme');
+            if (!mode) {
+                mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            if (mode === 'dark') { document.documentElement.classList.add('dark'); }
+        })();
+    </script>
+</head>
+
+<body class="bg-background text-foreground flex h-full flex-col text-base antialiased">
+
+    <!-- Overlay drawer mobile -->
+    <div class="fixed inset-0 z-40 hidden bg-black/40" data-sidebar-overlay></div>
+
+    @* Drawer menu (mobile & tablet) — markup sama dengan sidebar vertikal *@
+    @await Html.PartialAsync("Tailwind/_Sidebar")
+
+    <!-- Topbar -->
+    <header class="app-header border-border bg-background @(stickyNavbar ? "sticky top-0 z-30" : "") border-b">
+        <div class="container-fixed flex h-[64px] items-center gap-4">
+            <button type="button" class="btn-icon lg:hidden" data-sidebar-toggle aria-label="Buka menu">
+                <i class="ti ti-menu-2 text-lg"></i>
+            </button>
+
+            <a href="/" class="text-mono text-lg font-semibold tracking-tight">Speca</a>
+
+            @await Html.PartialAsync("Tailwind/_Menu_Horizontal")
+
+            <div class="ms-auto">
+                @await Html.PartialAsync("Tailwind/_Header_Actions")
+            </div>
+        </div>
+    </header>
+
+    <main class="grow pt-5" role="content">
+        <div class="container-fixed">
+            @RenderSection("Breadcrumb", false)
+        </div>
+        <div class="container-fixed">
+            @RenderBody()
+        </div>
+    </main>
+
+    @await Html.PartialAsync("Tailwind/_Footer")
+
+    @RenderSection("EndOfPage", false)
+
+    <vite-asset src="Libs/UI/Assets/Themes/tailwind/app/layouts/layout.js" />
+
+    @RenderSection("Scripts", false)
+</body>
+</html>

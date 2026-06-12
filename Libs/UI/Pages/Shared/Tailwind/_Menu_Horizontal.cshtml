@@ -1,0 +1,99 @@
+@using Speca.UI.Navigation
+@inject Microsoft.Extensions.Options.IOptions<SpecaMenuOptions> MenuOptions
+@{
+    var menuItems = MenuOptions.Value.Items;
+    var currentPath = (ViewContext.HttpContext.Request.Path.Value ?? "/").TrimEnd('/');
+    if (currentPath.Length == 0) { currentPath = "/"; }
+
+    var dropdownIndex = 0;
+    const string LinkClasses = "flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium";
+    const string DisabledClasses = "pointer-events-none opacity-50";
+
+    void RenderBadge(MenuItem item)
+    {
+        if (item.Badge is null) { return; }
+        <span class="badge badge-@item.BadgeVariant ms-auto">@item.Badge</span>
+    }
+
+    void RenderDropdownLink(MenuItem child, bool indent)
+    {
+        if (child.Disabled)
+        {
+            <span class="dropdown-item @DisabledClasses @(indent ? "ps-5" : "")">@child.Title @{ RenderBadge(child); }</span>
+            return;
+        }
+        <a class="dropdown-item @(indent ? "ps-5" : "") @(child.IsActive(currentPath) ? "text-primary font-semibold" : "")"
+           href="@(child.Url ?? "#")"
+           target="@(child.OpenInNewTab ? "_blank" : null)"
+           rel="@(child.OpenInNewTab ? "noopener" : null)">
+            @child.Title
+            @if (child.OpenInNewTab)
+            {
+                <i class="ti ti-external-link text-muted-foreground text-xs"></i>
+            }
+            @{ RenderBadge(child); }
+        </a>
+    }
+}
+
+@* Menu horizontal (desktop) untuk _Layout2 — heading dilewati.
+   Kedalaman dibatasi: level-3 dirender sebagai GRUP berlabel di dalam dropdown
+   (bukan flyout bersarang) — keputusan terdokumentasi di README. *@
+<nav class="hidden items-center gap-0.5 lg:flex" id="horizontal_menu">
+    @foreach (var item in menuItems)
+    {
+        @if (item.IsHeading)
+        {
+            continue;
+        }
+        else if (item.Disabled)
+        {
+            <span class="@LinkClasses @DisabledClasses">
+                <i class="@(item.Icon ?? "ti ti-category") text-muted-foreground"></i>
+                @item.Title
+            </span>
+        }
+        else if (item.Children.Count == 0)
+        {
+            <a href="@(item.Url ?? "#")"
+               target="@(item.OpenInNewTab ? "_blank" : null)"
+               rel="@(item.OpenInNewTab ? "noopener" : null)"
+               class="@LinkClasses @(item.IsActive(currentPath) ? "menu-active bg-accent text-primary" : "text-foreground hover:bg-accent")">
+                <i class="@(item.Icon ?? "ti ti-category") text-muted-foreground"></i>
+                @item.Title
+            </a>
+        }
+        else
+        {
+            var dropdownId = $"hmenu{dropdownIndex++}";
+            <div class="relative">
+                <button type="button"
+                        class="@LinkClasses @(item.HasActiveDescendant(currentPath) ? "text-primary" : "text-foreground hover:bg-accent")"
+                        data-dropdown-toggle="#@dropdownId">
+                    <i class="@(item.Icon ?? "ti ti-category") text-muted-foreground"></i>
+                    @item.Title
+                    <i class="ti ti-chevron-down text-muted-foreground text-xs"></i>
+                </button>
+                <div id="@dropdownId" class="dropdown-panel start-0! end-auto! hidden w-60">
+                    @foreach (var child in item.Children)
+                    {
+                        @if (child.Children.Count == 0)
+                        {
+                            RenderDropdownLink(child, indent: false);
+                        }
+                        else
+                        {
+                            <div class="text-muted-foreground px-2.5 pt-2 pb-1 text-xs font-medium uppercase">
+                                @child.Title
+                            </div>
+                            foreach (var grandChild in child.Children)
+                            {
+                                RenderDropdownLink(grandChild, indent: true);
+                            }
+                        }
+                    }
+                </div>
+            </div>
+        }
+    }
+</nav>

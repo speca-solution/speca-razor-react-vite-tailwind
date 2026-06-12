@@ -74,4 +74,41 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') closeDropdowns();
     });
+
+    // ---- Dropdown menu horizontal: hover-trigger, hanya perangkat ber-pointer halus.
+    //      Click tetap berfungsi (touch / aksesibilitas). Delay tutup 150ms agar
+    //      perpindahan kursor tombol→panel tidak menutup dropdown. ----
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        document.querySelectorAll('#horizontal_menu [data-dropdown-toggle]').forEach((btn) => {
+            const wrapper = btn.parentElement;
+            const panel = document.querySelector(btn.dataset.dropdownToggle);
+            if (!wrapper || !panel) return;
+            let hideTimer;
+            wrapper.addEventListener('mouseenter', () => {
+                clearTimeout(hideTimer);
+                closeDropdowns();
+                panel.classList.remove('hidden');
+            });
+            wrapper.addEventListener('mouseleave', () => {
+                hideTimer = setTimeout(() => panel.classList.add('hidden'), 150);
+            });
+        });
+    }
+
+    // ---- Menu: single-open accordion (data-accordion-single dari SpecaMenuOptions) ----
+    // Event 'toggle' tidak bubble → pakai capture di root menu.
+    const menuRoot = document.getElementById('sidebar_menu');
+    if (menuRoot?.dataset.accordionSingle === 'true') {
+        menuRoot.addEventListener('toggle', (event) => {
+            const details = event.target;
+            if (!(details instanceof HTMLDetailsElement) || !details.open) return;
+            // Tutup hanya saudara selevel — leluhur/anak tidak ikut menutup.
+            details.parentElement?.querySelectorAll(':scope > details[open]').forEach((sibling) => {
+                if (sibling !== details) sibling.open = false;
+            });
+        }, true);
+    }
+
+    // ---- Menu: auto-scroll ke item aktif (untuk menu panjang) ----
+    document.querySelector('#sidebar .menu-active')?.scrollIntoView({ block: 'nearest' });
 });

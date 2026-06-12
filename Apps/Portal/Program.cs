@@ -19,41 +19,64 @@ builder.Services.AddSpecaMenu(menu =>
         {
             Title = "Dashboard",
             Url = "/",
-            TailwindIcon = "ti ti-layout-dashboard",
-            BootstrapIcon = "bi bi-house",
+            Icon = "ti ti-layout-dashboard",
         },
-        new MenuItem { Title = "Layouts", IsHeading = true },
+        new MenuItem { Title = "Tampilan", IsHeading = true },
         new MenuItem
         {
-            Title = "Layout 2 — Vuexy/BS",
+            Title = "Theme 2",
+            Url = "/Theme2",
+            Icon = "ti ti-palette",
+        },
+        new MenuItem
+        {
+            Title = "Layout 2 — Horizontal",
             Url = "/Layout2",
-            TailwindIcon = "ti ti-layout-sidebar",
-            BootstrapIcon = "bi bi-layout-sidebar",
+            Icon = "ti ti-layout-navbar",
         },
+        new MenuItem { Title = "Contoh Fitur Menu", IsHeading = true },
         new MenuItem
         {
-            Title = "Layout 3 — Vuexy/TW",
-            Url = "/Layout3",
-            TailwindIcon = "ti ti-palette",
-            BootstrapIcon = "bi bi-palette",
-        },
-        new MenuItem
-        {
-            Title = "Layout 4 — Metronic/BS",
-            Url = "/Layout4",
-            TailwindIcon = "ti ti-layout-grid",
-            BootstrapIcon = "bi bi-grid",
-        },
-        new MenuItem
-        {
-            Title = "Contoh Bertingkat",
-            TailwindIcon = "ti ti-settings",
-            BootstrapIcon = "bi bi-collection",
+            Title = "Bertingkat 3 Level",
+            Icon = "ti ti-sitemap",
+            Badge = "3",
             Children =
             [
-                new MenuItem { Title = "Sub Item 1", Url = "/Privacy" },
-                new MenuItem { Title = "Sub Item 2", Url = "#" },
+                new MenuItem { Title = "Privacy", Url = "/Privacy", MatchPrefix = true },
+                new MenuItem
+                {
+                    Title = "Level 2 (induk)",
+                    Children =
+                    [
+                        new MenuItem { Title = "Level 3 — Item A", Url = "#" },
+                        new MenuItem { Title = "Level 3 — Item B", Url = "#", Badge = "Baru", BadgeVariant = "success" },
+                    ],
+                },
             ],
+        },
+        new MenuItem
+        {
+            Title = "Notifikasi",
+            Url = "#",
+            Icon = "ti ti-bell",
+            Badge = "5",
+            BadgeVariant = "danger",
+        },
+        new MenuItem
+        {
+            Title = "Segera Hadir",
+            Url = "#",
+            Icon = "ti ti-lock",
+            Disabled = true,
+            Badge = "Soon",
+            BadgeVariant = "warning",
+        },
+        new MenuItem
+        {
+            Title = "Dokumentasi Tailwind",
+            Url = "https://tailwindcss.com/docs",
+            Icon = "ti ti-book",
+            OpenInNewTab = true,
         },
     ]);
 });

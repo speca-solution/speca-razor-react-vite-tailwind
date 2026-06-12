@@ -1,9 +1,9 @@
 # Speca Platform — Backlog Menuju Template Visual Studio 2026
 
 > Target akhir: solution ini bisa di-instantiate sebagai project template di Visual Studio 2026 Community
-> (via `dotnet new` template pack), dengan **4 layout** (Tailwind 4 / Bootstrap 5 × design ala
-> Metronic / ala Vuexy — semua kode milik sendiri, lisensi MIT/ISC), dan frontend **React**
-> (Vue opsional, lihat E3-04).
+> (via `dotnet new` template pack), stack **Tailwind 4** dengan dua design language
+> (Layout 1 ala Metronic, Layout 2 ala Vuexy — semua kode milik sendiri, lisensi MIT/ISC),
+> frontend **React**. (Riwayat: dual-stack Bootstrap sampai 2026-06-12, lihat tag `with-bootstrap`.)
 >
 > Referensi master (hanya referensi desain, tidak dibundel):
 > - Metronic HTML: `d:\MASTER\ENVATO\METRONIC\metronic-v9.4.10\metronic-tailwind-html-demos`
@@ -66,6 +66,19 @@ satu halaman hanya boleh memuat satu stack CSS (diverifikasi E2-06).
 | E2-11 ☑ | **Widget demo** — *2026-06-11*: partial `Tailwind/_DemoWidgets` & `Bootstrap/_DemoWidgets` (KPI, tabel order, aktivitas, progress; markup sendiri, gaya referensi) dipakai keempat layout; komponen `.card`/`.badge-*` Tailwind + skin vuexy | 4 halaman menampilkan widget, smoke lulus ✓ |
 | E2-10 ☑ | Pruning font icon — *selesai 2026-06-11*: `scripts/sync-icon-fonts.mjs` men-generate css woff2-only (`_lucide.css`, `_tabler-icons.css`) + vendored woff2; dist 26 MB → 2,1 MB | dist 2,1 MB, css icon hanya referensi woff2, 0 regresi ✓ |
 
+> **PIVOT FINAL 2026-06-12 — Tailwind-only.** Setelah perbandingan terukur (CSS 5,4 kB vs 31 kB×2 gzip;
+> LOC partial 424 vs 425 = pemeliharaan 2×; 2 bug spesifik-Bootstrap vs 1 spesifik-Tailwind),
+> stack Bootstrap **dihapus**: Themes/bootstrap, Vendors/bootstrap*, Shared/Bootstrap, halaman L2/L4 lama,
+> deps bootstrap/popper/bootstrap-icons/sass-embedded, properti BootstrapIcon.
+> Vuexy-look (eks-Layout3, skin .theme-vuexy) di-rename menjadi **Layout 2**.
+> Kondisi dual-stack diabadikan di git tag `with-bootstrap`.
+
+> **RESTRUKTUR 2026-06-12 — Theme × Layout dipisah.** Theme = kulit (token warna/rasa):
+> `theme1` & `theme2` (tanpa nama brand; referensi visual Metronic/Vuexy). Layout = struktur/fungsi:
+> `_Layout1` (sidebar vertikal) & `_Layout2` (horizontal topbar, baru), keduanya adaptif mobile.
+> Pilihan independen per halaman: `ViewData["Theme"]` + `Layout`. Referensi pengembangan
+> layout berikutnya: Metronic demo1–10 / layout Vuexy.
+
 ## EPIC 3 — Developer Experience & Skala (P2)
 
 | ID | Item | Acceptance Criteria |
@@ -95,6 +108,33 @@ New Project, lintas-platform, dan jauh lebih mudah dirawat.
 | E4-07 ☐ | Post-action: instruksi/automation `pnpm install` setelah instantiate (template.json postActions atau instruksi README yang muncul) | Developer tidak bingung kenapa build pertama gagal |
 
 ---
+
+## EPIC 5 — Sistem Menu & Navigasi (P1, sebelum komponen & layout lanjutan)
+
+> Hasil audit referensi 2026-06-12 (markup `dist/demo1` Metronic & template vertical/horizontal Vuexy):
+> Metronic — accordion bersarang 3+ level (23 blok), toggle hybrid `accordion|lg:dropdown`, trigger
+> `click|lg:hover`, single-open (`expand-all=false`), 24 badge, 120 bullet, separator, tooltip rail.
+> Vuexy — nested max 3 level, 22 badge, 12 heading, 1 disabled, 31 `target=_blank`, menu.js
+> (`closeChildren`, `showDropdownOnHover`, `scrollToActive`).
+> **Baseline Speca saat ini:** 2 level, tanpa badge/disabled/external/single-open/scrollToActive;
+> horizontal click-only. (Heading, icon, active, drawer, rail+hover-expand, scrollbar halus: sudah ada.)
+
+| ID | Item | Acceptance Criteria |
+|----|------|---------------------|
+| E5-01 ☑ | **Rekursi multi-level (≥3)**: renderer vertical jadi rekursif (`<details>` bersarang, indent bertingkat); horizontal: level-3 sebagai flyout samping ATAU dibatasi 2 level dengan keputusan terdokumentasi | Menu demo 3 tingkat tampil & berfungsi di vertical (buka/tutup/active); perilaku horizontal terdokumentasi di README |
+| E5-02 ☑ | **Badge item**: model `Badge` (teks) + `BadgeVariant` (primary/success/warning/danger); render di vertical (induk & anak) dan dropdown horizontal; disembunyikan saat rail icon-only | Item demo badge angka ("5") & teks ("Baru") tampil benar di kedua renderer + tidak merusak rail |
+| E5-03 ☑ | **Disabled & link eksternal**: model `Disabled` (non-klik, redup, anak tak bisa dibuka) + `OpenInNewTab` (`target=_blank rel=noopener` + icon kecil) | 2 item demo; disabled tidak navigasi & tidak ada hover state; eksternal buka tab baru |
+| E5-04 ☑ | **Single-open accordion** ala referensi: membuka satu `<details>` menutup saudaranya (nested tidak menutup leluhur); opsi `SpecaMenuOptions.AccordionSingleOpen` (default true) | Buka A lalu B → A menutup; set opsi false → perilaku multi-open kembali |
+| E5-05 ☑ | **scrollToActive**: saat load, sidebar auto-scroll ke item aktif (`scrollIntoView`, block nearest) | Menu lebih panjang dari viewport → item aktif terlihat tanpa scroll manual |
+| E5-06 ☑ | **Hover-trigger horizontal (desktop)**: dropdown terbuka saat hover dengan delay tutup kecil; click tetap bekerja (touch) | Hover buka/tutup mulus di desktop; di layar sentuh click tetap berfungsi; tidak ada dropdown "nyangkut" |
+| E5-07 ☑ | ~~Tooltip saat rail~~ — **dibatalkan dengan alasan terdokumentasi**: rail kita hover-expand (pola Vuexy), hover icon langsung melebarkan sidebar sehingga tooltip tidak pernah sempat tampil; tooltip hanya relevan bila hover-expand dimatikan (pola Metronic) | Keputusan tercatat; tidak ada kode mati |
+| E5-08 ☑ | **Active prefix-matching**: opsi `MatchPrefix` per item — `/products/123` mengaktifkan item `/products` | Halaman anak route menandai induknya active; exact-match tetap default |
+| E5-09 ☐ | Mega menu multi-kolom (horizontal) — *prioritas terendah, kerjakan bila ada kebutuhan nyata* | Dropdown multi-kolom dengan heading per kolom di _Layout2 |
+
+**Sprint usulan:** Sprint A = E5-01…05 + E5-08 + update menu demo Program.cs (3 level, badge, disabled, eksternal);
+Sprint B = E5-06…07; E5-09 ditunda sampai dibutuhkan.
+**Catatan jujur:** E5-01 menyentuh kedua renderer dan berisiko regresi rail/drawer — wajib smoke + cek visual;
+E5-06 rawan edge-case touch/hover hybrid (laptop layar sentuh) — uji manual diperlukan.
 
 ## Urutan eksekusi yang disarankan
 

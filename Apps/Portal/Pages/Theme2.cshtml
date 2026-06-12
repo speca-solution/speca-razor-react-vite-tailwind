@@ -1,17 +1,20 @@
 @page
-@model Speca.Portal.Pages.Layout3Model
+@model Speca.Portal.Pages.Theme2Model
 @{
-    Layout = "Tailwind/_Layout3";
-    ViewData["Title"] = "Layout 3 — Vuexy look, Tailwind";
+    @* Struktur default (_Layout1, sidebar vertikal) + kulit theme2 *@
+    ViewData["Theme"] = "theme2";
+    ViewData["Title"] = "Theme 2";
 }
 
 @section Breadcrumb {
     <div class="flex flex-wrap items-center justify-between gap-5 pb-7.5">
         <div class="flex flex-col gap-2">
-            <h1 class="text-mono text-xl leading-none font-medium">Layout 3</h1>
-            <div class="text-secondary-foreground text-sm">Design ala Vuexy, stack Tailwind 4 (skin .theme-vuexy)</div>
+            <h1 class="text-mono text-xl leading-none font-medium">Theme 2</h1>
+            <div class="text-secondary-foreground text-sm">
+                Struktur sama dengan Dashboard (Layout 1) — hanya token warna yang berbeda.
+            </div>
         </div>
-        <a class="btn-outline" href="/">Ke Layout 1</a>
+        <a class="btn-outline" href="/">Lihat Theme 1</a>
     </div>
 }
 
@@ -34,7 +37,7 @@
         <div class="card-header"><h3 class="card-title">Tombol</h3></div>
         <div class="card-body flex gap-3">
             <button class="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm font-medium shadow-md">
-                Primary ala Vuexy
+                Primary theme2
             </button>
             <button class="btn-outline">Outline</button>
         </div>

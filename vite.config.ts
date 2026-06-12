@@ -185,17 +185,6 @@ export default defineConfig(({ command }) => ({
     define: {
         'process.env': {}
     },
-    css: {
-        preprocessorOptions: {
-            scss: {
-                // Theme bootstrap: bare import "bootstrap/scss/..." dari node_modules
-                loadPaths: ['node_modules'],
-                // Bootstrap 5.x masih pakai sintaks @import legacy — bukan kode kita, jangan banjiri log
-                quietDeps: true,
-                silenceDeprecations: ['import', 'global-builtin', 'color-functions', 'if-function'],
-            },
-        },
-    },
     resolve: {
         alias: {
             '@app': path.resolve(webAppPath, 'Assets'),
@@ -236,16 +225,6 @@ export default defineConfig(({ command }) => ({
                             name: 'libs/react-dom',
                             test: /node_modules[\\/]react-dom/,
                             priority: 21,
-                        },
-                        {
-                            name: 'libs/popperjs',
-                            test: /node_modules[\\/]@popperjs\/core/,
-                            priority: 20,
-                        },
-                        {
-                            name: 'libs/bootstrap',
-                            test: /node_modules[\\/]bootstrap/,
-                            priority: 19,
                         },
                         {
                             name: 'libs/vendor',

@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Libs\Core\Speca.Core.csproj" />
+    <ProjectReference Include="..\..\Libs\UI\Speca.UI.csproj" />
   </ItemGroup>
 
 </Project>

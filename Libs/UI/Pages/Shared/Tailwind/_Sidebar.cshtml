@@ -1,6 +1,10 @@
-@* Sidebar fixed 270px ala Metronic — drawer (translate) di mobile. *@
+@* Sidebar fixed 270px — drawer (translate) di mobile.
+   ViewData["SidebarDrawerOnly"] = true (layout horizontal): selalu drawer, juga di desktop. *@
+@{
+    var drawerOnly = ViewData["SidebarDrawerOnly"] as bool? ?? false;
+}
 <aside id="sidebar"
-       class="bg-sidebar border-border fixed inset-y-0 start-0 z-50 flex w-[270px] -translate-x-full flex-col border-e transition-transform duration-200 lg:translate-x-0">
+       class="bg-sidebar border-border fixed inset-y-0 start-0 z-50 flex w-[270px] -translate-x-full flex-col border-e transition-transform duration-200 @(drawerOnly ? "" : "lg:translate-x-0")">
 
     <!-- Brand -->
     <div class="flex h-[70px] shrink-0 items-center gap-2 px-6">

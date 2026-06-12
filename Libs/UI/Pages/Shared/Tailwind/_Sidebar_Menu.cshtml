@@ -5,57 +5,92 @@
     var currentPath = (ViewContext.HttpContext.Request.Path.Value ?? "/").TrimEnd('/');
     if (currentPath.Length == 0) { currentPath = "/"; }
 
-    bool IsActive(MenuItem item)
+    const string LinkBase = "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium";
+    const string LinkIdle = "text-foreground hover:bg-accent";
+    const string LinkActive = "bg-accent text-primary";
+    const string ChildBase = "flex items-center gap-2 rounded-md px-2.5 py-1.5 text-2sm";
+    const string ChildIdle = "text-secondary-foreground hover:bg-accent hover:text-foreground";
+    const string ChildActive = "bg-accent text-primary font-semibold";
+    const string DisabledClasses = "pointer-events-none opacity-50";
+
+    void RenderBadge(MenuItem item)
     {
-        if (item.Url is null) { return false; }
-        var url = item.Url.TrimEnd('/');
-        if (url.Length == 0) { url = "/"; }
-        return string.Equals(url, currentPath, StringComparison.OrdinalIgnoreCase);
+        if (item.Badge is null) { return; }
+        <span class="menu-badge badge badge-@item.BadgeVariant ms-auto">@item.Badge</span>
     }
 
-    bool HasActiveDescendant(MenuItem item) =>
-        item.Children.Any(c => IsActive(c) || HasActiveDescendant(c));
+    void RenderTitle(MenuItem item)
+    {
+        <span class="menu-label">@item.Title</span>
+        if (item.OpenInNewTab)
+        {
+            <i class="ti ti-external-link text-muted-foreground text-xs"></i>
+        }
+        RenderBadge(item);
+    }
 
-    const string LeafClasses = "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium";
-    const string LeafIdle = "text-foreground hover:bg-accent";
-    const string LeafActive = "bg-accent text-primary";
+    // Renderer rekursif — depth 0 = level atas (icon), depth >= 1 = anak (tanpa icon besar).
+    void RenderItems(IReadOnlyList<MenuItem> items, int depth)
+    {
+        foreach (var item in items)
+        {
+            var isTop = depth == 0;
+            var linkBase = isTop ? LinkBase : ChildBase;
+            var idle = isTop ? LinkIdle : ChildIdle;
+            var active = isTop ? LinkActive : ChildActive;
+
+            if (item.IsHeading)
+            {
+                <div class="menu-heading text-muted-foreground px-2.5 pt-4 pb-1 text-xs font-medium uppercase">
+                    @item.Title
+                </div>
+            }
+            else if (item.Disabled)
+            {
+                <span class="@linkBase @DisabledClasses">
+                    @if (isTop)
+                    {
+                        <i class="@(item.Icon ?? "ti ti-category") text-muted-foreground text-lg"></i>
+                    }
+                    @{ RenderTitle(item); }
+                </span>
+            }
+            else if (item.Children.Count == 0)
+            {
+                <a href="@(item.Url ?? "#")"
+                   target="@(item.OpenInNewTab ? "_blank" : null)"
+                   rel="@(item.OpenInNewTab ? "noopener" : null)"
+                   class="@linkBase @(item.IsActive(currentPath) ? $"menu-active {active}" : idle)">
+                    @if (isTop)
+                    {
+                        <i class="@(item.Icon ?? "ti ti-category") text-muted-foreground text-lg"></i>
+                    }
+                    @{ RenderTitle(item); }
+                </a>
+            }
+            else
+            {
+                <details open="@(item.HasActiveDescendant(currentPath))">
+                    <summary class="@linkBase @idle cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                        @if (isTop)
+                        {
+                            <i class="@(item.Icon ?? "ti ti-category") text-muted-foreground text-lg"></i>
+                        }
+                        @{ RenderTitle(item); }
+                        @* rotasi saat terbuka: CSS details[open] di theme.css (bukan class dinamis) *@
+                        <i class="menu-chevron ti ti-chevron-down text-muted-foreground @(item.Badge is null ? "ms-auto" : "") text-xs transition-transform"></i>
+                    </summary>
+                    <div class="menu-sub border-border ms-5 mt-0.5 flex flex-col gap-0.5 border-s ps-3">
+                        @{ RenderItems(item.Children, depth + 1); }
+                    </div>
+                </details>
+            }
+        }
+    }
 }
 
-@* Accordion memakai <details> native — tanpa JS. *@
-<nav class="flex flex-col gap-0.5" id="sidebar_menu">
-    @foreach (var item in menuItems)
-    {
-        @if (item.IsHeading)
-        {
-            <div class="menu-heading text-muted-foreground px-2.5 pt-4 pb-1 text-xs font-medium uppercase">
-                @item.Title
-            </div>
-        }
-        else if (item.Children.Count == 0)
-        {
-            <a href="@(item.Url ?? "#")" class="@LeafClasses @(IsActive(item) ? $"menu-active {LeafActive}" : LeafIdle)">
-                <i class="@(item.TailwindIcon ?? "ti ti-category") text-muted-foreground text-lg"></i>
-                <span class="menu-label">@item.Title</span>
-            </a>
-        }
-        else
-        {
-            <details class="group" open="@(HasActiveDescendant(item))">
-                <summary class="@LeafClasses @LeafIdle cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-                    <i class="@(item.TailwindIcon ?? "ti ti-category") text-muted-foreground text-lg"></i>
-                    <span class="menu-label">@item.Title</span>
-                    <i class="menu-chevron ti ti-chevron-down text-muted-foreground ms-auto text-xs transition-transform group-open:rotate-180"></i>
-                </summary>
-                <div class="menu-sub border-border ms-5 mt-0.5 flex flex-col gap-0.5 border-s ps-3">
-                    @foreach (var child in item.Children)
-                    {
-                        <a href="@(child.Url ?? "#")"
-                           class="rounded-md px-2.5 py-1.5 text-2sm @(IsActive(child) ? "menu-active bg-accent text-primary font-semibold" : "text-secondary-foreground hover:bg-accent hover:text-foreground")">
-                            @child.Title
-                        </a>
-                    }
-                </div>
-            </details>
-        }
-    }
+@* Accordion memakai <details> native; single-open diatur layout.js via data-accordion-single. *@
+<nav class="flex flex-col gap-0.5" id="sidebar_menu"
+     data-accordion-single="@(MenuOptions.Value.AccordionSingleOpen ? "true" : "false")">
+    @{ RenderItems(menuItems, 0); }
 </nav>
