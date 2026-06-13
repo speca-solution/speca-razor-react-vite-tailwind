@@ -265,5 +265,8 @@ __pycache__/
 /apps/portal/wwwroot/dist
 /publish
 
+# Folder publish sementara (output `dotnet publish` / scripts/run-prod.ps1) — bukan source
+_pub/
+
 # Dev certificates (auto-generated oleh vite.config.ts via dotnet dev-certs)
 certs/
