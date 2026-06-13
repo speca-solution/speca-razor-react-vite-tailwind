@@ -34,6 +34,61 @@ builder.Services.AddSpecaMenu(menu =>
             Url = "/Layout2",
             Icon = "ti ti-layout-navbar",
         },
+        new MenuItem
+        {
+            Title = "Components",
+            Url = "/Components",
+            Icon = "ti ti-components",
+        },
+        new MenuItem
+        {
+            Title = "Tabel Data",
+            Url = "/Tables",
+            Icon = "ti ti-table",
+        },
+        new MenuItem
+        {
+            Title = "Charts",
+            Url = "/Charts",
+            Icon = "ti ti-chart-line",
+        },
+        new MenuItem
+        {
+            Title = "Pengaturan",
+            Url = "/Settings",
+            Icon = "ti ti-settings",
+        },
+        new MenuItem { Title = "Halaman Auth & Error", IsHeading = true },
+        new MenuItem
+        {
+            Title = "Masuk (Login)",
+            Url = "/Account/Login",
+            Icon = "ti ti-login",
+        },
+        new MenuItem
+        {
+            Title = "Daftar (Register)",
+            Url = "/Account/Register",
+            Icon = "ti ti-user-plus",
+        },
+        new MenuItem
+        {
+            Title = "Lupa Password",
+            Url = "/Account/ForgotPassword",
+            Icon = "ti ti-key",
+        },
+        new MenuItem
+        {
+            Title = "Error 404",
+            Url = "/StatusCode/404",
+            Icon = "ti ti-mood-sad",
+        },
+        new MenuItem
+        {
+            Title = "Error 500",
+            Url = "/Error",
+            Icon = "ti ti-alert-triangle",
+        },
         new MenuItem { Title = "Contoh Fitur Menu", IsHeading = true },
         new MenuItem
         {
@@ -69,7 +124,7 @@ builder.Services.AddSpecaMenu(menu =>
             Icon = "ti ti-lock",
             Disabled = true,
             Badge = "Soon",
-            BadgeVariant = "warning",
+            BadgeVariant = "muted",
         },
         new MenuItem
         {
@@ -83,11 +138,18 @@ builder.Services.AddSpecaMenu(menu =>
 
 var app = builder.Build();
 
+// Security headers + CSP (sadar-environment): produksi tanpa 'unsafe-eval',
+// development mengizinkannya untuk HMR Vite. Dipasang paling awal agar
+// melindungi setiap respons, termasuk halaman error.
+app.UseSpecaSecurityHeaders(app.Environment);
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
+
+app.UseStatusCodePagesWithReExecute("/StatusCode/{0}");
 
 app.UseHttpsRedirection();
 

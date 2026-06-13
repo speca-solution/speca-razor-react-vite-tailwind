@@ -215,6 +215,24 @@ export default defineConfig(({ command }) => ({
                 },
                 codeSplitting: {
                     minSize: 20000,
+                    // CATATAN PENTING — kenapa TIDAK ada grup per-vendor di sini:
+                    //
+                    // Tiap vendor (apexcharts, quill, flatpickr, dst.) adalah entry-point
+                    // TERPISAH. Rolldown sudah tahu seluruh graf import, jadi code-splitting
+                    // otomatis berbasis-entry sudah:
+                    //   • mengisolasi tiap vendor (halaman apexcharts tak menyeret quill),
+                    //   • mengekstrak dep yang dipakai BERSAMA jadi shared-chunk (tanpa
+                    //     duplikasi modul) dan men-share-nya antar entry.
+                    //
+                    // Pendekatan lama (regex per-paket: quill|parchment|lodash-es|…) ditolak
+                    // karena RAPUH: test dicocokkan ke path modul, bukan ke siapa peng-import.
+                    // Begitu sebuah sub-dep (mis. lodash, eventemitter3) dipakai library lain,
+                    // ia salah-rute — terperangkap di chunk vendor, memaksa halaman tak terkait
+                    // memuat vendor itu utuh. Sudah dibuktikan empiris & dibuang.
+                    //
+                    // Grup react DIPERTAHANKAN: react sengaja dibagi oleh semua entry SPA,
+                    // jadi kita beri nama chunk stabil demi caching — ini penamaan framework,
+                    // BUKAN enumerasi sub-dep untuk isolasi.
                     groups: [
                         {
                             name: 'libs/react',
@@ -226,11 +244,6 @@ export default defineConfig(({ command }) => ({
                             test: /node_modules[\\/]react-dom/,
                             priority: 21,
                         },
-                        {
-                            name: 'libs/vendor',
-                            test: /node_modules/,
-                            priority: 10,
-                        }
                     ],
                 }
             }

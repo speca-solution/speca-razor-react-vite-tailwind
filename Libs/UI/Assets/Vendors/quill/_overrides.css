@@ -1,0 +1,44 @@
+/* Quill — selaraskan border/warna ke token tema + dukungan dark mode. */
+.ql-toolbar.ql-snow,
+.ql-container.ql-snow {
+  border-color: var(--input);
+}
+
+.ql-toolbar.ql-snow {
+  border-start-start-radius: var(--radius);
+  border-start-end-radius: var(--radius);
+}
+
+.ql-container.ql-snow {
+  border-end-start-radius: var(--radius);
+  border-end-end-radius: var(--radius);
+  font-size: 0.875rem;
+  color: var(--foreground);
+}
+
+.ql-editor {
+  min-height: 8rem;
+}
+
+.ql-editor.ql-blank::before {
+  color: var(--muted-foreground);
+  font-style: normal;
+}
+
+/* Dark mode: ikon & stroke toolbar perlu di-terangkan */
+.dark .ql-snow .ql-stroke {
+  stroke: var(--secondary-foreground);
+}
+
+.dark .ql-snow .ql-fill {
+  fill: var(--secondary-foreground);
+}
+
+.dark .ql-snow .ql-picker {
+  color: var(--secondary-foreground);
+}
+
+.dark .ql-snow .ql-picker-options {
+  background: var(--background);
+  border-color: var(--border);
+}

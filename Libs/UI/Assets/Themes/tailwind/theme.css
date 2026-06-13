@@ -17,7 +17,7 @@
 /* Dark mode via class .dark di <html> */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ---- Token warna (light) ---- */
+/* ---- Token warna (light) + token BENTUK theme1 (spesifikasi KTUI, MIT) ---- */
 :root {
   --background: #ffffff;
   --foreground: #071437;
@@ -31,6 +31,20 @@
   --primary: #1b84ff;
   --primary-foreground: #ffffff;
   --sidebar: #fcfcfc;
+
+  /* Bentuk — diekstrak dari KTUI btn/input/card.css:
+     kontrol h-8.5 (34px) text 13px px-3, radius rounded-md, card rounded-xl
+     header min-h-14 px-5, shadow-xs 0 1px 2px 5% */
+  --radius: 0.375rem;
+  --radius-card: 0.75rem;
+  --control-h: 2.125rem;
+  --control-px: 0.75rem;
+  --btn-px: 0.75rem;
+  --font-control: 0.8125rem;
+  --card-px: 1.25rem;
+  --card-header-h: 3.5rem;
+  --shadow-control: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .dark {
@@ -85,6 +99,20 @@
   --primary-foreground: #ffffff;
   --sidebar: #ffffff;
   font-family: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+
+  /* Bentuk — diekstrak dari SCSS Vuexy (_bootstrap-extended/_variables.scss):
+     $font-size-base .9375rem, $input-btn-padding .6rem/1.25rem (≈ h 42px),
+     $border-radius .375rem, $card-spacer 1.5rem, tanpa shadow kontrol */
+  --radius: 0.375rem;
+  --radius-card: 0.375rem;
+  --control-h: 2.625rem;
+  --control-px: 1rem;
+  --btn-px: 1.25rem;
+  --font-control: 0.9375rem;
+  --card-px: 1.5rem;
+  --card-header-h: 4rem;
+  --shadow-control: none;
+  --shadow-card: 0 0.125rem 0.375rem rgba(75, 70, 92, 0.08);
 }
 
 /* Dark variant theme2 — .theme2.dark menang atas .theme2 dan .dark (0-2-0) */
@@ -113,13 +141,24 @@
   box-shadow: 0 0.125rem 0.5rem rgba(12, 14, 26, 0.45);
 }
 
-.theme2.dark .card {
-  box-shadow: 0 0.125rem 0.375rem rgba(12, 14, 26, 0.35);
+.theme2.dark {
+  --shadow-card: 0 0.125rem 0.375rem rgba(12, 14, 26, 0.35);
 }
 
+/* Navbar DETACHED khas Vuexy: kartu melayang ber-radius + shadow,
+   tetap sticky dengan offset (gap atas dipertahankan saat scroll) */
 .theme2 .app-header {
   border-bottom: 0;
-  box-shadow: 0 0.125rem 0.5rem rgba(75, 70, 92, 0.08);
+  border-radius: 0.5rem;
+  margin: 1rem 1.5rem 0;
+  top: 1rem;
+  box-shadow: 0 0.125rem 0.5rem rgba(75, 70, 92, 0.12);
+}
+
+/* Card header Vuexy tidak bergaris pemisah (beda dengan KTUI) */
+.theme2 .card-header {
+  border-bottom: 0;
+  padding-block-end: 0;
 }
 
 /* Item menu aktif blok solid primary — khas Vuexy */
@@ -139,29 +178,79 @@
     @apply mx-auto w-full px-6 lg:px-8 max-w-[1320px];
   }
 
+  /* ---- Sistem button: base sama utk semua variant (boleh dipakai tanpa .btn) ---- */
+  .btn,
+  .btn-primary,
+  .btn-outline,
+  .btn-ghost,
+  .btn-light,
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-1.5 font-medium whitespace-nowrap transition-[color,box-shadow,background-color] outline-none focus-visible:ring-2 focus-visible:ring-primary/30 disabled:pointer-events-none disabled:opacity-50;
+    height: var(--control-h);
+    padding-inline: var(--btn-px);
+    border-radius: var(--radius);
+    font-size: var(--font-control);
+    box-shadow: var(--shadow-control);
+  }
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+
   .btn-outline {
-    @apply inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-3.5 py-2 text-sm font-medium text-secondary-foreground hover:bg-accent;
+    @apply border-input text-secondary-foreground hover:bg-accent hover:text-foreground border bg-transparent;
+  }
+
+  .btn-ghost {
+    @apply text-secondary-foreground hover:bg-accent hover:text-foreground;
+  }
+
+  .btn-light {
+    @apply bg-accent text-foreground hover:bg-accent/70;
+  }
+
+  .btn-danger {
+    @apply bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500/30;
+  }
+
+  .btn-sm {
+    height: calc(var(--control-h) - 0.5rem);
+    padding-inline: calc(var(--btn-px) - 0.25rem);
+    font-size: calc(var(--font-control) - 0.0625rem);
   }
 
   .btn-icon {
-    @apply inline-flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground;
+    @apply text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:ring-primary/30 inline-flex shrink-0 items-center justify-center transition-colors outline-none focus-visible:ring-2;
+    width: var(--control-h);
+    height: var(--control-h);
+    border-radius: var(--radius);
   }
 
-  /* Card — flat & bordered ala Metronic; di-skin ulang oleh .theme2 */
+  /* Card — bentuk per theme via shape token (KTUI: rounded-xl, header min-h-14 px-5) */
   .card {
-    @apply bg-background border-border rounded-xl border;
+    @apply bg-background border-border border;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
   }
 
   .card-header {
-    @apply flex items-center justify-between gap-2 px-6 pt-5 pb-3;
+    @apply border-border flex flex-wrap items-center justify-between gap-2 border-b;
+    min-height: var(--card-header-h);
+    padding-inline: var(--card-px);
+    padding-block: 0.625rem;
   }
 
   .card-title {
-    @apply text-mono text-base font-semibold;
+    @apply text-mono text-base leading-none font-semibold tracking-tight;
   }
 
   .card-body {
-    @apply px-6 pb-6;
+    padding: var(--card-px);
+  }
+
+  /* card dengan padding langsung — pakai class="card card-body" */
+  .card-padded {
+    padding: var(--card-px);
   }
 
   .badge {
@@ -184,14 +273,590 @@
     @apply bg-primary/10 text-primary;
   }
 
+  /* Badge netral utk label "Soon" dkk (ala Metronic) */
+  .badge-muted {
+    @apply bg-accent text-muted-foreground;
+  }
+
   /* Panel dropdown header (notifikasi, user menu) — ditoggle layout.js */
   .dropdown-panel {
-    @apply border-border bg-background absolute end-0 top-full z-50 mt-2 w-72 rounded-lg border p-2 shadow-lg;
+    @apply border-border bg-background absolute end-0 top-full z-50 mt-2 w-72 rounded-lg border p-2 shadow-[0_8px_24px_rgba(0,0,0,0.12)];
   }
 
   .dropdown-item {
     @apply text-secondary-foreground hover:bg-accent hover:text-foreground flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm;
   }
+
+  /* ---- Form controls (E6-01) ---- */
+  .form-label {
+    @apply text-foreground mb-1.5 block text-sm font-medium;
+  }
+
+  .form-hint {
+    @apply text-muted-foreground mt-1.5 block text-xs;
+  }
+
+  .input {
+    @apply border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/15 w-full border transition-shadow outline-none focus:ring-3 disabled:pointer-events-none disabled:opacity-50;
+    height: var(--control-h);
+    padding-inline: var(--control-px);
+    border-radius: var(--radius);
+    font-size: var(--font-control);
+    box-shadow: var(--shadow-control);
+  }
+
+  .textarea {
+    @apply border-input bg-background text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/15 min-h-20 w-full border py-2 transition-shadow outline-none focus:ring-3 disabled:pointer-events-none disabled:opacity-50;
+    padding-inline: var(--control-px);
+    border-radius: var(--radius);
+    font-size: var(--font-control);
+    box-shadow: var(--shadow-control);
+  }
+
+  .select {
+    @apply border-input bg-background text-foreground focus:border-primary focus:ring-primary/15 w-full appearance-none border pe-8 transition-shadow outline-none focus:ring-3 disabled:pointer-events-none disabled:opacity-50;
+    height: var(--control-h);
+    padding-inline-start: var(--control-px);
+    border-radius: var(--radius);
+    font-size: var(--font-control);
+    box-shadow: var(--shadow-control);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2399a1b7' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 0.625rem center;
+    background-repeat: no-repeat;
+  }
+
+  /* Checkbox & radio digambar sendiri (appearance-none) — crisp & konsisten
+     lintas browser, gaya referensi; bukan accent-color native. */
+  .checkbox {
+    @apply border-input bg-background focus-visible:ring-primary/30 size-4 cursor-pointer appearance-none rounded border transition-colors outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .checkbox:checked {
+    @apply border-primary bg-primary;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+    background-size: 0.65rem;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .radio {
+    @apply border-input bg-background focus-visible:ring-primary/30 size-4 cursor-pointer appearance-none rounded-full border transition-colors outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .radio:checked {
+    @apply border-primary bg-primary;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='3' fill='white'/%3E%3C/svg%3E");
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  /* ---- Tabs (E6-05) ---- */
+  .tab-toggle {
+    @apply text-secondary-foreground hover:text-foreground border-b-2 border-transparent px-3 py-2.5 text-sm font-medium;
+  }
+
+  .tab-toggle.tab-active {
+    @apply text-primary border-primary;
+  }
+
+  /* ---- Primitif kecil (E6-11) ---- */
+  .alert {
+    @apply border-border bg-muted text-foreground flex items-start gap-2.5 rounded-lg border px-4 py-3 text-sm;
+  }
+
+  .alert-success {
+    @apply border-green-200 bg-green-50 text-green-700 dark:border-green-500/20 dark:bg-green-500/10 dark:text-green-400;
+  }
+
+  .alert-warning {
+    @apply border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400;
+  }
+
+  .alert-danger {
+    @apply border-red-200 bg-red-50 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400;
+  }
+
+  .alert-primary {
+    @apply border-primary/20 bg-primary/5 text-primary;
+  }
+
+  .progress {
+    @apply bg-accent h-2 w-full overflow-hidden rounded-full;
+  }
+
+  .progress-bar {
+    @apply bg-primary h-full rounded-full transition-all;
+  }
+
+  .spinner {
+    @apply inline-block size-5 animate-spin rounded-full border-2 border-current border-t-transparent;
+  }
+
+  .avatar {
+    @apply bg-primary text-primary-foreground inline-flex items-center justify-center rounded-full font-semibold;
+  }
+
+  .pagination {
+    @apply flex items-center gap-1;
+  }
+
+  .page-link {
+    @apply text-secondary-foreground hover:bg-accent inline-flex size-8 items-center justify-center rounded-md text-sm;
+  }
+
+  .page-link.active {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  .skeleton {
+    @apply bg-accent animate-pulse rounded-md;
+  }
+
+  /* ---- Primitif-2 (E6-12) ---- */
+  .accordion {
+    @apply border-border divide-border bg-background divide-y rounded-lg border;
+  }
+
+  .accordion-item > summary {
+    @apply flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-medium [&::-webkit-details-marker]:hidden;
+  }
+
+  .accordion-body {
+    @apply text-secondary-foreground px-4 pb-4 text-sm;
+  }
+
+  .popover {
+    @apply border-border bg-background absolute start-0 top-full z-50 mt-2 w-64 rounded-lg border shadow-[0_8px_24px_rgba(0,0,0,0.12)];
+  }
+
+  .popover-title {
+    @apply border-border text-mono border-b px-3.5 py-2.5 text-sm font-semibold;
+  }
+
+  .popover-body {
+    @apply text-secondary-foreground px-3.5 py-2.5 text-sm;
+  }
+
+  .kbd {
+    @apply border-border bg-muted text-secondary-foreground inline-flex min-w-6 items-center justify-center rounded border px-1.5 py-0.5 font-mono text-xs;
+    box-shadow: 0 1px 0 var(--border);
+  }
+
+  .btn-group {
+    @apply inline-flex;
+  }
+
+  .breadcrumb {
+    @apply text-secondary-foreground flex flex-wrap items-center gap-1.5 text-sm;
+  }
+
+  .breadcrumb a:hover {
+    @apply text-primary;
+  }
+
+  .breadcrumb .active {
+    @apply text-foreground font-medium;
+  }
+
+  .rating {
+    @apply inline-flex items-center gap-0.5;
+  }
+
+  .rating button {
+    @apply text-muted-foreground cursor-pointer text-lg transition-colors;
+  }
+
+  .rating button.active {
+    @apply text-amber-400;
+  }
+}
+
+/* Input number (stepper) */
+.input-number {
+  display: inline-flex;
+  align-items: stretch;
+  height: var(--control-h);
+  border: 1px solid var(--input);
+  border-radius: var(--radius);
+  background: var(--background);
+  overflow: hidden;
+}
+
+.input-number input {
+  width: 3rem;
+  border: 0;
+  outline: none;
+  background: transparent;
+  text-align: center;
+  font-size: var(--font-control);
+  color: var(--foreground);
+  appearance: textfield;
+}
+
+.input-number input::-webkit-outer-spin-button,
+.input-number input::-webkit-inner-spin-button {
+  appearance: none;
+}
+
+.input-number button {
+  width: 2.125rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.input-number button:hover {
+  background: var(--accent);
+  color: var(--foreground);
+}
+
+/* Button group: gabungkan radius & border antar tombol */
+.btn-group > :not(:first-child) {
+  margin-inline-start: -1px;
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+
+.btn-group > :not(:last-child) {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+/* Accordion: chevron berputar saat terbuka */
+.accordion-item[open] > summary .menu-chevron {
+  transform: rotate(180deg);
+}
+
+/* Timeline (formalisasi pola Aktivitas) */
+.timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  inset-inline-start: 0.28rem;
+  width: 1px;
+  background: var(--border);
+}
+
+.timeline-item {
+  position: relative;
+  padding-inline-start: 1.5rem;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  top: 0.3rem;
+  inset-inline-start: 0;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 9999px;
+  background: var(--timeline-color, var(--primary));
+  border: 2px solid var(--background);
+}
+
+.timeline-item-success { --timeline-color: #22c55e; }
+.timeline-item-warning { --timeline-color: #f59e0b; }
+.timeline-item-danger { --timeline-color: #ef4444; }
+
+/* BlockUI — overlay loading di atas container relative (window.specaBlock) */
+.blockui-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--background) 65%, transparent);
+  backdrop-filter: blur(1px);
+  font-size: 0.875rem;
+  color: var(--secondary-foreground);
+}
+
+/* ---- Tabel data (E6-09) ---- */
+.table {
+  width: 100%;
+  font-size: 0.875rem;
+  border-collapse: collapse;
+}
+
+.table thead th {
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  text-align: start;
+  white-space: nowrap;
+}
+
+.table tbody td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table-hover tbody tr:hover {
+  background: var(--accent);
+}
+
+/* Divider berlabel */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  background: var(--border);
+}
+
+/* ---- Tooltip CSS-only (E6-06): data-tooltip + opsional data-tooltip-pos="bottom" ---- */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  translate: -50% 0;
+  z-index: 70;
+  white-space: nowrap;
+  border-radius: 0.375rem;
+  background: var(--mono);
+  color: var(--background);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
+[data-tooltip][data-tooltip-pos='bottom']:hover::after {
+  top: calc(100% + 6px);
+  bottom: auto;
+}
+
+/* ---- Drawer generik (E6-07): panel kanan, data-drawer-open/dismiss ---- */
+.drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  inset-inline-end: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  width: 20rem;
+  max-width: calc(100vw - 2rem);
+  background: var(--background);
+  color: var(--foreground);
+  border-inline-start: 1px solid var(--border);
+  transform: translateX(100%);
+  transition: transform 0.2s ease;
+}
+
+.drawer.open {
+  transform: none;
+  box-shadow: 0 0 2rem rgba(0, 0, 0, 0.18);
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 1.25rem;
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
+}
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 59;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+body:has(.drawer.open) {
+  overflow: hidden;
+}
+
+/* Switch — dimensi KTUI (h-5 w-7.5, thumb putih ber-shadow halus) */
+.switch {
+  appearance: none;
+  position: relative;
+  width: 1.875rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  cursor: pointer;
+  border-radius: 9999px;
+  background: var(--input);
+  transition: background-color 0.15s ease;
+}
+
+.switch::before {
+  content: '';
+  position: absolute;
+  top: 0.125rem;
+  inset-inline-start: 0.125rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: translate 0.15s ease;
+}
+
+.switch:checked {
+  background: var(--primary);
+}
+
+.switch:checked::before {
+  translate: 0.625rem 0;
+}
+
+.switch:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Validasi — class yang dipasang ASP.NET / aspnet-client-validation */
+.input-validation-error,
+.input.input-validation-error,
+.select.input-validation-error,
+.textarea.input-validation-error {
+  border-color: #ef4444;
+}
+
+.field-validation-error {
+  display: block;
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  color: #ef4444;
+}
+
+.field-validation-valid {
+  display: none;
+}
+
+/* Status sukses (di-set engine speca-validation setelah field tersentuh & valid) */
+.input-validation-success {
+  border-color: #22c55e;
+}
+
+/* Focus ring merah saat field error */
+.input-validation-error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* Panah select menyesuaikan dark mode */
+.dark .select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23636674' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* ---- Modal <dialog> (E6-03) ---- */
+dialog.modal {
+  margin: auto;
+  width: calc(100% - 2rem);
+  max-width: 32rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--background);
+  color: var(--foreground);
+  padding: 0;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.18);
+}
+
+dialog.modal::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+body:has(dialog.modal[open]) {
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 1.25rem 1.5rem 0.75rem;
+}
+
+.modal-body {
+  padding: 0 1.5rem 1.25rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  border-top: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+}
+
+/* ---- Toast (E6-04) — dibuat window.specaToast di layout.js ---- */
+#toast_container {
+  position: fixed;
+  top: 1rem;
+  inset-inline-end: 1rem;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 22rem;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  border: 1px solid var(--border);
+  border-inline-start: 3px solid var(--primary);
+  border-radius: 0.625rem;
+  background: var(--background);
+  color: var(--foreground);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.12);
+  animation: toast-in 0.18s ease;
+}
+
+.toast.toast-success { border-inline-start-color: #22c55e; }
+.toast.toast-warning { border-inline-start-color: #f59e0b; }
+.toast.toast-danger  { border-inline-start-color: #ef4444; }
+
+@keyframes toast-in {
+  from { opacity: 0; translate: 0 -0.5rem; }
+  to { opacity: 1; translate: 0 0; }
 }
 
 /* Chevron accordion menu berputar saat terbuka (semua level rekursif) */
@@ -211,6 +876,12 @@
 
 #sidebar {
   transition: width 0.2s ease, transform 0.2s ease;
+}
+
+/* Chevron tombol collapse berputar 180° saat collapsed (menunjuk keluar = "klik untuk buka").
+   Tetap berputar walau sidebar melebar saat hover — menandakan state pinned, bukan lebar visual. */
+.sidebar-collapsed .collapse-chevron {
+  transform: rotate(180deg);
 }
 
 /* Collapse sidebar desktop = icon rail 72px, melebar lagi saat hover
@@ -248,9 +919,490 @@
   }
 }
 
-/* Card melayang khas theme2: putih di light, panel gelap di dark (var --muted) */
+/* Card melayang khas theme2: putih di light, panel gelap di dark (var --muted);
+   shadow dari --shadow-card */
 .theme2 .card {
   background: var(--muted);
   border-color: transparent;
-  box-shadow: 0 0.125rem 0.375rem rgba(75, 70, 92, 0.08);
+}
+
+/* ---- Image input (E8-06) — avatar upload dengan preview on-hover ---- */
+.image-input {
+  position: relative;
+  display: inline-block;
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.image-input-lg {
+  width: 7rem;
+  height: 7rem;
+}
+
+.image-input-square {
+  border-radius: var(--radius);
+}
+
+.image-input img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.image-input-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.image-input:hover .image-input-overlay {
+  opacity: 1;
+}
+
+.image-input-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.image-input-btn:hover {
+  background: #f1f5f9;
+}
+
+/* ============================================================
+   Komponen tambahan — selaras referensi (Metronic/Vuexy).
+   Semua token-driven: theme1/theme2 + dark ikut otomatis.
+   ============================================================ */
+
+/* ---- Tier 1: Input group / addon ---- */
+.input-group {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.input-group > * {
+  border-radius: 0;
+}
+
+.input-group > .input {
+  flex: 1 1 auto;
+  width: auto;
+}
+
+.input-group > :not(:first-child) {
+  margin-inline-start: -1px;
+}
+
+.input-group > :first-child {
+  border-start-start-radius: var(--radius);
+  border-end-start-radius: var(--radius);
+}
+
+.input-group > :last-child {
+  border-start-end-radius: var(--radius);
+  border-end-end-radius: var(--radius);
+}
+
+/* Input yang fokus naik ke atas agar ring tidak tertutup tetangga */
+.input-group > .input:focus {
+  position: relative;
+  z-index: 1;
+}
+
+.input-group-text {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  height: var(--control-h);
+  padding-inline: var(--control-px);
+  background: var(--muted);
+  border: 1px solid var(--input);
+  color: var(--muted-foreground);
+  font-size: var(--font-control);
+}
+
+/* ---- Tier 1: Range slider (fill via --p, di-set JS) ---- */
+.range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 0.375rem;
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(
+    to right,
+    var(--primary) var(--p, 50%),
+    var(--accent) var(--p, 50%)
+  );
+}
+
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--background);
+  box-shadow: var(--shadow-control);
+  cursor: pointer;
+}
+
+.range::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--background);
+  cursor: pointer;
+}
+
+.range:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- Tier 1: List group ---- */
+.list-group {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.list-group-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  background: var(--background);
+}
+
+.list-group-item + .list-group-item {
+  border-top: 1px solid var(--border);
+}
+
+a.list-group-item,
+button.list-group-item {
+  cursor: pointer;
+  transition: background 0.1s;
+  text-align: start;
+  width: 100%;
+}
+
+a.list-group-item:hover,
+button.list-group-item:hover {
+  background: var(--accent);
+}
+
+.list-group-item.active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.list-group-item.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ---- Tier 1: Custom option cards (radio/checkbox jadi kartu) ---- */
+.option-card {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--input);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition:
+    border-color 0.1s,
+    background 0.1s;
+}
+
+.option-card:hover {
+  border-color: var(--primary);
+}
+
+.option-card:has(input:checked) {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 6%, transparent);
+}
+
+.option-card:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- Tier 1: OTP / PIN input (auto-advance via JS) ---- */
+.pin-input {
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.pin-input input {
+  width: var(--control-h);
+  height: var(--control-h);
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border: 1px solid var(--input);
+  border-radius: var(--radius);
+  background: var(--background);
+  color: var(--foreground);
+  outline: none;
+  transition:
+    border-color 0.1s,
+    box-shadow 0.1s;
+  appearance: textfield;
+}
+
+.pin-input input::-webkit-outer-spin-button,
+.pin-input input::-webkit-inner-spin-button {
+  appearance: none;
+}
+
+.pin-input input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
+}
+
+/* ---- Tier 1: Stat / metric card ---- */
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: var(--card-px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--background);
+  box-shadow: var(--shadow-card);
+}
+
+.stat-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
+  font-size: 1.25rem;
+}
+
+.stat-card-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--foreground);
+}
+
+.stat-card-label {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+.stat-trend-up {
+  color: #16a34a;
+}
+
+.stat-trend-down {
+  color: #dc2626;
+}
+
+/* ---- Tier 1: Avatar group + status dot ---- */
+.avatar-group {
+  display: inline-flex;
+}
+
+.avatar-group > .avatar {
+  border: 2px solid var(--background);
+}
+
+.avatar-group > .avatar:not(:first-child) {
+  margin-inline-start: -0.6rem;
+}
+
+.avatar-indicator {
+  position: relative;
+  display: inline-flex;
+}
+
+.avatar-status {
+  position: absolute;
+  bottom: 0;
+  inset-inline-end: 0;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  border: 2px solid var(--background);
+}
+
+.avatar-status-online {
+  background: #22c55e;
+}
+
+.avatar-status-busy {
+  background: #ef4444;
+}
+
+.avatar-status-away {
+  background: #f59e0b;
+}
+
+.avatar-status-offline {
+  background: #94a3b8;
+}
+
+/* ---- Tier 2: Stepper / Form Wizard ---- */
+.wizard-nav {
+  display: flex;
+  align-items: center;
+}
+
+.wizard-step {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.wizard-step-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--background);
+  color: var(--muted-foreground);
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.15s;
+}
+
+.wizard-step-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.wizard-step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  margin-inline: 0.5rem;
+}
+
+.wizard-step.active .wizard-step-circle,
+.wizard-step.done .wizard-step-circle {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.wizard-step.active .wizard-step-label,
+.wizard-step.done .wizard-step-label {
+  color: var(--foreground);
+}
+
+/* ---- Tier 2: DataTable ringan (sort/search/paginate sisi-klien) ---- */
+.table th[data-sort] {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.table th[data-sort]::after {
+  content: '\2195';
+  opacity: 0.35;
+  margin-inline-start: 0.35rem;
+  font-size: 0.75rem;
+}
+
+.table th.sort-asc::after {
+  content: '\2191';
+  opacity: 1;
+}
+
+.table th.sort-desc::after {
+  content: '\2193';
+  opacity: 1;
+}
+
+/* ---- Tier 2: File dropzone (multi-file drag) ---- */
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  border: 2px dashed var(--input);
+  border-radius: var(--radius);
+  background: var(--muted);
+  color: var(--muted-foreground);
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.dropzone:hover,
+.dropzone.dragover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 5%, transparent);
+}
+
+.dropzone-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.dropzone-file {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--background);
+  font-size: 0.8125rem;
+  color: var(--foreground);
+}
+
+.dropzone-file button {
+  margin-inline-start: auto;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.dropzone-file button:hover {
+  color: #ef4444;
 }

@@ -1,0 +1,627 @@
+@page
+@model Speca.Portal.Pages.ComponentsModel
+@{
+    ViewData["Title"] = "Components";
+}
+
+@section Breadcrumb {
+    <div class="flex flex-wrap items-center justify-between gap-5 pb-7.5">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-mono text-xl leading-none font-medium">Components</h1>
+            <div class="text-secondary-foreground text-sm">Galeri komponen dasar — form, modal, toast, tabs.</div>
+        </div>
+    </div>
+}
+
+@if (Model.SuccessMessage is not null)
+{
+    <div class="card mb-5">
+        <div class="card-body flex items-center gap-2 pt-5 text-sm text-green-600 dark:text-green-400">
+            <i class="ti ti-check"></i> @Model.SuccessMessage
+        </div>
+    </div>
+}
+
+<div class="grid gap-5 xl:grid-cols-2">
+
+    <!-- Form + validasi client-side -->
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Form & Validasi (tanpa jQuery)</h3></div>
+        <div class="card-body">
+            <form method="post" class="flex flex-col gap-4" novalidate>
+                <div>
+                    <label class="form-label" asp-for="Form.Name"></label>
+                    <input class="input" asp-for="Form.Name" placeholder="Nama lengkap" />
+                    <span asp-validation-for="Form.Name"></span>
+                </div>
+                <div>
+                    <label class="form-label" asp-for="Form.Email"></label>
+                    <input class="input" asp-for="Form.Email" placeholder="nama@contoh.id" />
+                    <span asp-validation-for="Form.Email"></span>
+                    <span class="form-hint">Validasi DataAnnotations berjalan di browser sebelum submit.</span>
+                </div>
+                <div>
+                    <label class="form-label" asp-for="Form.Role"></label>
+                    <select class="select" asp-for="Form.Role">
+                        <option value="">— pilih —</option>
+                        <option>Admin</option>
+                        <option>Editor</option>
+                        <option>Viewer</option>
+                    </select>
+                    <span asp-validation-for="Form.Role"></span>
+                </div>
+                <div>
+                    <label class="form-label" asp-for="Form.Notes"></label>
+                    <textarea class="textarea" asp-for="Form.Notes" placeholder="Opsional"></textarea>
+                    <span asp-validation-for="Form.Notes"></span>
+                </div>
+                <div>
+                    <label class="form-label" asp-for="Form.CardNumber"></label>
+                    <input class="input" asp-for="Form.CardNumber" placeholder="4111 1111 1111 1111" />
+                    <span asp-validation-for="Form.CardNumber"></span>
+                    <span class="form-hint">Validator Luhn berjalan client-side dari atribut [CreditCard] C#.</span>
+                </div>
+                <div class="flex items-center gap-6">
+                    <label class="flex cursor-pointer items-center gap-2 text-sm">
+                        <input type="checkbox" class="switch" asp-for="Form.IsActive" />
+                        Aktif (switch)
+                    </label>
+                    <label class="flex cursor-pointer items-center gap-2 text-sm">
+                        <input type="checkbox" class="checkbox" checked /> Checkbox
+                    </label>
+                    <label class="flex cursor-pointer items-center gap-2 text-sm">
+                        <input type="radio" class="radio" name="r1" checked /> Radio
+                    </label>
+                </div>
+                <div class="flex gap-3 pt-1">
+                    <button type="submit" class="btn btn-primary">
+                        Submit
+                    </button>
+                    <button type="reset" class="btn-outline">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="flex flex-col gap-5">
+        <!-- Modal -->
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Modal (&lt;dialog&gt; native)</h3></div>
+            <div class="card-body flex gap-3">
+                <button type="button" class="btn btn-primary"
+                        data-modal-open="#demo_modal">
+                    Buka Modal
+                </button>
+                <button type="button" class="btn-outline" data-modal-open="#confirm_modal">
+                    Pola Confirm
+                </button>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Toast</h3></div>
+            <div class="card-body flex flex-wrap gap-2">
+                <button type="button" class="btn-outline" onclick="specaToast('Data tersimpan.', 'success')">Success</button>
+                <button type="button" class="btn-outline" onclick="specaToast('Periksa kembali input Anda.', 'warning')">Warning</button>
+                <button type="button" class="btn-outline" onclick="specaToast('Terjadi kesalahan server.', 'danger')">Danger</button>
+                <button type="button" class="btn-outline" onclick="specaToast('Info biasa.')">Default</button>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Tabs</h3></div>
+            <div class="card-body">
+                <div class="border-border flex gap-1 border-b" data-tabs>
+                    <button type="button" class="tab-toggle tab-active" data-tab-target="#tab_profil">Profil</button>
+                    <button type="button" class="tab-toggle" data-tab-target="#tab_keamanan">Keamanan</button>
+                    <button type="button" class="tab-toggle" data-tab-target="#tab_notif">Notifikasi</button>
+                </div>
+                <div class="pt-4 text-sm">
+                    <div id="tab_profil">Konten tab <b>Profil</b>.</div>
+                    <div id="tab_keamanan" class="hidden">Konten tab <b>Keamanan</b>.</div>
+                    <div id="tab_notif" class="hidden">Konten tab <b>Notifikasi</b>.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tooltip & Drawer -->
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Tooltip & Drawer</h3></div>
+            <div class="card-body flex flex-wrap gap-3">
+                <button type="button" class="btn-outline" data-tooltip="Tooltip CSS murni, tanpa JS">Hover saya</button>
+                <button type="button" class="btn-outline" data-tooltip="Posisi bawah" data-tooltip-pos="bottom">Tooltip bawah</button>
+                <button type="button" class="btn btn-primary"
+                        data-drawer-open="#demo_drawer">
+                    Buka Drawer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Primitif kecil -->
+<div class="card mt-5">
+    <div class="card-header"><h3 class="card-title">Primitif</h3></div>
+    <div class="card-body grid gap-6 lg:grid-cols-2">
+        <div class="flex flex-col gap-2.5">
+            <div class="alert alert-primary"><i class="ti ti-info-circle"></i> Alert primary — informasi umum.</div>
+            <div class="alert alert-success"><i class="ti ti-check"></i> Alert success — aksi berhasil.</div>
+            <div class="alert alert-warning"><i class="ti ti-alert-triangle"></i> Alert warning — perlu perhatian.</div>
+            <div class="alert alert-danger"><i class="ti ti-x"></i> Alert danger — terjadi kesalahan.</div>
+        </div>
+        <div class="flex flex-col gap-5">
+            <div>
+                <div class="text-secondary-foreground mb-1.5 flex justify-between text-sm"><span>Progress</span><span>72%</span></div>
+                <div class="progress"><div class="progress-bar" style="width: 72%"></div></div>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="spinner text-primary"></span>
+                <span class="avatar size-9 text-sm">AS</span>
+                <span class="avatar size-9 bg-green-600 text-sm">RD</span>
+                <div class="skeleton h-9 w-28"></div>
+            </div>
+            <nav class="pagination">
+                <a class="page-link" href="#"><i class="ti ti-chevron-left"></i></a>
+                <a class="page-link" href="#">1</a>
+                <a class="page-link active" href="#">2</a>
+                <a class="page-link" href="#">3</a>
+                <a class="page-link" href="#"><i class="ti ti-chevron-right"></i></a>
+            </nav>
+            <div class="divider">atau</div>
+        </div>
+    </div>
+</div>
+
+<!-- Primitif lanjutan (E6-12) -->
+<div class="card mt-5">
+    <div class="card-header"><h3 class="card-title">Primitif Lanjutan</h3></div>
+    <div class="card-body grid gap-6 lg:grid-cols-2">
+        <div class="flex flex-col gap-5">
+            <div>
+                <div class="form-label">Breadcrumb (partial reusable)</div>
+                <partial name="Tailwind/_Breadcrumb"
+                         model="@(new List<Speca.UI.Components.BreadcrumbItem> { new("Home", "/"), new("Komponen", "/Components"), new("Primitif") })" />
+            </div>
+            <div>
+                <div class="form-label">Kbd & Button Group</div>
+                <div class="flex flex-wrap items-center gap-4">
+                    <span class="text-secondary-foreground text-sm">Tekan <span class="kbd">Ctrl</span> + <span class="kbd">/</span></span>
+                    <div class="btn-group">
+                        <button type="button" class="btn-outline">Kiri</button>
+                        <button type="button" class="btn-outline">Tengah</button>
+                        <button type="button" class="btn-outline">Kanan</button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-end gap-5">
+                <div>
+                    <div class="form-label">Input Number</div>
+                    <div class="input-number" data-stepper>
+                        <button type="button" data-stepper-down aria-label="Kurang"><i class="ti ti-minus text-sm"></i></button>
+                        <input type="number" value="2" min="0" max="10" />
+                        <button type="button" data-stepper-up aria-label="Tambah"><i class="ti ti-plus text-sm"></i></button>
+                    </div>
+                </div>
+                <div>
+                    <div class="form-label">Rating</div>
+                    <div class="rating" data-rating>
+                        <input type="hidden" name="score" value="3" />
+                        <button type="button"><i class="ti ti-star"></i></button>
+                        <button type="button"><i class="ti ti-star"></i></button>
+                        <button type="button"><i class="ti ti-star"></i></button>
+                        <button type="button"><i class="ti ti-star"></i></button>
+                        <button type="button"><i class="ti ti-star"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="form-label">Toggle Password</div>
+                <div class="relative max-w-60">
+                    <input class="input pe-10" type="password" id="demo_password" value="rahasia123" />
+                    <button type="button" class="btn-icon absolute end-0 top-0 size-9"
+                            data-toggle-password="#demo_password" aria-label="Lihat password">
+                        <i class="ti ti-eye text-base"></i>
+                    </button>
+                </div>
+            </div>
+            <div>
+                <div class="form-label">Popover (klik)</div>
+                <div class="relative inline-block">
+                    <button type="button" class="btn-outline" data-dropdown-toggle="#demo_popover">Buka popover</button>
+                    <div id="demo_popover" class="popover hidden">
+                        <div class="popover-title">Judul Popover</div>
+                        <div class="popover-body">Konten kaya — bisa berisi teks, link, atau form kecil.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col gap-5">
+            <div>
+                <div class="form-label">Accordion (single-open)</div>
+                <div class="accordion" data-accordion="single">
+                    <details class="accordion-item" open>
+                        <summary>Apa itu Speca Platform? <i class="menu-chevron ti ti-chevron-down text-muted-foreground text-xs transition-transform"></i></summary>
+                        <div class="accordion-body">Template Razor Pages + Vite + React + Tailwind 4.</div>
+                    </details>
+                    <details class="accordion-item">
+                        <summary>Apakah theme bisa diganti? <i class="menu-chevron ti ti-chevron-down text-muted-foreground text-xs transition-transform"></i></summary>
+                        <div class="accordion-body">Ya — theme1/theme2 via ViewData, dark mode via toggle.</div>
+                    </details>
+                    <details class="accordion-item">
+                        <summary>Lisensinya aman? <i class="menu-chevron ti ti-chevron-down text-muted-foreground text-xs transition-transform"></i></summary>
+                        <div class="accordion-body">Semua bundel MIT/ISC; Metronic & Vuexy hanya referensi desain.</div>
+                    </details>
+                </div>
+            </div>
+            <div>
+                <div class="form-label">Timeline</div>
+                <div class="timeline">
+                    <div class="timeline-item"><div class="text-sm">Order dibuat</div><div class="text-muted-foreground text-xs">09:00</div></div>
+                    <div class="timeline-item timeline-item-success"><div class="text-sm">Pembayaran diterima</div><div class="text-muted-foreground text-xs">09:05</div></div>
+                    <div class="timeline-item timeline-item-warning"><div class="text-sm">Menunggu pengiriman</div><div class="text-muted-foreground text-xs">10:30</div></div>
+                </div>
+            </div>
+            <div>
+                <div class="form-label">BlockUI (loading overlay)</div>
+                <div id="block_target" class="border-border relative rounded-lg border p-4 text-sm">
+                    Konten panel yang bisa diblokir saat memuat data.
+                    <div class="mt-3 flex gap-2">
+                        <button type="button" class="btn-sm btn-primary"
+                                onclick="specaBlock('#block_target', true); setTimeout(() => specaBlock('#block_target', false), 2000)">
+                            Block 2 detik
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form & data (Tier 1+2, tanpa vendor) -->
+<div class="card mt-5">
+    <div class="card-header"><h3 class="card-title">Form Lanjutan</h3></div>
+    <div class="card-body grid gap-6 lg:grid-cols-2">
+        <div class="flex flex-col gap-5">
+            <div>
+                <div class="form-label">Input Group / Addon</div>
+                <div class="flex flex-col gap-2.5">
+                    <div class="input-group max-w-xs">
+                        <span class="input-group-text">@@</span>
+                        <input class="input" placeholder="username" />
+                    </div>
+                    <div class="input-group max-w-xs">
+                        <span class="input-group-text"><i class="ti ti-currency-dollar text-sm"></i></span>
+                        <input class="input" placeholder="0,00" />
+                        <span class="input-group-text">IDR</span>
+                    </div>
+                </div>
+            </div>
+            <div data-range-wrap>
+                <div class="mb-1.5 flex items-center justify-between">
+                    <span class="form-label mb-0">Range Slider</span>
+                    <span class="text-foreground text-sm font-medium" data-range-value>40</span>
+                </div>
+                <input type="range" class="range" min="0" max="100" value="40" />
+            </div>
+            <div>
+                <div class="form-label">OTP / PIN</div>
+                <div class="pin-input">
+                    <input type="text" aria-label="Digit 1" />
+                    <input type="text" aria-label="Digit 2" />
+                    <input type="text" aria-label="Digit 3" />
+                    <input type="text" aria-label="Digit 4" />
+                    <input type="hidden" name="otp_demo" />
+                </div>
+                <span class="form-hint">Auto-maju, backspace mundur, paste tersebar otomatis.</span>
+            </div>
+        </div>
+        <div class="flex flex-col gap-5">
+            <div>
+                <div class="form-label">Custom Option Cards</div>
+                <div class="flex flex-col gap-2.5">
+                    <label class="option-card">
+                        <input type="radio" name="plan_demo" class="radio mt-0.5" checked />
+                        <span>
+                            <span class="text-foreground block font-medium">Starter</span>
+                            <span class="text-muted-foreground text-sm">Gratis selamanya — fitur dasar.</span>
+                        </span>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="plan_demo" class="radio mt-0.5" />
+                        <span>
+                            <span class="text-foreground block font-medium">Pro</span>
+                            <span class="text-muted-foreground text-sm">Rp149rb / bulan — semua fitur.</span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+            <div>
+                <div class="form-label">List Group</div>
+                <div class="list-group max-w-xs">
+                    <a href="#" class="list-group-item"><i class="ti ti-inbox"></i> Kotak Masuk <span class="badge badge-primary ms-auto">12</span></a>
+                    <a href="#" class="list-group-item active"><i class="ti ti-send"></i> Terkirim</a>
+                    <a href="#" class="list-group-item"><i class="ti ti-file"></i> Draf</a>
+                    <span class="list-group-item disabled"><i class="ti ti-trash"></i> Sampah</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stat cards + avatar group -->
+<div class="card mt-5">
+    <div class="card-header"><h3 class="card-title">Stat Card & Avatar</h3></div>
+    <div class="card-body flex flex-col gap-6">
+        <div class="grid gap-4 sm:grid-cols-3">
+            <div class="stat-card">
+                <div class="flex items-center justify-between">
+                    <span class="stat-card-icon"><i class="ti ti-users"></i></span>
+                    <span class="stat-trend-up text-sm font-medium"><i class="ti ti-trending-up"></i> 12%</span>
+                </div>
+                <div>
+                    <div class="stat-card-value">8.420</div>
+                    <div class="stat-card-label">Pengguna aktif</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="flex items-center justify-between">
+                    <span class="stat-card-icon"><i class="ti ti-currency-dollar"></i></span>
+                    <span class="stat-trend-up text-sm font-medium"><i class="ti ti-trending-up"></i> 8%</span>
+                </div>
+                <div>
+                    <div class="stat-card-value">Rp72jt</div>
+                    <div class="stat-card-label">Pendapatan bulan ini</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="flex items-center justify-between">
+                    <span class="stat-card-icon"><i class="ti ti-shopping-cart"></i></span>
+                    <span class="stat-trend-down text-sm font-medium"><i class="ti ti-trending-down"></i> 3%</span>
+                </div>
+                <div>
+                    <div class="stat-card-value">1.240</div>
+                    <div class="stat-card-label">Pesanan</div>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-8">
+            <div>
+                <div class="form-label">Avatar Group</div>
+                <div class="avatar-group">
+                    <span class="avatar size-9 text-sm">AS</span>
+                    <span class="avatar size-9 bg-green-600 text-sm">RD</span>
+                    <span class="avatar size-9 bg-amber-500 text-sm">MK</span>
+                    <span class="avatar bg-accent text-secondary-foreground size-9 text-sm">+5</span>
+                </div>
+            </div>
+            <div>
+                <div class="form-label">Status Dot</div>
+                <div class="flex items-center gap-3">
+                    <span class="avatar-indicator"><span class="avatar size-10">AS</span><span class="avatar-status avatar-status-online"></span></span>
+                    <span class="avatar-indicator"><span class="avatar size-10 bg-amber-500">MK</span><span class="avatar-status avatar-status-away"></span></span>
+                    <span class="avatar-indicator"><span class="avatar size-10 bg-rose-500">RD</span><span class="avatar-status avatar-status-busy"></span></span>
+                    <span class="avatar-indicator"><span class="avatar bg-accent text-secondary-foreground size-10">ZF</span><span class="avatar-status avatar-status-offline"></span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Wizard + repeater -->
+<div class="card mt-5">
+    <div class="card-header"><h3 class="card-title">Form Wizard & Repeater</h3></div>
+    <div class="card-body grid gap-8 lg:grid-cols-2">
+        <div data-wizard>
+            <div class="form-label">Wizard (multi-step)</div>
+            <div class="wizard-nav mt-2 mb-6">
+                <div class="wizard-step"><span class="wizard-step-circle">1</span><span class="wizard-step-label">Akun</span></div>
+                <div class="wizard-step-line"></div>
+                <div class="wizard-step"><span class="wizard-step-circle">2</span><span class="wizard-step-label">Profil</span></div>
+                <div class="wizard-step-line"></div>
+                <div class="wizard-step"><span class="wizard-step-circle">3</span><span class="wizard-step-label">Selesai</span></div>
+            </div>
+            <div data-wizard-pane class="flex flex-col gap-3">
+                <input class="input" placeholder="Email" />
+                <input class="input" type="password" placeholder="Password" />
+            </div>
+            <div data-wizard-pane class="hidden flex-col gap-3">
+                <input class="input" placeholder="Nama lengkap" />
+                <input class="input" placeholder="No. telepon" />
+            </div>
+            <div data-wizard-pane class="hidden">
+                <div class="alert alert-success"><i class="ti ti-check"></i> Semua langkah selesai — siap dikirim.</div>
+            </div>
+            <div class="mt-5 flex justify-between">
+                <button type="button" class="btn-outline" data-wizard-prev>Kembali</button>
+                <button type="button" class="btn btn-primary" data-wizard-next>Lanjut</button>
+            </div>
+        </div>
+        <div data-repeater>
+            <div class="form-label">Repeater (baris dinamis)</div>
+            <div data-repeater-list class="mt-2 flex flex-col gap-2.5">
+                <div data-repeater-item class="flex gap-2">
+                    <input class="input" placeholder="Nama item" />
+                    <input class="input max-w-24" placeholder="Qty" />
+                    <button type="button" class="btn-icon shrink-0" data-repeater-remove aria-label="Hapus baris"><i class="ti ti-trash text-sm"></i></button>
+                </div>
+            </div>
+            <template data-repeater-template>
+                <div data-repeater-item class="flex gap-2">
+                    <input class="input" placeholder="Nama item" />
+                    <input class="input max-w-24" placeholder="Qty" />
+                    <button type="button" class="btn-icon shrink-0" data-repeater-remove aria-label="Hapus baris"><i class="ti ti-trash text-sm"></i></button>
+                </div>
+            </template>
+            <button type="button" class="btn-outline btn-sm mt-3" data-repeater-add><i class="ti ti-plus text-sm"></i> Tambah baris</button>
+        </div>
+    </div>
+</div>
+
+<!-- DataTable ringan -->
+<div class="card mt-5">
+    <div class="card-header"><h3 class="card-title">DataTable Ringan (sisi-klien)</h3></div>
+    <div class="card-body">
+        <div data-datatable data-page-size="5">
+            <div class="mb-3 flex justify-end">
+                <input class="input max-w-60" placeholder="Cari nama / email..." data-datatable-search aria-label="Cari" />
+            </div>
+            <div class="overflow-x-auto">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th data-sort="text">Nama</th>
+                            <th data-sort="text">Email</th>
+                            <th data-sort="number">Umur</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Andi Saputra</td><td>andi@mail.com</td><td>28</td><td><span class="badge badge-success">Aktif</span></td></tr>
+                        <tr><td>Rina Dewi</td><td>rina@mail.com</td><td>34</td><td><span class="badge badge-success">Aktif</span></td></tr>
+                        <tr><td>Maman Kurnia</td><td>maman@mail.com</td><td>41</td><td><span class="badge badge-muted">Nonaktif</span></td></tr>
+                        <tr><td>Zaki Firmansyah</td><td>zaki@mail.com</td><td>23</td><td><span class="badge badge-success">Aktif</span></td></tr>
+                        <tr><td>Bunga Lestari</td><td>bunga@mail.com</td><td>30</td><td><span class="badge badge-warning">Pending</span></td></tr>
+                        <tr><td>Citra Maharani</td><td>citra@mail.com</td><td>27</td><td><span class="badge badge-success">Aktif</span></td></tr>
+                        <tr><td>Doni Pratama</td><td>doni@mail.com</td><td>38</td><td><span class="badge badge-muted">Nonaktif</span></td></tr>
+                        <tr><td>Eka Wijaya</td><td>eka@mail.com</td><td>45</td><td><span class="badge badge-success">Aktif</span></td></tr>
+                        <tr><td>Fajar Nugroho</td><td>fajar@mail.com</td><td>22</td><td><span class="badge badge-warning">Pending</span></td></tr>
+                        <tr><td>Gita Permata</td><td>gita@mail.com</td><td>33</td><td><span class="badge badge-success">Aktif</span></td></tr>
+                        <tr><td>Hadi Santoso</td><td>hadi@mail.com</td><td>29</td><td><span class="badge badge-muted">Nonaktif</span></td></tr>
+                        <tr><td>Indah Sari</td><td>indah@mail.com</td><td>36</td><td><span class="badge badge-success">Aktif</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <nav class="pagination mt-4 justify-end" data-datatable-pager></nav>
+        </div>
+    </div>
+</div>
+
+<!-- Dropzone -->
+<div class="card mt-5">
+    <div class="card-header"><h3 class="card-title">File Dropzone (multi-file)</h3></div>
+    <div class="card-body">
+        <div data-dropzone class="max-w-xl">
+            <div class="dropzone">
+                <i class="ti ti-cloud-upload text-3xl"></i>
+                <div class="text-sm">Seret file ke sini atau <span class="text-primary font-medium">klik untuk memilih</span></div>
+                <div class="text-xs">Mendukung banyak file sekaligus</div>
+            </div>
+            <input type="file" multiple class="hidden" aria-label="Pilih file" />
+            <div data-dropzone-list></div>
+        </div>
+    </div>
+</div>
+
+<!-- Vendor opsional: hanya dimuat halaman ini -->
+<div class="card mt-5 mb-10">
+    <div class="card-header">
+        <h3 class="card-title">Vendor Opsional (dimuat per halaman)</h3>
+        <span class="text-muted-foreground text-xs">Tom Select · flatpickr · ApexCharts · Quill · Pickr · SortableJS — bukan di layout</span>
+    </div>
+    <div class="card-body grid gap-4 lg:grid-cols-2">
+        <div>
+            <label class="form-label">Multi-select + search (Tom Select)</label>
+            <select multiple data-tom-select placeholder="Pilih beberapa...">
+                <option value="id">Indonesia</option>
+                <option value="my">Malaysia</option>
+                <option value="sg">Singapura</option>
+                <option value="th">Thailand</option>
+                <option value="vn">Vietnam</option>
+            </select>
+        </div>
+        <div>
+            <label class="form-label">Tanggal (flatpickr)</label>
+            <input class="input" data-flatpickr placeholder="Pilih tanggal..." />
+        </div>
+        <div>
+            <label class="form-label">Color picker (Pickr)</label>
+            <div><button type="button" data-color-picker data-default="#1b84ff"></button></div>
+        </div>
+        <div>
+            <label class="form-label">Drag &amp; drop (SortableJS)</label>
+            <ul class="list-group" data-sortable>
+                <li class="list-group-item"><i class="ti ti-grip-vertical text-muted-foreground cursor-move"></i> Tarik untuk mengurutkan — satu</li>
+                <li class="list-group-item"><i class="ti ti-grip-vertical text-muted-foreground cursor-move"></i> Item dua</li>
+                <li class="list-group-item"><i class="ti ti-grip-vertical text-muted-foreground cursor-move"></i> Item tiga</li>
+            </ul>
+        </div>
+        <div class="lg:col-span-2">
+            <label class="form-label">Rich text editor (Quill)</label>
+            <div data-quill data-quill-placeholder="Tulis konten di sini..."></div>
+        </div>
+    </div>
+</div>
+
+@section EndOfPage {
+    <dialog class="modal" id="demo_modal">
+        <div class="modal-header">
+            <h3 class="card-title">Judul Modal</h3>
+            <button type="button" class="btn-icon" data-modal-dismiss aria-label="Tutup">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+        <div class="modal-body text-secondary-foreground text-sm">
+            Modal memakai elemen <code>&lt;dialog&gt;</code> native — focus-trap & Esc dibawa browser.
+            Klik backdrop juga menutup.
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-outline" data-modal-dismiss>Tutup</button>
+        </div>
+    </dialog>
+
+    <aside class="drawer" id="demo_drawer" aria-label="Filter">
+        <div class="drawer-header">
+            <h3 class="card-title">Filter</h3>
+            <button type="button" class="btn-icon" data-drawer-dismiss aria-label="Tutup">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+        <div class="drawer-body flex flex-col gap-4">
+            <div>
+                <label class="form-label">Status</label>
+                <select class="select">
+                    <option>Semua</option>
+                    <option>Aktif</option>
+                    <option>Nonaktif</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Kata kunci</label>
+                <input class="input" placeholder="Cari..." />
+            </div>
+            <button type="button" class="btn btn-primary"
+                    data-drawer-dismiss onclick="specaToast('Filter diterapkan (demo).', 'success')">
+                Terapkan
+            </button>
+        </div>
+    </aside>
+
+    <dialog class="modal" id="confirm_modal">
+        <div class="modal-header">
+            <h3 class="card-title">Hapus data?</h3>
+        </div>
+        <div class="modal-body text-secondary-foreground text-sm">
+            Tindakan ini tidak bisa dibatalkan.
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-outline" data-modal-dismiss>Batal</button>
+            <button type="button" class="btn btn-danger"
+                    data-modal-dismiss="confirm"
+                    onclick="specaToast('Data dihapus (demo).', 'danger')">
+                Hapus
+            </button>
+        </div>
+    </dialog>
+}
+
+@section Scripts {
+    <partial name="Tailwind/_ValidationScripts" />
+    @* Vendor opsional — sengaja dimuat per halaman, bukan di layout *@
+    <vite-asset src="Libs/UI/Assets/Vendors/tom-select/index.js" />
+    <vite-asset src="Libs/UI/Assets/Vendors/flatpickr/index.js" />
+    <vite-asset src="Libs/UI/Assets/Vendors/pickr/index.js" />
+    <vite-asset src="Libs/UI/Assets/Vendors/quill/index.js" />
+    <vite-asset src="Libs/UI/Assets/Vendors/sortablejs/index.js" />
+}

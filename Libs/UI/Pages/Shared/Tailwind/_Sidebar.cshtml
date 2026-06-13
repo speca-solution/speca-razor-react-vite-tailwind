@@ -7,8 +7,17 @@
        class="bg-sidebar border-border fixed inset-y-0 start-0 z-50 flex w-[270px] -translate-x-full flex-col border-e transition-transform duration-200 @(drawerOnly ? "" : "lg:translate-x-0")">
 
     <!-- Brand -->
-    <div class="flex h-[70px] shrink-0 items-center gap-2 px-6">
+    <div class="relative flex h-[70px] shrink-0 items-center gap-2 px-6">
         <a href="/" class="text-mono text-lg font-semibold tracking-tight"><span class="sidebar-brand-text">Speca</span><span class="sidebar-brand-mini hidden">S</span></a>
+
+        @if (!drawerOnly)
+        {
+            <!-- Collapse toggle: lingkaran mengambang di tepi kanan (gaya Metronic), chevron berputar 180° saat collapsed -->
+            <button type="button" data-sidebar-collapse aria-label="Sembunyikan sidebar"
+                    class="border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground absolute start-full top-1/2 z-50 hidden size-[30px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border shadow-sm transition-colors lg:flex">
+                <i class="ti ti-chevron-left collapse-chevron text-sm transition-transform duration-300"></i>
+            </button>
+        }
     </div>
 
     <!-- Menu -->

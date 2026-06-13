@@ -1,0 +1,104 @@
+@page
+@model Speca.Portal.Pages.TablesModel
+@using Speca.UI.Components
+@{
+    ViewData["Title"] = "Tabel Data";
+}
+
+@section Breadcrumb {
+    <div class="flex flex-wrap items-center justify-between gap-5 pb-7.5">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-mono text-xl leading-none font-medium">Tabel Data</h1>
+            <div class="text-secondary-foreground text-sm">
+                Pola CRUD server-side: search, sort, paging — tanpa library, siap diganti EF Core.
+            </div>
+        </div>
+    </div>
+}
+
+<div class="card mb-10">
+    <div class="card-header">
+        <h3 class="card-title">Produk</h3>
+        <form method="get" class="flex items-center gap-2">
+            <input type="hidden" name="sort" value="@Model.Sort" />
+            <input type="hidden" name="dir" value="@Model.Dir" />
+            <label class="border-input flex h-9 w-56 items-center gap-2 rounded-md border px-3">
+                <i class="ti ti-search text-muted-foreground"></i>
+                <input type="text" name="q" value="@Model.Q"
+                       class="placeholder:text-muted-foreground w-full bg-transparent text-sm outline-none"
+                       placeholder="Cari nama/kategori..." />
+            </label>
+            <button type="submit" class="btn-outline">Cari</button>
+        </form>
+    </div>
+    <div class="card-body overflow-x-auto pt-0">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>
+                        <a class="hover:text-foreground inline-flex items-center gap-1" href="@Model.SortUrl("name")">
+                            Nama <i class="@Model.SortIcon("name")"></i>
+                        </a>
+                    </th>
+                    <th>Kategori</th>
+                    <th>
+                        <a class="hover:text-foreground inline-flex items-center gap-1" href="@Model.SortUrl("price")">
+                            Harga <i class="@Model.SortIcon("price")"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="hover:text-foreground inline-flex items-center gap-1" href="@Model.SortUrl("stock")">
+                            Stok <i class="@Model.SortIcon("stock")"></i>
+                        </a>
+                    </th>
+                    <th>Status</th>
+                    <th class="text-end">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td class="text-mono font-medium">@item.Name</td>
+                        <td class="text-secondary-foreground">@item.Category</td>
+                        <td class="text-mono">Rp @item.Price.ToString("N0")</td>
+                        <td>@item.Stock</td>
+                        <td>
+                            @if (item.Active)
+                            {
+                                <span class="badge badge-success">Aktif</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-warning">Nonaktif</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <button type="button" class="btn-icon size-7" data-tooltip="Edit"><i class="ti ti-pencil text-sm"></i></button>
+                            <button type="button" class="btn-icon size-7" data-tooltip="Hapus"
+                                    onclick="specaToast('Demo: hapus @item.Name', 'danger')">
+                                <i class="ti ti-trash text-sm"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+                @if (Model.Items.Count == 0)
+                {
+                    <tr>
+                        <td colspan="6" class="text-muted-foreground py-10 text-center">
+                            Tidak ada data untuk "@Model.Q".
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-4">
+            <span class="text-muted-foreground text-sm">
+                Menampilkan @Model.From–@Model.To dari @Model.Total
+            </span>
+            <partial name="Tailwind/_Pagination"
+                     model="new PaginationViewModel(Model.P, Model.TotalPages, Model.PageUrl)" />
+        </div>
+    </div>
+</div>

@@ -160,6 +160,15 @@ yang meng-import-nya — otomatis jadi entry `vendors/<nama>`.
 CSS icon Tabler/Lucide di-generate woff2-only oleh `node scripts/sync-icon-fonts.mjs` —
 jalankan ulang setelah upgrade paket icon. File ber-prefix `_` tidak menjadi entry Vite.
 
+## Tabel data (pola CRUD)
+
+Halaman `/Tables` = pola resmi tabel CRUD: search + sort + paging **server-side** murni
+(query-string `q/sort/dir/p`), komponen `.table`, dan partial reusable
+`Tailwind/_Pagination` (model `PaginationViewModel`). Ganti sumber in-memory dengan
+EF Core — bentuk Where/OrderBy/Skip/Take identik. Untuk kebutuhan grid berat
+(export, kolom beku, ribuan baris client-side), datatables.net adalah opsi sadar
+yang dipasang per-project (vendor entry), bukan bagian template.
+
 ## Lisensi
 
 Semua kode theme (token, layout, partial, JS) **milik sendiri**. Dependensi yang dibundel

@@ -1,4 +1,5 @@
-@* Header layout vertikal: burger (mobile), collapse sidebar (desktop), search, actions.
+@* Header layout vertikal: burger (mobile), search, actions.
+   Collapse sidebar desktop = tombol mengambang di tepi sidebar (lihat _Sidebar.cshtml).
    Sticky default; matikan per halaman: ViewData["StickyNavbar"] = false *@
 @{
     var stickyNavbar = ViewData["StickyNavbar"] as bool? ?? true;
@@ -7,9 +8,6 @@
     <div class="flex grow items-center gap-1.5">
         <button type="button" class="btn-icon lg:hidden" data-sidebar-toggle aria-label="Buka menu">
             <i class="ti ti-menu-2 text-lg"></i>
-        </button>
-        <button type="button" class="btn-icon hidden lg:inline-flex" data-sidebar-collapse aria-label="Sembunyikan sidebar">
-            <i class="ti ti-layout-sidebar-left-collapse text-lg"></i>
         </button>
 
         <label class="border-input hidden h-9 w-full max-w-[280px] items-center gap-2 rounded-md border px-3 md:flex">

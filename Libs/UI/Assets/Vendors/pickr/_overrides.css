@@ -1,0 +1,17 @@
+/* Pickr — panel ikut token tema (background/border) untuk dark mode rapi. */
+.pcr-app {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
+
+.pcr-app .pcr-interaction input {
+  background: var(--muted);
+  color: var(--foreground);
+  border-radius: var(--radius);
+}
+
+.pcr-app .pcr-interaction .pcr-save {
+  background: var(--primary);
+  border-radius: var(--radius);
+}

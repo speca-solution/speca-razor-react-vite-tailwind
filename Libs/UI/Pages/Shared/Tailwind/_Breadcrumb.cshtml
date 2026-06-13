@@ -1,0 +1,19 @@
+@model IReadOnlyList<Speca.UI.Components.BreadcrumbItem>
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    @for (var i = 0; i < Model.Count; i++)
+    {
+        var item = Model[i];
+        @if (i > 0)
+        {
+            <i class="ti ti-chevron-right text-muted-foreground text-xs"></i>
+        }
+        @if (item.Url is null || i == Model.Count - 1)
+        {
+            <span class="active">@item.Title</span>
+        }
+        else
+        {
+            <a href="@item.Url">@item.Title</a>
+        }
+    }
+</nav>

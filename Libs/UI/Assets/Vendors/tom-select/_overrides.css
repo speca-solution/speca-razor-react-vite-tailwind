@@ -1,0 +1,52 @@
+/* Penyelarasan Tom Select ke token template (light + dark otomatis via CSS vars). */
+.ts-wrapper .ts-control {
+  min-height: 2.25rem;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--input);
+  border-radius: 0.375rem;
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  box-shadow: none;
+}
+
+.ts-wrapper.focus .ts-control {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
+}
+
+.ts-wrapper .ts-control input {
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+
+.ts-wrapper .ts-control input::placeholder {
+  color: var(--muted-foreground);
+}
+
+.ts-wrapper.multi .ts-control > .item {
+  margin: 0.125rem 0.25rem 0.125rem 0;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.375rem;
+  background: var(--accent);
+  color: var(--foreground);
+}
+
+.ts-dropdown {
+  margin-top: 0.375rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.ts-dropdown .option {
+  padding: 0.5rem 0.75rem;
+}
+
+.ts-dropdown .active {
+  background: var(--accent);
+  color: var(--foreground);
+}

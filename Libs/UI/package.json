@@ -12,7 +12,13 @@
     "./*": "./Assets/*"
   },
   "dependencies": {
+    "@simonwep/pickr": "^1.9.1",
     "@tabler/icons-webfont": "^3.44.0",
-    "lucide-static": "^1.17.0"
+    "apexcharts": "^5.15.0",
+    "flatpickr": "^4.6.13",
+    "lucide-static": "^1.17.0",
+    "quill": "^2.0.3",
+    "sortablejs": "^1.15.7",
+    "tom-select": "^2.6.1"
   }
 }

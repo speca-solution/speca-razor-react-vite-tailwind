@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+@{
+    var theme = ViewData["Theme"] as string ?? "theme1";
+}
+<html class="h-full @theme" lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title — Speca</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <vite-asset src="Libs/UI/Assets/Vendors/tabler-icons/style.css" />
+    <vite-asset src="Libs/UI/Assets/Themes/tailwind/theme.css" />
+
+    @RenderSection("Styles", required: false)
+
+    <script>
+        (function () {
+            var mode = localStorage.getItem('speca-theme');
+            if (!mode) {
+                mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            if (mode === 'dark') { document.documentElement.classList.add('dark'); }
+        })();
+    </script>
+</head>
+
+<body class="bg-muted/40 text-foreground flex min-h-full flex-col items-center justify-center p-4 antialiased">
+
+    <div class="fixed top-4 end-4 z-10">
+        <button type="button" class="btn-icon" data-theme-toggle aria-label="Toggle dark mode">
+            <i class="ti ti-moon text-lg dark:hidden"></i>
+            <i class="ti ti-sun hidden text-lg dark:inline"></i>
+        </button>
+    </div>
+
+    <div class="w-full max-w-[420px] py-6">
+        @RenderBody()
+    </div>
+
+    <vite-asset src="Libs/UI/Assets/Themes/tailwind/app/layouts/layout.js" />
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

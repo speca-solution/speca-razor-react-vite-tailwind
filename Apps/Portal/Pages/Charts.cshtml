@@ -1,0 +1,95 @@
+@page
+@model Speca.Portal.Pages.ChartsModel
+@{
+    ViewData["Title"] = "Charts";
+}
+
+@section Breadcrumb {
+    <div class="flex flex-wrap items-center justify-between gap-5 pb-7.5">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-mono text-xl leading-none font-medium">Charts</h1>
+            <div class="text-secondary-foreground text-sm">
+                ApexCharts (MIT) — vendor opsional per halaman. Config via JSON, warna ikut tema &amp; dark mode.
+            </div>
+        </div>
+    </div>
+}
+
+<div class="grid gap-5 xl:grid-cols-2">
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Pendapatan (Area)</h3></div>
+        <div class="card-body">
+            <div data-apexchart>
+                <script type="application/json">
+                {
+                    "chart": { "type": "area", "height": 300, "toolbar": { "show": false } },
+                    "series": [{ "name": "Pendapatan", "data": [31, 40, 28, 51, 42, 82, 56] }],
+                    "xaxis": { "categories": ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"] },
+                    "dataLabels": { "enabled": false },
+                    "stroke": { "curve": "smooth", "width": 2 },
+                    "fill": { "type": "gradient", "gradient": { "opacityFrom": 0.4, "opacityTo": 0.05 } }
+                }
+                </script>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Pesanan per Hari (Bar)</h3></div>
+        <div class="card-body">
+            <div data-apexchart>
+                <script type="application/json">
+                {
+                    "chart": { "type": "bar", "height": 300, "toolbar": { "show": false } },
+                    "series": [{ "name": "Pesanan", "data": [44, 55, 41, 67, 22, 43, 21] }],
+                    "xaxis": { "categories": ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"] },
+                    "plotOptions": { "bar": { "borderRadius": 4, "columnWidth": "45%" } },
+                    "dataLabels": { "enabled": false }
+                }
+                </script>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Sumber Trafik (Donut)</h3></div>
+        <div class="card-body">
+            <div data-apexchart>
+                <script type="application/json">
+                {
+                    "chart": { "type": "donut", "height": 300 },
+                    "series": [44, 55, 33, 22],
+                    "labels": ["Organik", "Sosial", "Iklan", "Langsung"],
+                    "colors": ["#1b84ff", "#7367f0", "#22c55e", "#f59e0b"],
+                    "legend": { "position": "bottom" }
+                }
+                </script>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Tren Mingguan (Line)</h3></div>
+        <div class="card-body">
+            <div data-apexchart>
+                <script type="application/json">
+                {
+                    "chart": { "type": "line", "height": 300, "toolbar": { "show": false } },
+                    "series": [
+                        { "name": "Kunjungan", "data": [12, 18, 15, 27, 24, 33, 30] },
+                        { "name": "Konversi", "data": [5, 7, 6, 11, 9, 14, 12] }
+                    ],
+                    "xaxis": { "categories": ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"] },
+                    "colors": ["#1b84ff", "#22c55e"],
+                    "stroke": { "curve": "smooth", "width": 2 },
+                    "dataLabels": { "enabled": false }
+                }
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <vite-asset src="Libs/UI/Assets/Vendors/apexcharts/index.js" />
+}

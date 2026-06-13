@@ -1,0 +1,255 @@
+@page
+@model SettingsModel
+@{
+    ViewData["Title"] = "Pengaturan";
+}
+
+@section Breadcrumb {
+    @await Html.PartialAsync("Tailwind/_Breadcrumb", new List<Speca.UI.Components.BreadcrumbItem>
+    {
+        new("Beranda", "/"),
+        new("Pengaturan"),
+    })
+}
+
+@section Scripts {
+    @await Html.PartialAsync("Tailwind/_ValidationScripts")
+}
+
+<div class="mb-6">
+    <h1 class="text-xl font-semibold">Pengaturan Akun</h1>
+    <p class="text-muted-foreground text-sm mt-0.5">Kelola profil, keamanan, dan preferensi akun Anda</p>
+</div>
+
+@if (Model.SuccessMessage is not null)
+{
+    <div class="alert alert-success mb-5">
+        <i class="ti ti-circle-check text-lg shrink-0"></i>
+        <div>@Model.SuccessMessage</div>
+    </div>
+}
+
+<!-- Tabs navigation -->
+<div data-tabs class="flex border-b border-border mb-6 gap-0 -mt-1">
+    <button type="button" class="tab-toggle tab-active" data-tab-target="#tab-profil">
+        <i class="ti ti-user me-1.5"></i>Profil
+    </button>
+    <button type="button" class="tab-toggle" data-tab-target="#tab-password">
+        <i class="ti ti-lock me-1.5"></i>Password
+    </button>
+    <button type="button" class="tab-toggle" data-tab-target="#tab-notif">
+        <i class="ti ti-bell me-1.5"></i>Notifikasi
+    </button>
+    <button type="button" class="tab-toggle" data-tab-target="#tab-keamanan">
+        <i class="ti ti-shield me-1.5"></i>Keamanan
+    </button>
+</div>
+
+<!-- Tab: Profil -->
+<div id="tab-profil">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Avatar card -->
+        <div class="card card-body flex flex-col items-center text-center gap-4">
+            <div class="image-input image-input-lg" id="avatarWrap">
+                <img id="avatarImg"
+                     src="https://ui-avatars.com/api/?name=Speca+Admin&background=6366f1&color=fff&size=160"
+                     alt="Avatar" />
+                <div class="image-input-overlay">
+                    <label class="image-input-btn cursor-pointer" title="Ganti foto">
+                        <i class="ti ti-camera text-sm text-slate-700"></i>
+                        <input type="file" accept="image/*" class="hidden" />
+                    </label>
+                    <button type="button" class="image-input-btn" title="Hapus foto"
+                            onclick="document.getElementById('avatarImg').src='https://ui-avatars.com/api/?name=Speca+Admin&background=6366f1&color=fff&size=160'">
+                        <i class="ti ti-trash text-sm text-red-600"></i>
+                    </button>
+                </div>
+            </div>
+            <div>
+                <div class="font-semibold">Speca Admin</div>
+                <div class="text-muted-foreground text-xs">admin@speca.local</div>
+            </div>
+            <div class="text-muted-foreground text-xs leading-snug">
+                Format: JPG, PNG, GIF<br />Ukuran maks 2 MB
+            </div>
+        </div>
+
+        <!-- Profile form card -->
+        <div class="card card-body lg:col-span-2">
+            <h2 class="font-semibold mb-4">Informasi Profil</h2>
+            <form method="post" asp-page-handler="Profile" data-val="true" novalidate>
+                @Html.AntiForgeryToken()
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="sm:col-span-2">
+                        <label asp-for="Profile.FullName" class="form-label">Nama Lengkap</label>
+                        <input asp-for="Profile.FullName" class="input" />
+                        <span asp-validation-for="Profile.FullName" class="field-validation-valid text-xs text-red-500 mt-1 block"></span>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label asp-for="Profile.Email" class="form-label">Email</label>
+                        <input asp-for="Profile.Email" class="input" type="email" />
+                        <span asp-validation-for="Profile.Email" class="field-validation-valid text-xs text-red-500 mt-1 block"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Profile.Phone" class="form-label">
+                            Nomor Telepon <span class="text-muted-foreground font-normal">(opsional)</span>
+                        </label>
+                        <input asp-for="Profile.Phone" class="input" type="tel" placeholder="+62 812 3456 7890" />
+                        <span asp-validation-for="Profile.Phone" class="field-validation-valid text-xs text-red-500 mt-1 block"></span>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label asp-for="Profile.Bio" class="form-label">
+                            Bio <span class="text-muted-foreground font-normal">(opsional)</span>
+                        </label>
+                        <textarea asp-for="Profile.Bio" class="input" rows="3" placeholder="Ceritakan sedikit tentang diri Anda..."></textarea>
+                        <span asp-validation-for="Profile.Bio" class="field-validation-valid text-xs text-red-500 mt-1 block"></span>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-5">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-device-floppy"></i> Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Tab: Password -->
+<div id="tab-password" class="hidden">
+    <div class="card card-body max-w-lg">
+        <h2 class="font-semibold mb-4">Ubah Password</h2>
+        <form method="post" asp-page-handler="Password" data-val="true" novalidate>
+            @Html.AntiForgeryToken()
+            <div class="flex flex-col gap-4">
+                <div>
+                    <label asp-for="Password.CurrentPassword" class="form-label">Password Saat Ini</label>
+                    <div class="relative">
+                        <input asp-for="Password.CurrentPassword" id="curPwd" class="input pe-10" type="password" placeholder="••••••••" />
+                        <button type="button" class="absolute end-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" data-toggle-password="#curPwd">
+                            <i class="ti ti-eye text-base"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password.CurrentPassword" class="field-validation-valid text-xs text-red-500 mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label asp-for="Password.NewPassword" class="form-label">Password Baru</label>
+                    <div class="relative">
+                        <input asp-for="Password.NewPassword" id="newPwd" class="input pe-10" type="password" placeholder="Min. 8 karakter" />
+                        <button type="button" class="absolute end-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" data-toggle-password="#newPwd">
+                            <i class="ti ti-eye text-base"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password.NewPassword" class="field-validation-valid text-xs text-red-500 mt-1 block"></span>
+                </div>
+
+                <div>
+                    <label asp-for="Password.ConfirmPassword" class="form-label">Konfirmasi Password Baru</label>
+                    <div class="relative">
+                        <input asp-for="Password.ConfirmPassword" id="cfmPwd" class="input pe-10" type="password" placeholder="Ulangi password baru" />
+                        <button type="button" class="absolute end-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" data-toggle-password="#cfmPwd">
+                            <i class="ti ti-eye text-base"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password.ConfirmPassword" class="field-validation-valid text-xs text-red-500 mt-1 block"></span>
+                </div>
+
+                <div class="bg-muted/60 rounded-lg p-3 text-xs text-muted-foreground space-y-1">
+                    <div class="font-medium text-foreground mb-1.5">Persyaratan password:</div>
+                    <div>• Minimal 8 karakter</div>
+                    <div>• Kombinasi huruf dan angka disarankan</div>
+                    <div>• Hindari informasi pribadi yang mudah ditebak</div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-lock-check"></i> Ubah Password
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tab: Notifikasi -->
+<div id="tab-notif" class="hidden">
+    <div class="card card-body max-w-lg">
+        <h2 class="font-semibold mb-4">Preferensi Notifikasi</h2>
+        <div class="divide-y divide-border">
+            @{
+                var notifItems = new[]
+                {
+                    (Title: "Notifikasi Email", Desc: "Terima pembaruan dan laporan via email", Id: "notif-email", Enabled: true),
+                    (Title: "Notifikasi Push", Desc: "Notifikasi langsung di browser Anda", Id: "notif-push", Enabled: true),
+                    (Title: "SMS / WhatsApp", Desc: "Kirim OTP dan alert kritis via SMS", Id: "notif-sms", Enabled: false),
+                    (Title: "Laporan Mingguan", Desc: "Ringkasan aktivitas setiap Senin pagi", Id: "notif-weekly", Enabled: true),
+                    (Title: "Peringatan Keamanan", Desc: "Login dari perangkat atau lokasi baru", Id: "notif-security", Enabled: true),
+                    (Title: "Newsletter Produk", Desc: "Tips fitur dan informasi pembaruan", Id: "notif-newsletter", Enabled: false),
+                };
+            }
+            @foreach (var item in notifItems)
+            {
+                <div class="flex items-center justify-between py-3.5">
+                    <div>
+                        <div class="text-sm font-medium">@item.Title</div>
+                        <div class="text-muted-foreground text-xs mt-0.5">@item.Desc</div>
+                    </div>
+                    <input type="checkbox" class="switch ms-4" @(item.Enabled ? "checked" : "") id="@item.Id" />
+                </div>
+            }
+        </div>
+        <div class="flex justify-end mt-4">
+            <button type="button" class="btn btn-primary" onclick="specaToast('Preferensi notifikasi disimpan', 'success')">
+                <i class="ti ti-device-floppy"></i> Simpan
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Tab: Keamanan -->
+<div id="tab-keamanan" class="hidden">
+    <div class="card card-body max-w-2xl">
+        <h2 class="font-semibold mb-1">Sesi Aktif</h2>
+        <p class="text-muted-foreground text-sm mb-4">Kelola perangkat yang sedang terhubung ke akun Anda</p>
+        <div class="divide-y divide-border">
+            @{
+                var sessions = new[]
+                {
+                    (Device: "Chrome di Windows — Jakarta, ID", Icon: "ti ti-brand-chrome", Time: "Saat ini", Current: true),
+                    (Device: "Firefox di macOS — Surabaya, ID", Icon: "ti ti-brand-firefox", Time: "2 jam lalu", Current: false),
+                    (Device: "Safari di iPhone — Bandung, ID", Icon: "ti ti-brand-safari", Time: "Kemarin, 18:42", Current: false),
+                };
+            }
+            @foreach (var s in sessions)
+            {
+                <div class="flex items-center gap-3 py-3.5">
+                    <div class="size-9 flex items-center justify-center rounded-lg bg-muted text-muted-foreground shrink-0">
+                        <i class="@s.Icon text-lg"></i>
+                    </div>
+                    <div class="grow min-w-0">
+                        <div class="text-sm font-medium truncate">@s.Device</div>
+                        <div class="text-muted-foreground text-xs">@s.Time @(s.Current ? "· Perangkat ini" : "")</div>
+                    </div>
+                    @if (s.Current)
+                    {
+                        <span class="badge badge-success shrink-0">Aktif</span>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-sm btn-outline shrink-0 text-red-600 border-red-200 hover:bg-red-50 dark:border-red-800/50 dark:hover:bg-red-500/10"
+                                onclick="specaToast('Sesi dihapus', 'success'); this.closest('div.py-3\\.5').remove()">
+                            Hapus
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+        <div class="mt-4 pt-4 border-t border-border">
+            <button type="button" class="btn btn-outline text-red-600 border-red-200 hover:bg-red-50 dark:border-red-800/50 dark:hover:bg-red-500/10"
+                    onclick="specaToast('Semua sesi lain berhasil dihapus', 'success')">
+                <i class="ti ti-logout"></i> Hapus Semua Sesi Lain
+            </button>
+        </div>
+    </div>
+</div>

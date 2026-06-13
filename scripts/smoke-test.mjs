@@ -4,10 +4,20 @@
 // Pakai: node scripts/smoke-test.mjs [baseUrl]   (default http://localhost:5599)
 const base = process.argv[2] ?? 'http://localhost:5599';
 
-const pages = ['/', '/Theme2', '/Layout2', '/Privacy'];
+const pages = [
+    '/', '/Theme2', '/Layout2', '/Components', '/Tables', '/Charts', '/Privacy',
+    '/Account/Login', '/Account/Register', '/Account/ForgotPassword',
+    '/Settings', '/StatusCode/404',
+];
 
 let failed = false;
 const fail = (msg) => { failed = true; console.error(`  FAIL ${msg}`); };
+
+// Guard CSP produksi: header ada & TANPA 'unsafe-eval' (vektor injeksi via eval ditutup).
+const csp = (await fetch(base + '/')).headers.get('content-security-policy');
+if (!csp) fail('Header Content-Security-Policy tidak ada');
+else if (/unsafe-eval/i.test(csp)) fail(`CSP produksi memuat 'unsafe-eval' (regresi keamanan)`);
+else console.log('OK  CSP produksi (tanpa unsafe-eval)');
 
 for (const page of pages) {
     const res = await fetch(base + page);

@@ -136,6 +136,94 @@ Sprint B = E5-06…07; E5-09 ditunda sampai dibutuhkan.
 **Catatan jujur:** E5-01 menyentuh kedua renderer dan berisiko regresi rail/drawer — wajib smoke + cek visual;
 E5-06 rawan edge-case touch/hover hybrid (laptop layar sentuh) — uji manual diperlukan.
 
+## EPIC 6 — Komponen Dasar (P1, gap terbesar pasca Tailwind-only)
+
+> Audit referensi 2026-06-12 — frekuensi pemakaian di Metronic demo1 (seluruh halaman):
+> form controls **kt-checkbox 1616 / kt-switch 1057 / kt-input 1000 / form-label 533 / radio 394**,
+> tabs 1033, drawer 731, select custom 684, datatable 656, modal 378, tooltip 111, accordion 168,
+> password-toggle 20. Vendor Vuexy utk fungsi setara: @form-validation, bootstrap-select, flatpickr,
+> datatables.net, sweetalert2, dst.
+> **Baseline Speca:** card/badge/btn/dropdown/accordion-menu/scrollable sudah ada; form, modal,
+> toast, tabs, tooltip, drawer generik, select/datepicker advanced: belum.
+> **Catatan jujur penting:** sejak jQuery dihapus, validasi client-side bawaan Razor Pages
+> (jquery-validation) tidak tersedia — E6-02 wajib memilih strategi pengganti.
+
+| ID | Item | Acceptance Criteria |
+|----|------|---------------------|
+| E6-01 ☑ | **Form controls** (pemakaian tertinggi di referensi): `.input`, `.textarea`, `.select` (native), `.checkbox`, `.radio`, `.switch`, `.form-label`, `.form-hint`, state error/disabled — token-based, dark & theme2 aman | Halaman demo form menampilkan semua kontrol di 2 theme × 2 mode tanpa rusak |
+| E6-02 ☑ᴺ | **Strategi validasi client-side**: integrasi `aspnet-client-validation` (MIT, tanpa jQuery) sebagai vendor entry + styling `.field-validation-error`/`input-validation-error` selaras token | Form demo dengan DataAnnotations tervalidasi di browser tanpa submit; pesan tampil dengan style template |
+| E6-03 ☑ | **Modal** berbasis `<dialog>` native + helper `data-modal-open/dismiss` + pola confirm | Modal demo buka/tutup (tombol, backdrop, Esc), focus-trap bawaan dialog, confirm mengembalikan aksi |
+| E6-04 ☑ | **Toast** JS kecil milik sendiri: `window.specaToast(pesan, variant)`, stack kanan-atas, auto-dismiss + tombol tutup | Demo memunculkan 4 variant; menumpuk rapi; hilang otomatis |
+| E6-05 ☑ | **Tabs** (`data-tab-toggle`) — 1033x dipakai referensi | Tab demo berpindah panel, state active benar, bisa >1 grup per halaman |
+| E6-06 ☑ | **Tooltip CSS-only** (`data-tooltip` + posisi atas/bawah) untuk kasus sederhana | Hover elemen ber-`data-tooltip` menampilkan label; tanpa JS |
+| E6-07 ☑ | **Drawer generik** (panel kanan utk filter/detail — 731x di referensi): `data-drawer-toggle` + overlay, reuse pola sidebar | Drawer demo buka/tutup dari kanan, Esc menutup, scroll body terkunci |
+| E6-08 ☑ | **Select advanced & datepicker** — keputusan vendor MIT: Tom Select + flatpickr sebagai vendor entry **opsional** (terdokumentasi, tidak dimuat default) | Demo opsional jalan; bundle default tidak membengkak |
+| E6-09 ☑ | **Strategi tabel data CRUD**: komponen `.table` + pagination partial server-side milik sendiri; datatables.net = opsi terdokumentasi | Tabel demo sort/paging server-side di 1 halaman contoh |
+| E6-10 ☑ | **Halaman /Components** memamerkan semua komponen (jadi galeri hidup + masuk smoke test) | Halaman 200 di smoke; semua komponen tampil |
+| E6-11 ☑ | **Primitif kecil** (hasil audit lengkap: ui-alerts, progress, spinners, avatar, pagination-breadcrumbs, divider di referensi): `.alert-*`, `.progress`, `.spinner`, `.avatar`, `.pagination`, breadcrumb partial, `.divider`, `.skeleton` — CSS-only, token-based | Semua tampil di /Components, aman di 2 theme × dark |
+
+ᴺ **Keputusan FormValidation.io (2026-06-12):** dievaluasi vs aspnet-client-validation — unggul di validator eksotis, async & i18n, TAPI komersial & memecah sumber kebenaran. **Update hari yang sama:** diganti ENGINE MILIK SENDIRI `speca-validation` (Libs/UI/Assets/Entries/validation.js, ~180 baris): baca data-val-* DataAnnotations, live blur/input, status sukses/error, async [PageRemote], creditcard Luhn, registry addValidator() extensible. Dependensi aspnet-client-validation dihapus — validasi kini 100% kode sendiri.
+
+**Sprint usulan:** Sprint A = E6-01…05 + E6-10 (inti CRUD); Sprint B = E6-06…08; E6-09 sprint tersendiri.
+**Catatan jujur:** E6-02 paling berisiko (integrasi lifecycle validasi ASP.NET); E6-03 `<dialog>` butuh
+fallback perilaku scroll-lock; komponen kita belum diaudit aksesibilitas seketat KTUI/Bootstrap — 
+diandalkan pada elemen native (`dialog`, `details`, input asli) sebisa mungkin justru karena itu.
+
+### Inventori UI lengkap — audit kanonik 2026-06-12 (KTUI 50 komponen + Vuexy scss/_components & extended pages)
+
+**Sudah ada di Speca (24):** btn (6 variant+sm+icon) · badge (6) · card · input · textarea · select ·
+checkbox · radio · switch · form-label/hint · validasi (engine sendiri) · alert (4) · progress ·
+spinner · avatar · pagination (+partial) · divider/separator · skeleton · table (+pola CRUD) · tabs ·
+tooltip · modal · drawer/offcanvas · dropdown · toast · menu (vertikal+horizontal) · scrollable ·
+theme-switch (dark) — *vendor opsional:* select-advanced (Tom Select) · datepicker (flatpickr).
+
+**Sudah direncanakan (EPIC 7):** charts · upload/dropzone · editor · range-slider · sortable ·
+stepper/wizard · clipboard · fullcalendar · (deferred: carousel, kanban, tour, maps).
+
+| ID | Item baru hasil inventori | Acceptance Criteria |
+|----|------|---------------------|
+| E6-12 ☑ | **Batch primitif-2** (semua kecil, ditemukan di katalog KTUI/Vuexy, belum ada): accordion generik (`<details>` + class), popover (klik, konten kaya — reuse pola dropdown), kbd, input-number (+/-), toggle-password, rating bintang, timeline (formalisasi pola Aktivitas), blockui/loading-overlay, breadcrumb partial, button-group | Semua tampil di /Components, 2 theme × dark aman |
+| E7-10 ☐ | **Form repeater** (KTUI repeater / jquery.repeater Vuexy — versi sendiri tanpa jQuery): duplikasi baris form dinamis + re-index name utk model binding ASP.NET | Demo baris kontak dinamis ter-bind benar ke List<T> saat POST |
+| E8-06 ☐ | **Image-input** (upload avatar dgn preview — KTUI image-input / Vuexy account) — digabung ke halaman settings E8-03 | Preview sebelum upload, fallback inisial |
+| — | **Ditolak/deferred dgn alasan:** list-group (utilities cukup) · context-menu, pin-input, scrollspy, scrollto, sticky, reparent (niche, di luar pola CRUD — adakan saat ada kebutuhan nyata) · datatable JS KTUI (sudah diputuskan server-side, E6-09) | tercatat |
+
+## EPIC 7 — Komponen Lanjutan (vendor MIT opsional + milik sendiri)
+
+> Audit lengkap 2026-06-12 atas 78 vendor Vuexy + katalog KTUI/CSS Metronic. Prinsip keputusan:
+> (1) tanpa jQuery, (2) lisensi MIT/BSD/Apache, (3) vendor berat = **entry opsional** (tidak dimuat
+> default), (4) tolak yang tergantikan fitur native/punya sendiri.
+> **Ditolak + alasan:** select2/bootstrap-select/daterangepicker/jquery.repeater/jstree/typeahead+bloodhound
+> (butuh jQuery → pengganti non-jQuery dipilih); moment (→ Intl/date-fns bila perlu); numeral (→ Intl);
+> fontawesome (sudah ada Tabler+Lucide); perfect-scrollbar (sudah CSS sendiri); notyf/notiflix/sweetalert2-basic
+> (toast/confirm sendiri); spinkit (spinner CSS sendiri); animate.css/aos (transisi Tailwind);
+> masonry (CSS grid); hammerjs, highlight.js, katex, plyr, i18next (pakai localization ASP.NET) — di luar scope template.
+
+| ID | Item | Keputusan & Acceptance |
+|----|------|---------------------|
+| E7-01 ☑ | **Charts — ApexCharts** (MIT) | Halaman /Charts (4 chart); entry opsional `vendors/apexcharts`; chunk `libs/apexcharts` dipisah agar halaman lain tak menyeretnya; config via JSON (ramah CSP), warna ikut tema+dark |
+| E7-02 ☑ | **Upload — dropzone milik sendiri** (native, bukan Dropzone.js) + styling token | Deviasi jujur: ditulis sendiri (drag+klik+hapus, multi-file) — zero-vendor, lebih ringan; demo di /Components |
+| E7-03 ☑ | **Editor — Quill** (BSD-3) | Entry opsional `vendors/quill` + _overrides dark; demo di /Components |
+| E7-04 ☑ | **Slider/Range — milik sendiri** (native `<input type=range>`, bukan noUiSlider) | Deviasi jujur: native + fill via `--p` + nilai live; zero-vendor; demo di /Components |
+| E7-05 ☑ | **Drag & sort — SortableJS** (MIT) | Entry opsional `vendors/sortablejs`; demo list reorder di /Components |
+| E7-06 ☑ | **Stepper/Wizard** — tulis sendiri | Komponen `.wizard-*` + handler `[data-wizard]`; demo wizard 3 langkah di /Components |
+| E7-07 ☐ | **Clipboard** — Clipboard API native, helper kecil sendiri (`data-copy`) | BELUM — di luar scope sesi ini |
+| E7-08 ☐ | **Calendar — FullCalendar** (MIT) | BELUM — di luar scope yang dipilih user |
+| E7-09 ☐ | Carousel — **Swiper** (MIT); Maps — **Leaflet** (BSD-2); Tour — **Shepherd** (MIT); Kanban | Ditunda sampai ada kebutuhan project nyata (tercatat sebagai resep di README) |
+| E7-10 ☑ | **Color picker — Pickr** (`@@simonwep/pickr`, MIT) | Tambahan di luar rencana awal (KTUI punya color-picker); entry opsional `vendors/pickr` + _overrides; demo di /Components |
+| E7-11 ☑ | **Tier-1 primitif** (di luar rencana E7 awal): input-group/addon, list-group, custom option cards, OTP/PIN, stat card, avatar group+status, datatable ringan (sort/search/paginate sisi-klien) | Semua zero-vendor, token-driven (theme1/theme2/dark otomatis); demo di /Components |
+
+## EPIC 8 — Halaman & Pola Aplikasi (P2)
+
+> Referensi: Vuexy punya 13 halaman auth, wizard, 15 pages umum; Metronic punya account/auth/error set.
+
+| ID | Item | Acceptance Criteria |
+|----|------|---------------------|
+| E8-01 ☑ | **Halaman auth** (login, register, lupa password) — UI only, layout blank, siap disambungkan ke Identity | 3 halaman di 2 theme; form pakai komponen E6 + validasi E6-02 |
+| E8-02 ☑ | **Halaman error** (404, 500) menggantikan Error.cshtml polos | Styled, tanpa layout app-shell, tombol kembali |
+| E8-03 ☑ | **Halaman settings/profile** (pola umum CRUD: form + tabs + upload avatar) | 1 halaman contoh memakai komponen E6 |
+| E8-04 ☐ | Dashboard charts demo (gabung E7-01) | Dashboard / menampilkan 2 chart hidup |
+| E8-05 ☐ | Integrasi ASP.NET Identity (scaffold, opsional saat packaging) | Keputusan didokumentasikan; bukan blocker template |
+
 ## Urutan eksekusi yang disarankan
 
 1. **Sprint 1 (E0 semua)** — production path hidup. Tanpa ini, semua di atasnya dibangun di fondasi patah.
