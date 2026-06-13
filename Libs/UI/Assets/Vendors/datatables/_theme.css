@@ -1,0 +1,106 @@
+/*
+ * DataTables.net — petakan styling "dt" ke token Speca.
+ * Dipindah dari theme.css agar termuat HANYA saat vendor ini dipakai
+ * (di-import oleh index.js vendor, bukan di chunk global). Token var(--*)
+ * tetap global dari theme.css. Lihat memory: theme-organization.
+ */
+
+/* ===========================================================================
+   Vendor opsional: DataTables.net — petakan styling "dt" ke token Speca.
+   jQuery di-scope di chunk vendor; CSS-nya kita selaraskan di sini.
+   =========================================================================== */
+div.dt-container {
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+
+table.dataTable {
+  border-color: var(--border);
+}
+
+table.dataTable > thead > tr > th {
+  border-bottom-color: var(--border);
+  color: var(--muted-foreground);
+}
+
+table.dataTable > tbody > tr {
+  background-color: transparent;
+}
+
+table.dataTable > tbody > tr > td {
+  border-top-color: var(--border);
+}
+
+table.dataTable.row-border > tbody > tr > td,
+table.dataTable.display > tbody > tr > td {
+  border-top-color: var(--border);
+}
+
+table.dataTable tbody tr:hover > td {
+  background-color: var(--accent);
+}
+
+/* Baris terpilih (ekstensi Select) */
+table.dataTable > tbody > tr.selected > td,
+table.dataTable > tbody > tr > td.selected {
+  background-color: color-mix(in oklab, var(--primary) 14%, transparent) !important;
+  color: var(--foreground);
+  box-shadow: none;
+}
+
+/* Input length + search */
+div.dt-container select,
+div.dt-container .dt-input {
+  background-color: var(--background);
+  border-color: var(--input);
+  color: var(--foreground);
+  border-radius: var(--radius);
+}
+
+div.dt-container .dt-input:focus {
+  border-color: var(--ring);
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--ring) 35%, transparent);
+}
+
+div.dt-container .dt-info {
+  color: var(--muted-foreground);
+}
+
+/* Pagination */
+div.dt-container .dt-paging .dt-paging-button {
+  color: var(--foreground) !important;
+  border-radius: var(--radius);
+}
+
+div.dt-container .dt-paging .dt-paging-button:hover {
+  background: var(--accent) !important;
+  border-color: var(--border) !important;
+}
+
+div.dt-container .dt-paging .dt-paging-button.current,
+div.dt-container .dt-paging .dt-paging-button.current:hover {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+}
+
+div.dt-container .dt-paging .dt-paging-button.disabled {
+  color: var(--muted-foreground) !important;
+  opacity: 0.5;
+}
+
+/* Tombol export (Buttons): samakan dengan btn-outline */
+div.dt-buttons .dt-button {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--foreground);
+  font-size: 0.8125rem;
+  padding: 0.4rem 0.75rem;
+}
+
+div.dt-buttons .dt-button:hover:not(.disabled) {
+  background: var(--accent);
+  border-color: var(--border);
+}

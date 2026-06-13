@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import inject from '@rollup/plugin-inject';
 import { glob } from 'glob';
 import path from 'path';
 import child_process from 'child_process';
@@ -170,8 +171,30 @@ function loadDevCerts() {
 }
 
 export default defineConfig(({ command }) => ({
-    plugins: [react(), tailwindcss()],
+    plugins: [
+        react(),
+        tailwindcss(),
+        // Sediakan jQuery untuk plugin LEGACY (yang kita vendor sendiri) yang
+        // merujuk global `$`/`jQuery` tanpa import. Inject menyisipkan
+        // `import $ from 'jquery'` di mana pun `$`/`jQuery` muncul sebagai
+        // variabel bebas. Berkat pnpm.overrides + dedupe, semua memakai SATU jQuery.
+        //
+        // exclude node_modules — DIBUKTIKAN terukur (2026-06-13): tanpa ini, inject
+        // menyeret jQuery (~78KB) ke chunk flatpickr. Sebab flatpickr punya integrasi
+        // jQuery OPSIONAL (`if (typeof jQuery !== 'undefined') jQuery.fn.flatpickr…`);
+        // inject melihat `jQuery.fn` sebagai var bebas lalu mengubah deteksi-fitur itu
+        // jadi import KERAS, memaksa tiap halaman flatpickr memuat jQuery sia-sia.
+        // Membatasi inject ke kode kita sendiri membunuh kebocoran tanpa mengorbankan
+        // safety-net untuk plugin lawas yang benar-benar kita tulis di Assets/Vendors.
+        // exclude juga *.css/*.scss — inject hanya relevan untuk JS/TS; tanpa ini
+        // ia mencoba mem-parse CSS sebagai JS dan memuntahkan warning (terukur 2026-06-13
+        // saat CSS override vendor di-import dari index.js vendor).
+        inject({ $: 'jquery', jQuery: 'jquery', exclude: ['**/node_modules/**', '**/*.css', '**/*.scss'] }),
+    ],
     base: '/dist/',
+    // Blok server HANYA aktif saat `command==='serve'` (dev). `cors:true` di sini
+    // adalah sumber `Access-Control-Allow-Origin: *` yang dilihat ZAP — itu murni
+    // dev server Vite (HMR), TIDAK pernah ikut ke build/produksi.
     server: command !== 'serve' ? undefined : {
         strictPort: true,
         host: "localhost",
@@ -186,6 +209,10 @@ export default defineConfig(({ command }) => ({
         'process.env': {}
     },
     resolve: {
+        // Dedupe jQuery ke SATU instance — cegah >1 salinan saat beberapa vendor
+        // (DataTables + plugin jQuery lain) ada di halaman yang sama. Versi tunggal
+        // dipaksa via pnpm.overrides (root package.json); dedupe menjaga resolusi.
+        dedupe: ['jquery'],
         alias: {
             '@app': path.resolve(webAppPath, 'Assets'),
             '@ui': path.resolve(__dirname, './Libs/UI/Assets')
@@ -194,6 +221,14 @@ export default defineConfig(({ command }) => ({
     build: {
         outDir: path.join(webAppPath, "wwwroot", "dist"),
         emptyOutDir: true,
+        // HARDENING PRODUKSI (terukur, diverifikasi di dist setelah build):
+        // - sourcemap:false → tidak ada `//# sourceMappingURL=` publik & tidak ada
+        //   .map yang membocorkan path lokal (mis. D:/PROJECTS/...) atau source asli.
+        // - React Fast Refresh & HMR Vite hanya disuntik pada dev (command==='serve'),
+        //   tidak pernah ikut ke output `vite build`.
+        // - `import.meta.env.DEV` di-statis-replace jadi `false` saat build produksi,
+        //   lalu di-dead-code-eliminate minifier (esbuild default).
+        sourcemap: false,
         // manifest.json = satu-satunya sumber kebenaran nama file produksi;
         // tag helper <vite-entry src="..."> me-resolve lewat file ini.
         // Ditulis ke dist/manifest.json (bukan default .vite/) karena Web SDK

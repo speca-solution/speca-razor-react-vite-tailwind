@@ -1,0 +1,84 @@
+/*
+ * Grid.js — selaraskan tema mermaid dengan token Speca.
+ * Dipindah dari theme.css agar termuat HANYA saat vendor ini dipakai
+ * (di-import oleh index.js vendor, bukan di chunk global). Token var(--*)
+ * tetap global dari theme.css. Lihat memory: theme-organization.
+ */
+
+/* ===========================================================================
+   Vendor opsional: Grid.js — selaraskan tema mermaid dengan token Speca.
+   Karena semua pakai var(--*), dark-mode ikut otomatis (tanpa aturan .dark).
+   =========================================================================== */
+.gridjs-container {
+  color: var(--foreground);
+}
+
+.gridjs-wrapper {
+  border-color: var(--border);
+  box-shadow: none;
+  border-radius: var(--radius);
+}
+
+table.gridjs-table {
+  font-size: 0.875rem;
+}
+
+th.gridjs-th {
+  background-color: var(--muted);
+  border-color: var(--border);
+  color: var(--muted-foreground);
+}
+
+th.gridjs-th-sort:hover,
+th.gridjs-th-sort:focus {
+  background-color: var(--accent);
+}
+
+td.gridjs-td {
+  background-color: var(--background);
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+.gridjs-tr:hover td.gridjs-td {
+  background-color: var(--accent);
+}
+
+input.gridjs-input {
+  background-color: var(--background);
+  border-color: var(--input);
+  color: var(--foreground);
+  border-radius: var(--radius);
+}
+
+input.gridjs-input:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--ring) 35%, transparent);
+}
+
+.gridjs-pagination {
+  color: var(--muted-foreground);
+}
+
+.gridjs-pagination .gridjs-pages button {
+  background-color: var(--background);
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+.gridjs-pagination .gridjs-pages button:hover:not(:disabled) {
+  background-color: var(--accent);
+}
+
+.gridjs-pagination .gridjs-pages button.gridjs-currentPage {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.gridjs-footer,
+.gridjs-head {
+  background-color: transparent;
+  border-color: var(--border);
+  box-shadow: none;
+}

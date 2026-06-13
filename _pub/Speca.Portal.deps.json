@@ -1,0 +1,73 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "Speca.Portal/1.0.0": {
+        "dependencies": {
+          "Speca.UI": "1.0.0"
+        },
+        "runtime": {
+          "Speca.Portal.dll": {}
+        }
+      },
+      "Microsoft.AspNetCore.SpaServices.Extensions/10.0.6": {
+        "runtime": {
+          "lib/net10.0/Microsoft.AspNetCore.SpaServices.Extensions.dll": {
+            "assemblyVersion": "10.0.6.0",
+            "fileVersion": "10.0.626.17701"
+          }
+        }
+      },
+      "Speca.Core/1.0.0": {
+        "dependencies": {
+          "Microsoft.AspNetCore.SpaServices.Extensions": "10.0.6"
+        },
+        "runtime": {
+          "Speca.Core.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "Speca.UI/1.0.0": {
+        "dependencies": {
+          "Speca.Core": "1.0.0"
+        },
+        "runtime": {
+          "Speca.UI.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Speca.Portal/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.AspNetCore.SpaServices.Extensions/10.0.6": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-VCSqyBOm2bIP0VUTq1IbAJQQ1MWQxe9kItv39II8QqwuM7BSU2KvPOmQUAtcZoAFjZDUeEo4PJyZGnl79L02cQ==",
+      "path": "microsoft.aspnetcore.spaservices.extensions/10.0.6",
+      "hashPath": "microsoft.aspnetcore.spaservices.extensions.10.0.6.nupkg.sha512"
+    },
+    "Speca.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Speca.UI/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

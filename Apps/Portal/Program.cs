@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.HttpOverrides;
 using Speca.Core.Extensions;
 using Speca.UI.Navigation;
 
@@ -9,6 +10,71 @@ var ApplicationConfig = config.GetSection("Application");
 
 builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();
+
+// ---- Forwarded headers: deteksi HTTPS & IP-klien yang benar di balik reverse
+// proxy yang terminasi TLS (nginx/IIS/ALB/App Service). WAJIB agar Secure-cookie,
+// antiforgery (SecurePolicy=Always), dan HTTPS-redirect bekerja saat TLS diterminasi
+// di proxy (Kestrel menerima HTTP). KnownNetworks/Proxies dikosongkan = percaya
+// X-Forwarded-* dari upstream → app HARUS hanya dijangkau lewat proxy tepercaya
+// (jangan ekspos Kestrel langsung ke internet). Untuk membatasi, isi KnownProxies
+// dengan IP proxy yang tetap.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+// ---- CORS (didorong konfigurasi) ----
+// Razor server-rendered tak butuh CORS untuk halaman sendiri; kebijakan ini
+// disiapkan untuk endpoint API / klien lintas-asal. Origin dibaca dari
+// "Cors:AllowedOrigins": dev → localhost, prod → domain spesifik
+// (lihat appsettings.{Environment}.json). Kosong = tolak semua lintas-asal.
+var corsOrigins = config.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("SpecaCors", policy =>
+    {
+        if (corsOrigins.Length > 0)
+        {
+            policy.WithOrigins(corsOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
+        // Tanpa origin terdaftar → default-deny (tak ada header CORS dikirim).
+    });
+});
+
+// ---- HSTS (dipakai produksi via app.UseHsts) ----
+builder.Services.AddHsts(options =>
+{
+    options.MaxAge = TimeSpan.FromDays(365);   // >= 1 tahun
+    options.IncludeSubDomains = true;
+    options.Preload = false;                   // true HANYA bila akan didaftarkan ke hstspreload.org
+});
+
+// ---- Antiforgery: cookie aman (temuan ZAP: cookie tanpa Secure) ----
+builder.Services.AddAntiforgery(options =>
+{
+    options.Cookie.Name = "speca.antiforgery";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    // Prod: paksa Secure. Dev: ikut skema request agar http lokal tetap jalan.
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
+});
+
+// ---- CookiePolicy global: jaring pengaman Secure untuk SEMUA cookie ----
+// (mis. cookie auth/sesi yang ditambahkan kemudian otomatis ikut diamankan).
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.MinimumSameSitePolicy = SameSiteMode.Lax;
+    options.Secure = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
+});
 
 // Menu sidebar — satu definisi untuk semua theme (renderer ada di Speca.UI)
 builder.Services.AddSpecaMenu(menu =>
@@ -138,6 +204,10 @@ builder.Services.AddSpecaMenu(menu =>
 
 var app = builder.Build();
 
+// PALING AWAL: terjemahkan X-Forwarded-* dari reverse proxy menjadi scheme/IP asli
+// SEBELUM middleware lain (HTTPS-redirect, security headers, antiforgery) membacanya.
+app.UseForwardedHeaders();
+
 // Security headers + CSP (sadar-environment): produksi tanpa 'unsafe-eval',
 // development mengizinkannya untuk HMR Vite. Dipasang paling awal agar
 // melindungi setiap respons, termasuk halaman error.
@@ -157,6 +227,10 @@ app.UseHttpsRedirection();
 // MapStaticAssets menangani asset Razor lain dengan fingerprinting .NET 9+.
 app.UseStaticFiles();
 app.UseRouting();
+
+// CookiePolicy menjaring SEMUA cookie (Secure di produksi); CORS antara routing & auth.
+app.UseCookiePolicy();
+app.UseCors("SpecaCors");
 
 // Tambahkan app.UseAuthentication() di sini bila memakai autentikasi.
 app.UseAuthorization();

@@ -30,6 +30,9 @@ namespace Speca.Portal.Pages
         [BindProperty(SupportsGet = true)] public string Dir { get; set; } = "asc";
         [BindProperty(SupportsGet = true)] public int P { get; set; } = 1;
 
+        /// <summary>Seluruh dataset — dipakai demo datatable sisi-klien (Grid.js &amp; DataTables.net).</summary>
+        public IReadOnlyList<Product> AllForClient => All;
+
         public IReadOnlyList<Product> Items { get; private set; } = [];
         public int Total { get; private set; }
         public int TotalPages { get; private set; }

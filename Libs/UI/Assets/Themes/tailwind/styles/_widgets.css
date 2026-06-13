@@ -1,0 +1,495 @@
+/* Widget Tier 1/2: input-group, range, list-group, option-card, OTP, stat, avatar, stepper, datatable ringan, dropzone.
+   Dipecah dari theme.css untuk perawatan; di-@import balik (output byte-identik). */
+
+/* ============================================================
+   Komponen tambahan — selaras referensi (Metronic/Vuexy).
+   Semua token-driven: theme1/theme2 + dark ikut otomatis.
+   ============================================================ */
+
+/* ---- Tier 1: Input group / addon ---- */
+.input-group {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.input-group > * {
+  border-radius: 0;
+}
+
+.input-group > .input {
+  flex: 1 1 auto;
+  width: auto;
+}
+
+.input-group > :not(:first-child) {
+  margin-inline-start: -1px;
+}
+
+.input-group > :first-child {
+  border-start-start-radius: var(--radius);
+  border-end-start-radius: var(--radius);
+}
+
+.input-group > :last-child {
+  border-start-end-radius: var(--radius);
+  border-end-end-radius: var(--radius);
+}
+
+/* Input yang fokus naik ke atas agar ring tidak tertutup tetangga */
+.input-group > .input:focus {
+  position: relative;
+  z-index: 1;
+}
+
+.input-group-text {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  height: var(--control-h);
+  padding-inline: var(--control-px);
+  background: var(--muted);
+  border: 1px solid var(--input);
+  color: var(--muted-foreground);
+  font-size: var(--font-control);
+}
+
+/* ---- Tier 1: Range slider (fill via --p, di-set JS) ---- */
+.range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 0.375rem;
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(
+    to right,
+    var(--primary) var(--p, 50%),
+    var(--accent) var(--p, 50%)
+  );
+}
+
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--background);
+  box-shadow: var(--shadow-control);
+  cursor: pointer;
+}
+
+.range::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--background);
+  cursor: pointer;
+}
+
+.range:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- Tier 1: List group ---- */
+.list-group {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.list-group-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  background: var(--background);
+}
+
+.list-group-item + .list-group-item {
+  border-top: 1px solid var(--border);
+}
+
+a.list-group-item,
+button.list-group-item {
+  cursor: pointer;
+  transition: background 0.1s;
+  text-align: start;
+  width: 100%;
+}
+
+a.list-group-item:hover,
+button.list-group-item:hover {
+  background: var(--accent);
+}
+
+.list-group-item.active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.list-group-item.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ---- Tier 1: Custom option cards (radio/checkbox jadi kartu) ---- */
+.option-card {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--input);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition:
+    border-color 0.1s,
+    background 0.1s;
+}
+
+.option-card:hover {
+  border-color: var(--primary);
+}
+
+.option-card:has(input:checked) {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 6%, transparent);
+}
+
+.option-card:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- Tier 1: OTP / PIN input (auto-advance via JS) ---- */
+.pin-input {
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.pin-input input {
+  width: var(--control-h);
+  height: var(--control-h);
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border: 1px solid var(--input);
+  border-radius: var(--radius);
+  background: var(--background);
+  color: var(--foreground);
+  outline: none;
+  transition:
+    border-color 0.1s,
+    box-shadow 0.1s;
+  appearance: textfield;
+}
+
+.pin-input input::-webkit-outer-spin-button,
+.pin-input input::-webkit-inner-spin-button {
+  appearance: none;
+}
+
+.pin-input input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
+}
+
+/* ---- Tier 1: Stat / metric card ---- */
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: var(--card-px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--background);
+  box-shadow: var(--shadow-card);
+}
+
+.stat-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
+  font-size: 1.25rem;
+}
+
+.stat-card-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--foreground);
+}
+
+.stat-card-label {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+.stat-trend-up {
+  color: #16a34a;
+}
+
+.stat-trend-down {
+  color: #dc2626;
+}
+
+/* ---- Tier 1: Avatar group + status dot ---- */
+.avatar-group {
+  display: inline-flex;
+}
+
+.avatar-group > .avatar {
+  border: 2px solid var(--background);
+}
+
+.avatar-group > .avatar:not(:first-child) {
+  margin-inline-start: -0.6rem;
+}
+
+.avatar-indicator {
+  position: relative;
+  display: inline-flex;
+}
+
+.avatar-status {
+  position: absolute;
+  bottom: 0;
+  inset-inline-end: 0;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  border: 2px solid var(--background);
+}
+
+.avatar-status-online {
+  background: #22c55e;
+}
+
+.avatar-status-busy {
+  background: #ef4444;
+}
+
+.avatar-status-away {
+  background: #f59e0b;
+}
+
+.avatar-status-offline {
+  background: #94a3b8;
+}
+
+/* ---- Tier 2: Stepper / Form Wizard ---- */
+.wizard-nav {
+  display: flex;
+  align-items: center;
+}
+
+.wizard-step {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.wizard-step-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--background);
+  color: var(--muted-foreground);
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.15s;
+}
+
+.wizard-step-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.wizard-step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  margin-inline: 0.5rem;
+}
+
+.wizard-step.active .wizard-step-circle,
+.wizard-step.done .wizard-step-circle {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.wizard-step.active .wizard-step-label,
+.wizard-step.done .wizard-step-label {
+  color: var(--foreground);
+}
+
+/* ---- Tier 2: DataTable ringan (sort/search/paginate sisi-klien) ---- */
+.table th[data-sort] {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.table th[data-sort]::after {
+  content: '\2195';
+  opacity: 0.35;
+  margin-inline-start: 0.35rem;
+  font-size: 0.75rem;
+}
+
+.table th.sort-asc::after {
+  content: '\2191';
+  opacity: 1;
+}
+
+.table th.sort-desc::after {
+  content: '\2193';
+  opacity: 1;
+}
+
+/* Header lengket (sticky) — bungkus tabel dengan .table-sticky + tinggi maks */
+.table-sticky {
+  max-height: 24rem;
+  overflow: auto;
+}
+
+.table-sticky thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--background);
+}
+
+/* Baris dapat-diperluas (responsif, layar kecil) */
+.dt-parent {
+  cursor: pointer;
+}
+
+.dt-child > td {
+  background: var(--accent);
+  padding: 0.75rem;
+}
+
+.dt-child-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 1rem;
+  margin: 0;
+  font-size: 0.8125rem;
+}
+
+.dt-child-list dt {
+  color: var(--muted-foreground);
+  font-weight: 500;
+}
+
+.dt-child-list dd {
+  margin: 0;
+}
+
+/* Menu column-visibility (pakai <details>) */
+.dt-colvis {
+  position: relative;
+}
+
+.dt-colvis-menu {
+  position: absolute;
+  inset-inline-end: 0;
+  z-index: 20;
+  min-width: 11rem;
+  margin-top: 0.25rem;
+  padding: 0.25rem;
+  background: var(--popover, var(--background));
+  border: 1px solid var(--border);
+  border-radius: var(--radius, 0.5rem);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.08);
+}
+
+.dt-colvis-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  text-transform: none;
+  cursor: pointer;
+}
+
+.dt-colvis-item:hover {
+  background: var(--accent);
+}
+
+/* ---- Tier 2: File dropzone (multi-file drag) ---- */
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  border: 2px dashed var(--input);
+  border-radius: var(--radius);
+  background: var(--muted);
+  color: var(--muted-foreground);
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.dropzone:hover,
+.dropzone.dragover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 5%, transparent);
+}
+
+.dropzone-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.dropzone-file {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--background);
+  font-size: 0.8125rem;
+  color: var(--foreground);
+}
+
+.dropzone-file button {
+  margin-inline-start: auto;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.dropzone-file button:hover {
+  color: #ef4444;
+}

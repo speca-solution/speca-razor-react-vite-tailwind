@@ -1,0 +1,1 @@
+import{t as e}from"../../../_base-BCPFT6Zb.js";document.addEventListener(`DOMContentLoaded`,()=>{e()});

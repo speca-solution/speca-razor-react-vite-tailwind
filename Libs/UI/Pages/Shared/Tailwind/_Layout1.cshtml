@@ -6,6 +6,8 @@
 *@
 @{
     var theme = ViewData["Theme"] as string ?? "theme1";
+    // Nonce CSP (produksi): Razor MENGHILANGKAN atribut nonce bila null (dev) → aman.
+    var cspNonce = Context.Items["csp-nonce"] as string;
 }
 <html class="h-full @theme" lang="en" dir="ltr">
 <head>
@@ -21,14 +23,19 @@
 
     @RenderSection("Styles", false)
 
-    <!-- Set theme sebelum render untuk hindari flash -->
-    <script>
+    <!-- Set dark-mode & skin sebelum render untuk hindari flash -->
+    <script nonce="@cspNonce">
         (function () {
+            var el = document.documentElement;
             var mode = localStorage.getItem('speca-theme');
             if (!mode) {
                 mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
-            if (mode === 'dark') { document.documentElement.classList.add('dark'); }
+            if (mode === 'dark') { el.classList.add('dark'); }
+            // Skin theme1/theme2: localStorage menang atas default SSR (class @@theme).
+            var skin = localStorage.getItem('speca-skin');
+            if (skin === 'theme2') { el.classList.add('theme2'); }
+            else if (skin === 'theme1') { el.classList.remove('theme2'); }
         })();
     </script>
 </head>
@@ -59,7 +66,7 @@
 
     @RenderSection("EndOfPage", false)
 
-    <vite-asset src="Libs/UI/Assets/Themes/tailwind/app/layouts/layout.js" />
+    <vite-asset src="Libs/UI/Assets/Themes/tailwind/app/layouts/vertical.js" />
 
     @RenderSection("Scripts", false)
 </body>

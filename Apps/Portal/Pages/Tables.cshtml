@@ -1,8 +1,20 @@
 @page
 @model Speca.Portal.Pages.TablesModel
 @using Speca.UI.Components
+@using System.Text.Json
 @{
     ViewData["Title"] = "Tabel Data";
+
+    // Config Grid.js (sisi-klien): kolom + data diserialisasi sebagai JSON (CSP-safe).
+    var gridConfig = new
+    {
+        columns = new[] { "Nama", "Kategori", "Harga", "Stok", "Status" },
+        data = Model.AllForClient.Select(p => new object[]
+        {
+            p.Name, p.Category, $"Rp {p.Price:N0}", p.Stock, p.Active ? "Aktif" : "Nonaktif"
+        }),
+        pagination = new { limit = 10 },
+    };
 }
 
 @section Breadcrumb {
@@ -10,7 +22,7 @@
         <div class="flex flex-col gap-2">
             <h1 class="text-mono text-xl leading-none font-medium">Tabel Data</h1>
             <div class="text-secondary-foreground text-sm">
-                Pola CRUD server-side: search, sort, paging — tanpa library, siap diganti EF Core.
+                Tiga pendekatan: server-side (0 KB), Grid.js (~14KB, no-jQuery), dan DataTables.net (jQuery scoped).
             </div>
         </div>
     </div>
@@ -76,7 +88,7 @@
                         <td class="text-end">
                             <button type="button" class="btn-icon size-7" data-tooltip="Edit"><i class="ti ti-pencil text-sm"></i></button>
                             <button type="button" class="btn-icon size-7" data-tooltip="Hapus"
-                                    onclick="specaToast('Demo: hapus @item.Name', 'danger')">
+                                    data-toast="Demo: hapus @item.Name" data-toast-variant="danger">
                                 <i class="ti ti-trash text-sm"></i>
                             </button>
                         </td>
@@ -102,3 +114,63 @@
         </div>
     </div>
 </div>
+
+<!-- =====================================================================
+     Grid.js — datatable interaktif tanpa jQuery (~14KB), vendor opsional.
+     Config (kolom + data) via JSON inline; tema ikut token Speca + dark mode.
+     ===================================================================== -->
+<div class="card mb-10">
+    <div class="card-header">
+        <h3 class="card-title">Grid.js (sisi-klien, no-jQuery)</h3>
+        <span class="text-muted-foreground text-xs">search · sort · paginate bawaan library</span>
+    </div>
+    <div class="card-body">
+        <div data-gridjs>
+            <script type="application/json">@Html.Raw(JsonSerializer.Serialize(gridConfig))</script>
+        </div>
+    </div>
+</div>
+
+<!-- =====================================================================
+     DataTables.net — fitur lengkap (responsive, select, export copy/csv/print).
+     jQuery di-BUNDLE hanya ke dalam chunk vendor ini (tidak ke layout/halaman lain).
+     ===================================================================== -->
+<div class="card mb-10">
+    <div class="card-header">
+        <h3 class="card-title">DataTables.net (jQuery scoped)</h3>
+        <span class="text-muted-foreground text-xs">responsive · select · export copy/csv/print</span>
+    </div>
+    <div class="card-body overflow-x-auto">
+        <div data-datatables>
+            <script type="application/json">{ "pageLength": 10 }</script>
+            <table class="table" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Kategori</th>
+                        <th>Harga</th>
+                        <th>Stok</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.AllForClient)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@item.Category</td>
+                            <td>Rp @item.Price.ToString("N0")</td>
+                            <td>@item.Stock</td>
+                            <td>@(item.Active ? "Aktif" : "Nonaktif")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <vite-asset src="Libs/UI/Assets/Vendors/gridjs/index.js" />
+    <vite-asset src="Libs/UI/Assets/Vendors/datatables/index.js" />
+}

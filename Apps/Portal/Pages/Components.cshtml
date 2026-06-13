@@ -87,7 +87,7 @@
         <!-- Modal -->
         <div class="card">
             <div class="card-header"><h3 class="card-title">Modal (&lt;dialog&gt; native)</h3></div>
-            <div class="card-body flex gap-3">
+            <div class="card-body flex flex-wrap gap-3">
                 <button type="button" class="btn btn-primary"
                         data-modal-open="#demo_modal">
                     Buka Modal
@@ -95,6 +95,11 @@
                 <button type="button" class="btn-outline" data-modal-open="#confirm_modal">
                     Pola Confirm
                 </button>
+                <button type="button" class="btn-outline" data-modal-open="#modal_sm">Kecil</button>
+                <button type="button" class="btn-outline" data-modal-open="#modal_lg">Besar</button>
+                <button type="button" class="btn-outline" data-modal-open="#modal_xl">Ekstra besar</button>
+                <button type="button" class="btn-outline" data-modal-open="#modal_scrollable">Scrollable</button>
+                <button type="button" class="btn-outline" data-modal-open="#modal_fullscreen">Fullscreen</button>
             </div>
         </div>
 
@@ -102,10 +107,10 @@
         <div class="card">
             <div class="card-header"><h3 class="card-title">Toast</h3></div>
             <div class="card-body flex flex-wrap gap-2">
-                <button type="button" class="btn-outline" onclick="specaToast('Data tersimpan.', 'success')">Success</button>
-                <button type="button" class="btn-outline" onclick="specaToast('Periksa kembali input Anda.', 'warning')">Warning</button>
-                <button type="button" class="btn-outline" onclick="specaToast('Terjadi kesalahan server.', 'danger')">Danger</button>
-                <button type="button" class="btn-outline" onclick="specaToast('Info biasa.')">Default</button>
+                <button type="button" class="btn-outline" data-toast="Data tersimpan." data-toast-variant="success">Success</button>
+                <button type="button" class="btn-outline" data-toast="Periksa kembali input Anda." data-toast-variant="warning">Warning</button>
+                <button type="button" class="btn-outline" data-toast="Terjadi kesalahan server." data-toast-variant="danger">Danger</button>
+                <button type="button" class="btn-outline" data-toast="Info biasa.">Default</button>
             </div>
         </div>
 
@@ -269,7 +274,7 @@
                     Konten panel yang bisa diblokir saat memuat data.
                     <div class="mt-3 flex gap-2">
                         <button type="button" class="btn-sm btn-primary"
-                                onclick="specaBlock('#block_target', true); setTimeout(() => specaBlock('#block_target', false), 2000)">
+                                data-block-demo="#block_target" data-block-ms="2000">
                             Block 2 detik
                         </button>
                     </div>
@@ -461,39 +466,77 @@
 
 <!-- DataTable ringan -->
 <div class="card mt-5">
-    <div class="card-header"><h3 class="card-title">DataTable Ringan (sisi-klien)</h3></div>
+    <div class="card-header">
+        <h3 class="card-title">DataTable Ringan (sisi-klien)</h3>
+        <span class="text-muted-foreground text-xs">cari · urut · paginate · pilih · export · kolom · responsif — tanpa library</span>
+    </div>
     <div class="card-body">
-        <div data-datatable data-page-size="5">
-            <div class="mb-3 flex justify-end">
+        <div data-datatable data-page-size="5" data-export-name="pengguna">
+            <!-- Toolbar -->
+            <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <label class="text-muted-foreground flex items-center gap-2 text-sm">
+                        Tampil
+                        <select class="input h-9 w-18" data-datatable-size aria-label="Jumlah per halaman">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                        </select>
+                    </label>
+                    <button type="button" class="btn-outline btn-sm" data-datatable-export>
+                        <i class="ti ti-download"></i> CSV
+                    </button>
+                    <details class="dt-colvis">
+                        <summary class="btn-outline btn-sm list-none"><i class="ti ti-columns"></i> Kolom</summary>
+                        <div class="dt-colvis-menu" data-datatable-colvis></div>
+                    </details>
+                </div>
                 <input class="input max-w-60" placeholder="Cari nama / email..." data-datatable-search aria-label="Cari" />
             </div>
+
+            <!-- Bilah aksi massal (muncul saat ada baris dipilih) -->
+            <div class="bg-primary/10 text-primary mb-3 flex items-center justify-between rounded-md px-3 py-2 text-sm" data-datatable-bulkbar hidden>
+                <span><b data-datatable-bulk-count>0</b> baris dipilih</span>
+                <button type="button" class="btn-sm btn-danger" data-toast="Demo: hapus baris terpilih" data-toast-variant="danger">
+                    <i class="ti ti-trash"></i> Hapus
+                </button>
+            </div>
+
             <div class="overflow-x-auto">
-                <table class="table">
+                <table class="table table-hover">
                     <thead>
                         <tr>
+                            <th class="w-10" data-export="false" data-colvis="false">
+                                <input type="checkbox" data-datatable-check-all aria-label="Pilih semua" />
+                            </th>
                             <th data-sort="text">Nama</th>
-                            <th data-sort="text">Email</th>
-                            <th data-sort="number">Umur</th>
+                            <th data-sort="text" data-collapse>Email</th>
+                            <th data-sort="number" data-collapse>Umur</th>
                             <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td>Andi Saputra</td><td>andi@mail.com</td><td>28</td><td><span class="badge badge-success">Aktif</span></td></tr>
-                        <tr><td>Rina Dewi</td><td>rina@mail.com</td><td>34</td><td><span class="badge badge-success">Aktif</span></td></tr>
-                        <tr><td>Maman Kurnia</td><td>maman@mail.com</td><td>41</td><td><span class="badge badge-muted">Nonaktif</span></td></tr>
-                        <tr><td>Zaki Firmansyah</td><td>zaki@mail.com</td><td>23</td><td><span class="badge badge-success">Aktif</span></td></tr>
-                        <tr><td>Bunga Lestari</td><td>bunga@mail.com</td><td>30</td><td><span class="badge badge-warning">Pending</span></td></tr>
-                        <tr><td>Citra Maharani</td><td>citra@mail.com</td><td>27</td><td><span class="badge badge-success">Aktif</span></td></tr>
-                        <tr><td>Doni Pratama</td><td>doni@mail.com</td><td>38</td><td><span class="badge badge-muted">Nonaktif</span></td></tr>
-                        <tr><td>Eka Wijaya</td><td>eka@mail.com</td><td>45</td><td><span class="badge badge-success">Aktif</span></td></tr>
-                        <tr><td>Fajar Nugroho</td><td>fajar@mail.com</td><td>22</td><td><span class="badge badge-warning">Pending</span></td></tr>
-                        <tr><td>Gita Permata</td><td>gita@mail.com</td><td>33</td><td><span class="badge badge-success">Aktif</span></td></tr>
-                        <tr><td>Hadi Santoso</td><td>hadi@mail.com</td><td>29</td><td><span class="badge badge-muted">Nonaktif</span></td></tr>
-                        <tr><td>Indah Sari</td><td>indah@mail.com</td><td>36</td><td><span class="badge badge-success">Aktif</span></td></tr>
+                        <tr><td><input type="checkbox" data-datatable-check aria-label="Pilih baris" /></td><td>Andi Saputra</td><td>andi@mail.com</td><td>28</td><td><span class="badge badge-success">Aktif</span></td></tr>
+                        <tr><td><input type="checkbox" data-datatable-check aria-label="Pilih baris" /></td><td>Rina Dewi</td><td>rina@mail.com</td><td>34</td><td><span class="badge badge-success">Aktif</span></td></tr>
+                        <tr><td><input type="checkbox" data-datatable-check aria-label="Pilih baris" /></td><td>Maman Kurnia</td><td>maman@mail.com</td><td>41</td><td><span class="badge badge-muted">Nonaktif</span></td></tr>
+                        <tr><td><input type="checkbox" data-datatable-check aria-label="Pilih baris" /></td><td>Zaki Firmansyah</td><td>zaki@mail.com</td><td>23</td><td><span class="badge badge-success">Aktif</span></td></tr>
+                        <tr><td><input type="checkbox" data-datatable-check aria-label="Pilih baris" /></td><td>Bunga Lestari</td><td>bunga@mail.com</td><td>30</td><td><span class="badge badge-warning">Pending</span></td></tr>
+                        <tr><td><input type="checkbox" data-datatable-check aria-label="Pilih baris" /></td><td>Citra Maharani</td><td>citra@mail.com</td><td>27</td><td><span class="badge badge-success">Aktif</span></td></tr>
+                        <tr><td><input type="checkbox" data-datatable-check aria-label="Pilih baris" /></td><td>Doni Pratama</td><td>doni@mail.com</td><td>38</td><td><span class="badge badge-muted">Nonaktif</span></td></tr>
+                        <tr><td><input type="checkbox" data-datatable-check aria-label="Pilih baris" /></td><td>Eka Wijaya</td><td>eka@mail.com</td><td>45</td><td><span class="badge badge-success">Aktif</span></td></tr>
+                        <tr><td><input type="checkbox" data-datatable-check aria-label="Pilih baris" /></td><td>Fajar Nugroho</td><td>fajar@mail.com</td><td>22</td><td><span class="badge badge-warning">Pending</span></td></tr>
+                        <tr><td><input type="checkbox" data-datatable-check aria-label="Pilih baris" /></td><td>Gita Permata</td><td>gita@mail.com</td><td>33</td><td><span class="badge badge-success">Aktif</span></td></tr>
+                        <tr><td><input type="checkbox" data-datatable-check aria-label="Pilih baris" /></td><td>Hadi Santoso</td><td>hadi@mail.com</td><td>29</td><td><span class="badge badge-muted">Nonaktif</span></td></tr>
+                        <tr><td><input type="checkbox" data-datatable-check aria-label="Pilih baris" /></td><td>Indah Sari</td><td>indah@mail.com</td><td>36</td><td><span class="badge badge-success">Aktif</span></td></tr>
                     </tbody>
                 </table>
+                <div class="text-muted-foreground hidden py-10 text-center" data-datatable-empty>Tidak ada data yang cocok.</div>
             </div>
-            <nav class="pagination mt-4 justify-end" data-datatable-pager></nav>
+
+            <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+                <span class="text-muted-foreground text-sm" data-datatable-info></span>
+                <nav class="pagination justify-end" data-datatable-pager></nav>
+            </div>
         </div>
     </div>
 </div>
@@ -592,7 +635,7 @@
                 <input class="input" placeholder="Cari..." />
             </div>
             <button type="button" class="btn btn-primary"
-                    data-drawer-dismiss onclick="specaToast('Filter diterapkan (demo).', 'success')">
+                    data-drawer-dismiss data-toast="Filter diterapkan (demo)." data-toast-variant="success">
                 Terapkan
             </button>
         </div>
@@ -609,9 +652,73 @@
             <button type="button" class="btn-outline" data-modal-dismiss>Batal</button>
             <button type="button" class="btn btn-danger"
                     data-modal-dismiss="confirm"
-                    onclick="specaToast('Data dihapus (demo).', 'danger')">
+                    data-toast="Data dihapus (demo)." data-toast-variant="danger">
                 Hapus
             </button>
+        </div>
+    </dialog>
+
+    <dialog class="modal modal-sm" id="modal_sm">
+        <div class="modal-header">
+            <h3 class="card-title">Modal kecil</h3>
+            <button type="button" class="btn-icon" data-modal-dismiss aria-label="Tutup"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body text-secondary-foreground text-sm">Varian <code>.modal-sm</code> (maks 22rem).</div>
+        <div class="modal-footer">
+            <button type="button" class="btn-outline" data-modal-dismiss>Tutup</button>
+        </div>
+    </dialog>
+
+    <dialog class="modal modal-lg" id="modal_lg">
+        <div class="modal-header">
+            <h3 class="card-title">Modal besar</h3>
+            <button type="button" class="btn-icon" data-modal-dismiss aria-label="Tutup"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body text-secondary-foreground text-sm">Varian <code>.modal-lg</code> (maks 48rem).</div>
+        <div class="modal-footer">
+            <button type="button" class="btn-outline" data-modal-dismiss>Tutup</button>
+        </div>
+    </dialog>
+
+    <dialog class="modal modal-xl" id="modal_xl">
+        <div class="modal-header">
+            <h3 class="card-title">Modal ekstra besar</h3>
+            <button type="button" class="btn-icon" data-modal-dismiss aria-label="Tutup"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body text-secondary-foreground text-sm">Varian <code>.modal-xl</code> (maks 64rem).</div>
+        <div class="modal-footer">
+            <button type="button" class="btn-outline" data-modal-dismiss>Tutup</button>
+        </div>
+    </dialog>
+
+    <dialog class="modal modal-lg modal-scrollable" id="modal_scrollable">
+        <div class="modal-header">
+            <h3 class="card-title">Konten panjang</h3>
+            <button type="button" class="btn-icon" data-modal-dismiss aria-label="Tutup"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body text-secondary-foreground text-sm flex flex-col gap-3">
+            <p>Header & footer tetap, hanya body yang men-scroll (<code>.modal-scrollable</code>).</p>
+            @for (var i = 1; i <= 20; i++)
+            {
+                <p>Paragraf @i — isi panjang untuk membuktikan body men-scroll tanpa modal meluber dari viewport.</p>
+            }
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-outline" data-modal-dismiss>Tutup</button>
+            <button type="button" class="btn btn-primary" data-modal-dismiss>Simpan</button>
+        </div>
+    </dialog>
+
+    <dialog class="modal modal-fullscreen" id="modal_fullscreen">
+        <div class="modal-header">
+            <h3 class="card-title">Modal fullscreen</h3>
+            <button type="button" class="btn-icon" data-modal-dismiss aria-label="Tutup"><i class="ti ti-x"></i></button>
+        </div>
+        <div class="modal-body text-secondary-foreground text-sm">
+            Penuh viewport (<code>.modal-fullscreen</code>) — cocok untuk form kompleks di layar kecil. Body men-scroll bila konten melebihi tinggi.
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-outline" data-modal-dismiss>Tutup</button>
         </div>
     </dialog>
 }

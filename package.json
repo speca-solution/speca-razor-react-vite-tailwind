@@ -11,7 +11,13 @@
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
   },
+  "pnpm": {
+    "overrides": {
+      "jquery": "4.0.0"
+    }
+  },
   "devDependencies": {
+    "@rollup/plugin-inject": "^5.0.5",
     "@tailwindcss/vite": "^4.2.2",
     "@types/node": "^25.6.0",
     "@vitejs/plugin-react": "^6.0.1",
