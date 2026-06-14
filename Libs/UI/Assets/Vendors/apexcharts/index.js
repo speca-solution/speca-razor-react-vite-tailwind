@@ -9,15 +9,17 @@
  */
 // Build MODULAR (ApexCharts v5): impor core + hanya tipe chart yang dipakai
 // template ini, bukan seluruh library. Memangkas bundle drastis.
-//   line  -> line, area, scatter, bubble, rangeArea
-//   bar   -> bar, column, stacked, rangeBar
-//   donut -> donut, pie
+//   line      -> line, area, scatter, bubble, rangeArea
+//   bar       -> bar, column, stacked, rangeBar
+//   donut     -> donut, pie
+//   radialBar -> radialBar (dipakai Dashboard Vuexy "Target Bulanan")
 // Butuh tipe lain (radar, heatmap, dst.)? Tambahkan import 'apexcharts/<tipe>'.
 // tooltip sudah termasuk core; legend dimuat eksplisit (dipakai donut).
 import ApexCharts from 'apexcharts/core';
 import 'apexcharts/line';
 import 'apexcharts/bar';
 import 'apexcharts/donut';
+import 'apexcharts/radialBar';
 import 'apexcharts/features/legend';
 
 window.ApexCharts = ApexCharts;

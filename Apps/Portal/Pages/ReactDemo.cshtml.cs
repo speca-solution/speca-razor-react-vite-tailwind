@@ -3,9 +3,9 @@ using System.Text.Json;
 
 namespace Speca.Portal.Pages
 {
-    public class IndexModel : PageModel
+    public class ReactDemoModel : PageModel
     {
-        /// <summary>Data awal yang di-serialize ke React (lihat Index.cshtml + main.tsx).</summary>
+        /// <summary>Data awal yang di-serialize ke React (lihat ReactDemo.cshtml + main.tsx).</summary>
         public sealed record DashboardData(string UserName, int Projects, int OpenTasks);
 
         private static readonly JsonSerializerOptions CamelCase = new(JsonSerializerDefaults.Web);

@@ -1,0 +1,27 @@
+@page
+@model ReactDemoModel
+@{
+    ViewData["Title"] = "Demo React";
+}
+
+@section Breadcrumb {
+    <div class="flex flex-col gap-2 pb-7.5">
+        <h1 class="text-mono text-xl leading-none font-medium">Razor → React</h1>
+        <div class="text-secondary-foreground text-sm">
+            Model server di-serialize ke <code>data-initial</code>, dibaca <code>main.tsx</code>,
+            lalu diteruskan sebagai props saat hydrate. Kontrak: <code>DashboardData</code> (C# camelCase) ↔ TS.
+        </div>
+    </div>
+}
+
+@* Pola Razor → React: model server di-serialize ke data-attribute,
+   main.tsx membacanya dan meneruskan sebagai props saat hydrate. *@
+<div class="mb-10 grid gap-5 xl:grid-cols-3">
+    <div id="root" data-initial="@Model.DataJson">
+        <div class="text-muted-foreground p-10">Inisialisasi aplikasi...</div>
+    </div>
+</div>
+
+@section Scripts {
+    <vite-entry src="Apps/Portal/Assets/Entries/main.tsx" />
+}

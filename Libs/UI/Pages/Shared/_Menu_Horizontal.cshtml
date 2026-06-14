@@ -6,7 +6,12 @@
     if (currentPath.Length == 0) { currentPath = "/"; }
 
     var dropdownIndex = 0;
+    const int MaxVisible = 7;   // item berlebih → dropdown "Lainnya" (cegah luber di desktop sempit)
     const string DisabledClasses = "pointer-events-none opacity-50";
+
+    var topItems = menuItems.Where(i => !i.IsHeading).ToList();
+    var visible = topItems.Take(MaxVisible).ToList();
+    var overflow = topItems.Skip(MaxVisible).ToList();
 
     void RenderBadge(MenuItem item)
     {
@@ -14,6 +19,7 @@
         <span class="badge badge-@item.BadgeVariant ms-auto">@item.Badge</span>
     }
 
+    // Link di dalam dropdown / mega (boleh ber-ikon & indent).
     void RenderDropdownLink(MenuItem child, bool indent)
     {
         if (child.Disabled)
@@ -25,27 +31,109 @@
            href="@(child.Url ?? "#")"
            target="@(child.OpenInNewTab ? "_blank" : null)"
            rel="@(child.OpenInNewTab ? "noopener" : null)">
+            @if (child.Icon is not null) { <i class="@child.Icon"></i> }
             @child.Title
-            @if (child.OpenInNewTab)
-            {
-                <i class="ti ti-external-link text-muted-foreground text-xs"></i>
-            }
+            @if (child.OpenInNewTab) { <i class="ti ti-external-link text-muted-foreground text-xs"></i> }
             @{ RenderBadge(child); }
         </a>
     }
-}
 
-@* Menu horizontal (desktop) untuk layout horizontal — heading dilewati.
-   Top item pakai komponen .menu-link (state aktif per-tema). Kedalaman dibatasi:
-   level-3 = GRUP berlabel di dalam dropdown (bukan flyout bersarang). *@
-<nav class="hidden items-center gap-0.5 lg:flex" id="horizontal_menu">
-    @foreach (var item in menuItems)
+    // Daftar anak 2-level datar (anak punya-anak → grup berlabel) — dipakai "Lainnya"
+    // (rata-kanan; flyout akan meluber, jadi tetap datar di sini).
+    void RenderChildList(MenuItem parent)
     {
-        @if (item.IsHeading)
+        foreach (var child in parent.Children)
         {
-            continue;
+            if (child.Children.Count == 0)
+            {
+                RenderDropdownLink(child, indent: false);
+            }
+            else
+            {
+                <div class="text-muted-foreground px-2.5 pt-2 pb-1 text-xs font-medium uppercase">@child.Title</div>
+                foreach (var gc in child.Children) { RenderDropdownLink(gc, indent: true); }
+            }
         }
-        else if (item.Disabled)
+    }
+
+    // Daftar anak REKURSIF dengan FLYOUT (multi-level ala Vuexy) — dipakai dropdown biasa.
+    // Item ber-anak → trigger + panel anak yang muncul ke samping saat hover (CSS, no-JS).
+    void RenderDropdownTree(IReadOnlyList<MenuItem> items)
+    {
+        foreach (var item in items)
+        {
+            if (item.Children.Count == 0)
+            {
+                RenderDropdownLink(item, indent: false);
+            }
+            else
+            {
+                <div class="dropdown-sub">
+                    <span class="dropdown-item cursor-default @(item.HasActiveDescendant(currentPath) ? "text-primary font-medium" : "")">
+                        @if (item.Icon is not null) { <i class="@item.Icon"></i> }
+                        <span class="grow truncate">@item.Title</span>
+                        <i class="ti ti-chevron-right text-muted-foreground text-xs"></i>
+                    </span>
+                    <div class="dropdown-panel dropdown-flyout w-56">
+                        @{ RenderDropdownTree(item.Children); }
+                    </div>
+                </div>
+            }
+        }
+    }
+
+    // Link KAYA di panel mega: ikon-dalam-kotak + judul + deskripsi (pola Metronic/Vuexy).
+    void RenderMegaLink(MenuItem gc)
+    {
+        var box = "inline-flex size-9 shrink-0 items-center justify-center rounded-md";
+        if (gc.Disabled)
+        {
+            <span class="@DisabledClasses flex items-start gap-3 rounded-md px-2.5 py-2">
+                <span class="bg-accent text-muted-foreground @box"><i class="@(gc.Icon ?? "ti ti-point") text-lg"></i></span>
+                <span class="min-w-0">
+                    <span class="text-foreground block text-sm font-medium">@gc.Title</span>
+                    @if (gc.Description is not null) { <span class="text-muted-foreground block text-xs leading-snug">@gc.Description</span> }
+                </span>
+            </span>
+            return;
+        }
+        <a class="hover:bg-accent flex items-start gap-3 rounded-md px-2.5 py-2 transition-colors"
+           href="@(gc.Url ?? "#")" target="@(gc.OpenInNewTab ? "_blank" : null)" rel="@(gc.OpenInNewTab ? "noopener" : null)">
+            <span class="bg-primary/10 text-primary @box"><i class="@(gc.Icon ?? "ti ti-point") text-lg"></i></span>
+            <span class="min-w-0">
+                <span class="block text-sm font-medium @(gc.IsActive(currentPath) ? "text-primary" : "text-foreground")">@gc.Title</span>
+                @if (gc.Description is not null) { <span class="text-muted-foreground block text-xs leading-snug">@gc.Description</span> }
+            </span>
+        </a>
+    }
+
+    // Panel MEGA full-width (jangkar kontainer strip) + konten kaya berkolom.
+    void RenderMega(MenuItem item, string id)
+    {
+        <div id="@id" class="dropdown-panel hidden start-0! end-0! w-auto! p-4">
+            <div class="grid gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach (var col in item.Children)
+                {
+                    <div class="flex flex-col gap-0.5">
+                        @if (col.Children.Count > 0)
+                        {
+                            <div class="text-muted-foreground border-border mb-1 border-b px-2.5 pb-1.5 text-xs font-semibold tracking-wide uppercase">@col.Title</div>
+                            foreach (var gc in col.Children) { RenderMegaLink(gc); }
+                        }
+                        else
+                        {
+                            RenderMegaLink(col);
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    // Satu item top-level: leaf / disabled / dropdown / mega.
+    void RenderTop(MenuItem item)
+    {
+        if (item.Disabled)
         {
             <span class="menu-link @DisabledClasses">
                 <i class="menu-icon @(item.Icon ?? "ti ti-category")"></i>
@@ -64,36 +152,59 @@
         }
         else
         {
-            var dropdownId = $"hmenu{dropdownIndex++}";
-            <div class="relative">
-                @* Parent dgn anak aktif: hint teks primary (bukan pill penuh) *@
+            var id = $"hmenu{dropdownIndex++}";
+            @* Mega: wrapper TIDAK relative → panel menjangkar ke kontainer strip (full-width).
+               Dropdown biasa: wrapper relative → panel menempel di tombol (sempit). *@
+            <div class="@(item.Mega ? "" : "relative")">
+                @* Parent dgn anak aktif: hint teks primary (bukan pill penuh). *@
                 <button type="button"
                         class="menu-link @(item.HasActiveDescendant(currentPath) ? "text-primary" : "")"
-                        data-dropdown-toggle="#@dropdownId">
+                        data-dropdown-toggle="#@id">
                     <i class="menu-icon @(item.Icon ?? "ti ti-category")"></i>
                     <span class="menu-label">@item.Title</span>
                     <i class="menu-chevron ti ti-chevron-down"></i>
                 </button>
-                <div id="@dropdownId" class="dropdown-panel start-0! end-auto! hidden w-60">
-                    @foreach (var child in item.Children)
-                    {
-                        @if (child.Children.Count == 0)
-                        {
-                            RenderDropdownLink(child, indent: false);
-                        }
-                        else
-                        {
-                            <div class="text-muted-foreground px-2.5 pt-2 pb-1 text-xs font-medium uppercase">
-                                @child.Title
-                            </div>
-                            foreach (var grandChild in child.Children)
-                            {
-                                RenderDropdownLink(grandChild, indent: true);
-                            }
-                        }
-                    }
-                </div>
+                @if (item.Mega) { RenderMega(item, id); }
+                else
+                {
+                    <div id="@id" class="dropdown-panel start-0! end-auto! hidden w-60">
+                        @{ RenderDropdownTree(item.Children); }
+                    </div>
+                }
             </div>
         }
+    }
+}
+
+@* Menu horizontal DUA TINGKAT — strip sendiri (desktop). Heading dilewati.
+   Item > MaxVisible masuk dropdown "Lainnya" (overflow server-side, no-JS, tak meng-clip).
+   Kedalaman dibatasi 2 level; level-3 = grup berlabel. Mega = panel multi-kolom. *@
+<nav class="flex items-center gap-1" id="horizontal_menu">
+    @foreach (var item in visible) { RenderTop(item); }
+
+    @if (overflow.Count > 0)
+    {
+        var id = $"hmenu{dropdownIndex++}";
+        <div class="relative">
+            <button type="button" class="menu-link" data-dropdown-toggle="#@id">
+                <i class="menu-icon ti ti-dots"></i>
+                <span class="menu-label">Lainnya</span>
+                <i class="menu-chevron ti ti-chevron-down"></i>
+            </button>
+            <div id="@id" class="dropdown-panel end-0! hidden w-64">
+                @foreach (var item in overflow)
+                {
+                    if (item.Children.Count > 0)
+                    {
+                        <div class="text-muted-foreground px-2.5 pt-2 pb-1 text-xs font-semibold uppercase">@item.Title</div>
+                        RenderChildList(item);
+                    }
+                    else
+                    {
+                        RenderDropdownLink(item, indent: false);
+                    }
+                }
+            </div>
+        </div>
     }
 </nav>

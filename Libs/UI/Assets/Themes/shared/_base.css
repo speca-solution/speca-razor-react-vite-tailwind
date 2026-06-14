@@ -499,8 +499,31 @@
     color: var(--foreground);
   }
 
-  /* Menu horizontal (topbar): sedikit lebih lega arah horizontal */
+  /* Menu horizontal (topbar strip): lebih lega + tak menyusut (cegah teks terpotong) */
   #horizontal_menu .menu-link {
     padding-inline: 0.75rem;
+    flex-shrink: 0;
   }
+}
+
+/* ---- Submenu FLYOUT untuk dropdown horizontal MULTI-LEVEL (ala Vuexy) ----
+   Item dropdown ber-anak → munculkan panel anak ke SAMPING saat hover.
+   Plain rule (TANPA @layer) → menang atas .dropdown-panel yang ber-@layer
+   (override posisi: top-full/end-0/mt-2 → top-0/start-full). No-JS, hover/focus. */
+.dropdown-sub {
+  position: relative;
+}
+
+.dropdown-flyout {
+  display: none;
+  inset-block-start: -0.5rem;   /* selaraskan item pertama flyout dgn trigger (kompensasi p-2) */
+  inset-inline-start: 100%;      /* flyout ke kanan dari induk */
+  inset-inline-end: auto;        /* batalkan end-0 dari .dropdown-panel */
+  margin-block-start: 0;         /* batalkan mt-2 dari .dropdown-panel */
+  margin-inline-start: 0.25rem;
+}
+
+.dropdown-sub:hover > .dropdown-flyout,
+.dropdown-sub:focus-within > .dropdown-flyout {
+  display: block;
 }

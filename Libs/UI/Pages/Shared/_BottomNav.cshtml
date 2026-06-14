@@ -1,0 +1,48 @@
+@using Speca.UI.Navigation
+@inject Microsoft.Extensions.Options.IOptions<SpecaMenuOptions> MenuOptions
+@*
+    Bottom navigation MOBILE (gaya MAXSMART/AdminUIUX): bar fixed bawah, frosted-glass,
+    tombol TENGAH menonjol (FAB) = peluncur menu/drawer, item profil pakai avatar.
+    Hanya mobile (lg:hidden). Item = MenuItem.MobilePrimary. Selalu tampil (tanpa
+    hide-on-scroll). Theme-agnostic (token → theme1/theme2/dark).
+*@
+@{
+    var currentPath = (ViewContext.HttpContext.Request.Path.Value ?? "/").TrimEnd('/');
+    if (currentPath.Length == 0) { currentPath = "/"; }
+
+    var primary = MenuOptions.Value.Items.Where(i => i.MobilePrimary).ToList();
+    var left = primary.Take(2).ToList();
+    var right = primary.Skip(2).ToList();
+
+    void NavItem(MenuItem it)
+    {
+        var active = it.IsActive(currentPath);
+        <a href="@(it.Url ?? "#")"
+           class="flex flex-1 flex-col items-center justify-center gap-1 py-1.5 text-[11px] leading-none transition-colors @(active ? "text-primary" : "text-muted-foreground")">
+            <i class="@(it.Icon ?? "ti ti-circle") text-xl"></i>
+            <span>@(it.ShortLabel ?? it.Title)</span>
+        </a>
+    }
+}
+<nav class="bg-background/85 border-border fixed inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(0,0,0,0.06)] backdrop-blur-lg lg:hidden">
+    <div class="mx-auto flex max-w-[480px] items-stretch px-2">
+        @foreach (var it in left) { NavItem(it); }
+
+        @* FAB tengah: peluncur menu/drawer (pakai data-sidebar-toggle yang sudah ada) *@
+        <div class="flex flex-1 items-center justify-center">
+            <button type="button" data-sidebar-toggle aria-label="Buka menu"
+                    class="bg-primary text-primary-foreground ring-background -mt-7 flex size-14 items-center justify-center rounded-full shadow-lg ring-4">
+                <i class="ti ti-menu-2 text-2xl"></i>
+            </button>
+        </div>
+
+        @foreach (var it in right) { NavItem(it); }
+
+        @* Profil → avatar (selaras dengan header). *@
+        <a href="/Settings"
+           class="flex flex-1 flex-col items-center justify-center gap-1 py-1.5 text-[11px] leading-none transition-colors @(currentPath.StartsWith("/Settings", StringComparison.OrdinalIgnoreCase) ? "text-primary" : "text-muted-foreground")">
+            <span class="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-full text-[10px] font-semibold">S</span>
+            <span>Akun</span>
+        </a>
+    </div>
+</nav>

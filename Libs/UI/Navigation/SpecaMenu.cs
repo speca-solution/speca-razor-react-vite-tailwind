@@ -37,6 +37,21 @@ namespace Speca.UI.Navigation
         /// </summary>
         public bool MatchPrefix { get; init; }
 
+        /// <summary>
+        /// Hanya untuk menu HORIZONTAL: render dropdown sebagai panel MEGA multi-kolom
+        /// (tiap Child = kolom grup, grandchild = link). Diabaikan di sidebar (tetap accordion).
+        /// </summary>
+        public bool Mega { get; init; }
+
+        /// <summary>Deskripsi singkat — dipakai link di panel MEGA (di bawah judul). Opsional.</summary>
+        public string? Description { get; init; }
+
+        /// <summary>True = tampil sebagai shortcut di BOTTOM NAVIGATION mobile (_BottomNav).</summary>
+        public bool MobilePrimary { get; init; }
+
+        /// <summary>Label pendek (bottom nav, dll). Null → pakai Title.</summary>
+        public string? ShortLabel { get; init; }
+
         public List<MenuItem> Children { get; init; } = [];
     }
 

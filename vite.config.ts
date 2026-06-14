@@ -188,6 +188,12 @@ export default defineConfig(({ command }) => ({
         // exclude juga *.css/*.scss — inject hanya relevan untuk JS/TS; tanpa ini
         // ia mencoba mem-parse CSS sebagai JS dan memuntahkan warning (terukur 2026-06-13
         // saat CSS override vendor di-import dari index.js vendor).
+        //
+        // CATATAN: build memunculkan warning Rolldown `[PREFER_BUILTIN_FEATURE]`
+        // (saran ganti ke inject native). Warning ini DIHARAPKAN & sengaja DIBIARKAN
+        // (tidak di-suppress, agar kanal warning tetap jujur). Kita TIDAK pindah ke
+        // inject native karena tipe-nya `Record<string,string|[string,string]>` TANPA
+        // include/exclude (rolldown 1.0.0-rc.15) → akan mengembalikan kebocoran flatpickr.
         inject({ $: 'jquery', jQuery: 'jquery', exclude: ['**/node_modules/**', '**/*.css', '**/*.scss'] }),
     ],
     base: '/dist/',

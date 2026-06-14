@@ -83,9 +83,11 @@ builder.Services.AddSpecaMenu(menu =>
     [
         new MenuItem
         {
-            Title = "Dashboard",
+            Title = "Preview Theme",
             Url = "/",
-            Icon = "ti ti-layout-dashboard",
+            Icon = "ti ti-home",
+            MobilePrimary = true,
+            ShortLabel = "Home",
         },
         new MenuItem
         {
@@ -101,22 +103,97 @@ builder.Services.AddSpecaMenu(menu =>
         },
         new MenuItem
         {
-            Title = "Preview Theme",
-            Url = "/Preview",
-            Icon = "ti ti-columns-2",
+            // Demo MULTI-LEVEL: sidebar = accordion; horizontal = flyout ke samping (ala Vuexy).
+            Title = "Katalog",
+            Icon = "ti ti-list-tree",
+            Children =
+            [
+                new MenuItem
+                {
+                    Title = "Elektronik",
+                    Icon = "ti ti-device-laptop",
+                    Children =
+                    [
+                        new MenuItem { Title = "Laptop", Url = "#" },
+                        new MenuItem { Title = "Smartphone", Url = "#" },
+                        new MenuItem
+                        {
+                            Title = "Aksesoris",
+                            Icon = "ti ti-plug",
+                            Children =
+                            [
+                                new MenuItem { Title = "Charger", Url = "#" },
+                                new MenuItem { Title = "Casing", Url = "#" },
+                                new MenuItem { Title = "Kabel Data", Url = "#" },
+                            ],
+                        },
+                    ],
+                },
+                new MenuItem
+                {
+                    Title = "Fashion",
+                    Icon = "ti ti-shirt",
+                    Children =
+                    [
+                        new MenuItem { Title = "Pria", Url = "#" },
+                        new MenuItem { Title = "Wanita", Url = "#" },
+                        new MenuItem { Title = "Anak", Url = "#" },
+                    ],
+                },
+                new MenuItem { Title = "Promo Spesial", Url = "#", Icon = "ti ti-discount-2" },
+            ],
         },
         new MenuItem { Title = "Tampilan", IsHeading = true },
-        new MenuItem
-        {
-            Title = "Theme 2",
-            Url = "/Theme2",
-            Icon = "ti ti-palette",
-        },
         new MenuItem
         {
             Title = "Layout 2 — Horizontal",
             Url = "/Layout2",
             Icon = "ti ti-layout-navbar",
+        },
+        new MenuItem
+        {
+            Title = "Demo React",
+            Url = "/ReactDemo",
+            Icon = "ti ti-brand-react",
+        },
+        new MenuItem
+        {
+            Title = "Mega Menu",
+            Icon = "ti ti-apps",
+            Mega = true,
+            Children =
+            [
+                new MenuItem
+                {
+                    Title = "Penjualan",
+                    Children =
+                    [
+                        new MenuItem { Title = "Order", Url = "#", Icon = "ti ti-shopping-cart", Description = "Kelola pesanan masuk" },
+                        new MenuItem { Title = "Produk", Url = "#", Icon = "ti ti-box", Description = "Katalog & stok barang" },
+                        new MenuItem { Title = "Pelanggan", Url = "#", Icon = "ti ti-users", Description = "Data & segmentasi" },
+                    ],
+                },
+                new MenuItem
+                {
+                    Title = "Konten",
+                    Children =
+                    [
+                        new MenuItem { Title = "Halaman", Url = "#", Icon = "ti ti-file-text", Description = "Halaman statis situs" },
+                        new MenuItem { Title = "Media", Url = "#", Icon = "ti ti-photo", Description = "Pustaka gambar & file" },
+                        new MenuItem { Title = "Komentar", Url = "#", Icon = "ti ti-message-circle", Description = "Moderasi diskusi" },
+                    ],
+                },
+                new MenuItem
+                {
+                    Title = "Laporan",
+                    Children =
+                    [
+                        new MenuItem { Title = "Harian", Url = "#", Icon = "ti ti-calendar", Description = "Ringkasan per hari" },
+                        new MenuItem { Title = "Bulanan", Url = "#", Icon = "ti ti-calendar-stats", Description = "Tren & perbandingan" },
+                        new MenuItem { Title = "Ekspor CSV", Url = "#", Icon = "ti ti-download", Description = "Unduh data mentah" },
+                    ],
+                },
+            ],
         },
         new MenuItem
         {
@@ -129,12 +206,16 @@ builder.Services.AddSpecaMenu(menu =>
             Title = "Tabel Data",
             Url = "/Tables",
             Icon = "ti ti-table",
+            MobilePrimary = true,
+            ShortLabel = "Tabel",
         },
         new MenuItem
         {
             Title = "Charts",
             Url = "/Charts",
             Icon = "ti ti-chart-line",
+            MobilePrimary = true,
+            ShortLabel = "Chart",
         },
         new MenuItem
         {

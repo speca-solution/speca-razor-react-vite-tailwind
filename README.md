@@ -9,7 +9,7 @@ Template web application: **ASP.NET Core Razor Pages (.NET 10) + Vite 8 + React 
 | **Layout** = struktur & fungsi | `_Layout1` (sidebar vertikal + rail collapse) · `_Layout2` (horizontal topbar) | `Layout = "_Layout2"` (default _Layout1) |
 
 Semua kombinasi valid (2×2), dan semua layout adaptif mobile (drawer + overlay).
-Demo: `/` = L1+T1 · `/Theme2` = L1+T2 · `/Layout2` = L2+T1.
+Demo: `/` = Preview (theme1 vs theme2 berdampingan) · `/Dashboards/Metronic` & `/Dashboards/Vuexy` = komposisi tiap vendor · `/Layout2` = layout horizontal · `/ReactDemo` = Razor→React.
 
 Metronic dan Vuexy dipakai murni sebagai *referensi desain* — tidak ada kode mereka yang dibundel.
 Keputusan Tailwind-only (2026-06-12): stack Bootstrap dihapus demi satu jalur pemeliharaan;
@@ -62,7 +62,7 @@ Type check: `pnpm typecheck`.
 ## Razor → React props
 
 Model server di-serialize ke attribute `data-initial` pada elemen mount
-(lihat `Index.cshtml.cs` + `Index.cshtml`), dibaca `main.tsx` dan diteruskan sebagai
+(lihat `ReactDemo.cshtml.cs` + `ReactDemo.cshtml`), dibaca `main.tsx` dan diteruskan sebagai
 props saat hydrate. Kontrak bentuk data: `DashboardData` (C#, camelCase via
 `JsonSerializerDefaults.Web`) ↔ `DashboardData` (TypeScript, `App.tsx`).
 

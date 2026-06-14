@@ -22,7 +22,7 @@
 
         @await Html.PartialAsync("_Header")
 
-        <main class="grow pt-5" role="content">
+        <main class="grow pt-5 pb-24 lg:pb-0 max-lg:overflow-x-clip" role="content">
             <div class="container-fixed">
                 @RenderSection("Breadcrumb", false)
             </div>
@@ -33,6 +33,8 @@
 
         @await Html.PartialAsync("_Footer")
     </div>
+
+    @await Html.PartialAsync("_BottomNav")
 
     @RenderSection("EndOfPage", false)
 

@@ -22,24 +22,31 @@
     @* Drawer menu (mobile & tablet) — markup sama dengan sidebar vertikal *@
     @await Html.PartialAsync("_Sidebar")
 
-    <!-- Topbar -->
+    <!-- Topbar DUA TINGKAT (ala Vuexy/Metronic): navbar (brand+aksi) + strip menu terpisah -->
     <header class="app-header border-border bg-background @(stickyNavbar ? "sticky top-0 z-30" : "") border-b">
-        <div class="container-fixed flex h-[64px] items-center gap-4">
+        <!-- Tier 1: navbar -->
+        <div class="container-fixed flex h-[60px] items-center gap-4">
             <button type="button" class="btn-icon lg:hidden" data-sidebar-toggle aria-label="Buka menu">
                 <i class="ti ti-menu-2 text-lg"></i>
             </button>
 
             <a href="/" class="text-mono text-lg font-semibold tracking-tight">Speca</a>
 
-            @await Html.PartialAsync("_Menu_Horizontal")
-
             <div class="ms-auto">
                 @await Html.PartialAsync("_Header_Actions")
             </div>
         </div>
+
+        <!-- Tier 2: strip menu horizontal (desktop) — baris sendiri, beri ruang lega.
+             overflow VISIBLE (jangan overflow-x-auto: itu meng-clip dropdown & mega). -->
+        <div class="border-border hidden border-t lg:block">
+            <div class="container-fixed relative py-1.5">
+                @await Html.PartialAsync("_Menu_Horizontal")
+            </div>
+        </div>
     </header>
 
-    <main class="grow pt-5" role="content">
+    <main class="grow pt-5 pb-24 lg:pb-0 max-lg:overflow-x-clip" role="content">
         <div class="container-fixed">
             @RenderSection("Breadcrumb", false)
         </div>
@@ -49,6 +56,8 @@
     </main>
 
     @await Html.PartialAsync("_Footer")
+
+    @await Html.PartialAsync("_BottomNav")
 
     @RenderSection("EndOfPage", false)
 
