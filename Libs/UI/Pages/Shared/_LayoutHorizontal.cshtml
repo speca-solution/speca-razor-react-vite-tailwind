@@ -1,42 +1,17 @@
 <!DOCTYPE html>
 @*
-    Layout2 — struktur HORIZONTAL: topbar berisi brand + menu horizontal (desktop),
-    drawer sidebar untuk mobile. Endpoint tema dimuat via style.css; halaman bisa
-    pratinjau tema lain dengan ViewData["Style"]="style02".
-    Adaptif: < lg menu pindah ke drawer (burger), >= lg menu di topbar.
+    Layout HORIZONTAL — app shell: topbar (brand + menu horizontal desktop) + footer.
+    Responsif: < lg menu pindah ke drawer sidebar (burger). Tema agnostik (muat style.css).
+    Variasi (sticky/static, mega-menu) via ViewData/modifier CSS. Lihat LAYOUTS.md.
 *@
 @{
-    var style = ViewData["Style"] as string ?? "style";
     var stickyNavbar = ViewData["StickyNavbar"] as bool? ?? true;
     ViewData["SidebarDrawerOnly"] = true;
-    // Nonce CSP (produksi): Razor MENGHILANGKAN atribut nonce bila null (dev) → aman.
-    var cspNonce = Context.Items["csp-nonce"] as string;
 }
 <html class="h-full" lang="en" dir="ltr">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewBag.Title</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-
-    <vite-asset src="Libs/UI/Assets/Vendors/tabler-icons/style.css" />
-    <vite-asset src="Libs/UI/Assets/Vendors/lucide/style.css" />
-    <vite-asset src="Libs/UI/Assets/Themes/@(style).css" />
-
+    @await Html.PartialAsync("_Head")
     @RenderSection("Styles", false)
-
-    <!-- Set dark-mode sebelum render untuk hindari flash -->
-    <script nonce="@cspNonce">
-        (function () {
-            var mode = localStorage.getItem('speca-theme');
-            if (!mode) {
-                mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            }
-            if (mode === 'dark') { document.documentElement.classList.add('dark'); }
-        })();
-    </script>
 </head>
 
 <body class="bg-background text-foreground flex h-full flex-col text-base antialiased">

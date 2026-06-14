@@ -1,0 +1,177 @@
+@page
+@{
+    ViewData["Title"] = "Dashboard — Metronic";
+    @* Komposisi ala Metronic: padat, flat, bordered. Pin theme1 (?style= bisa override). *@
+    ViewData["Style"] = "style01";
+}
+
+@section Breadcrumb {
+    <div class="flex flex-wrap items-center justify-between gap-5 pb-7.5 lg:items-end">
+        <div class="flex flex-col gap-2">
+            <h1 class="text-mono text-xl leading-none font-medium">Dashboard</h1>
+            <div class="text-secondary-foreground text-sm">Komposisi referensi Metronic — rasa theme1</div>
+        </div>
+        <div class="flex items-center gap-2.5">
+            <a class="btn-outline" href="/Preview?page=dashboard">Bandingkan theme</a>
+            <a class="btn btn-primary" href="#"><i class="ti ti-download"></i> Unduh laporan</a>
+        </div>
+    </div>
+}
+
+<!-- KPI ringkas (4 stat-card) -->
+<div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="stat-card">
+        <div class="flex items-center justify-between">
+            <span class="stat-card-icon"><i class="ti ti-currency-dollar"></i></span>
+            <span class="stat-trend-up text-sm font-medium"><i class="ti ti-trending-up"></i> +12%</span>
+        </div>
+        <div>
+            <div class="stat-card-value">Rp 52,4 jt</div>
+            <div class="stat-card-label">Pendapatan bulan ini</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="flex items-center justify-between">
+            <span class="stat-card-icon"><i class="ti ti-shopping-cart"></i></span>
+            <span class="stat-trend-down text-sm font-medium"><i class="ti ti-trending-down"></i> -3%</span>
+        </div>
+        <div>
+            <div class="stat-card-value">1.235</div>
+            <div class="stat-card-label">Order</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="flex items-center justify-between">
+            <span class="stat-card-icon"><i class="ti ti-users"></i></span>
+            <span class="stat-trend-up text-sm font-medium"><i class="ti ti-trending-up"></i> +8%</span>
+        </div>
+        <div>
+            <div class="stat-card-value">892</div>
+            <div class="stat-card-label">Pelanggan aktif</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="flex items-center justify-between">
+            <span class="stat-card-icon"><i class="ti ti-percentage"></i></span>
+            <span class="text-muted-foreground text-sm font-medium"><i class="ti ti-minus"></i> 0%</span>
+        </div>
+        <div>
+            <div class="stat-card-value">4,6%</div>
+            <div class="stat-card-label">Konversi</div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart utama + sumber trafik -->
+<div class="mt-5 grid gap-5 xl:grid-cols-3">
+    <div class="card xl:col-span-2">
+        <div class="card-header">
+            <h3 class="card-title">Penjualan 7 hari</h3>
+            <span class="text-muted-foreground text-xs">Pembaruan tiap jam</span>
+        </div>
+        <div class="card-body">
+            <div data-apexchart>
+                <script type="application/json">
+                {
+                    "chart": { "type": "area", "height": 300, "toolbar": { "show": false } },
+                    "series": [{ "name": "Penjualan", "data": [31, 40, 28, 51, 42, 82, 56] }],
+                    "xaxis": { "categories": ["Sen","Sel","Rab","Kam","Jum","Sab","Min"] },
+                    "dataLabels": { "enabled": false },
+                    "stroke": { "curve": "smooth", "width": 2 },
+                    "fill": { "type": "gradient", "gradient": { "opacityFrom": 0.4, "opacityTo": 0.05 } }
+                }
+                </script>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Sumber Trafik</h3></div>
+        <div class="card-body">
+            <div data-apexchart>
+                <script type="application/json">
+                {
+                    "chart": { "type": "donut", "height": 280 },
+                    "series": [44, 25, 18, 13],
+                    "labels": ["Organik","Sosial","Iklan","Langsung"],
+                    "legend": { "position": "bottom" }
+                }
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order terbaru + aktivitas -->
+<div class="mt-5 mb-10 grid gap-5 xl:grid-cols-3">
+    <div class="card xl:col-span-2">
+        <div class="card-header">
+            <h3 class="card-title">Order Terbaru</h3>
+            <a class="text-primary text-sm font-medium hover:underline" href="/Tables">Lihat semua</a>
+        </div>
+        <div class="card-body overflow-x-auto pt-0">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-border text-muted-foreground border-b text-xs uppercase">
+                        <th class="py-2.5 text-start font-medium">Order</th>
+                        <th class="py-2.5 text-start font-medium">Pelanggan</th>
+                        <th class="py-2.5 text-start font-medium">Status</th>
+                        <th class="py-2.5 text-end font-medium">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-border border-b">
+                        <td class="text-mono py-3 font-medium">#10231</td>
+                        <td class="text-secondary-foreground py-3">Budi Santoso</td>
+                        <td class="py-3"><span class="badge badge-success">Lunas</span></td>
+                        <td class="text-mono py-3 text-end">Rp 1.250.000</td>
+                    </tr>
+                    <tr class="border-border border-b">
+                        <td class="text-mono py-3 font-medium">#10230</td>
+                        <td class="text-secondary-foreground py-3">Siti Aminah</td>
+                        <td class="py-3"><span class="badge badge-warning">Menunggu</span></td>
+                        <td class="text-mono py-3 text-end">Rp 480.000</td>
+                    </tr>
+                    <tr class="border-border border-b">
+                        <td class="text-mono py-3 font-medium">#10229</td>
+                        <td class="text-secondary-foreground py-3">Andi Wijaya</td>
+                        <td class="py-3"><span class="badge badge-danger">Batal</span></td>
+                        <td class="text-mono py-3 text-end">Rp 2.100.000</td>
+                    </tr>
+                    <tr>
+                        <td class="text-mono py-3 font-medium">#10228</td>
+                        <td class="text-secondary-foreground py-3">Dewi Lestari</td>
+                        <td class="py-3"><span class="badge badge-primary">Dikirim</span></td>
+                        <td class="text-mono py-3 text-end">Rp 760.000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Aktivitas</h3></div>
+        <div class="card-body pt-1">
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="text-sm">Order <span class="text-mono font-medium">#10231</span> dibayar</div>
+                    <div class="text-muted-foreground text-xs">5 menit lalu</div>
+                </div>
+                <div class="timeline-item timeline-item-success">
+                    <div class="text-sm">User baru <span class="text-mono font-medium">rina@contoh.id</span> mendaftar</div>
+                    <div class="text-muted-foreground text-xs">32 menit lalu</div>
+                </div>
+                <div class="timeline-item timeline-item-warning">
+                    <div class="text-sm">Stok <span class="text-mono font-medium">SKU-88</span> hampir habis</div>
+                    <div class="text-muted-foreground text-xs">1 jam lalu</div>
+                </div>
+                <div class="timeline-item timeline-item-danger">
+                    <div class="text-sm">Pembayaran <span class="text-mono font-medium">#10229</span> gagal</div>
+                    <div class="text-muted-foreground text-xs">2 jam lalu</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <vite-asset src="Libs/UI/Assets/Vendors/apexcharts/index.js" />
+}

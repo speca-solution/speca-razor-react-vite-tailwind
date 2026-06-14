@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+@*
+    Layout VERTICAL — app shell: sidebar fixed (desktop) + header + footer.
+    Responsif: < lg sidebar jadi drawer (burger + overlay). Tema agnostik (muat style.css).
+    Variasi (rail/mini/dll) via ViewData/modifier CSS — bukan file baru. Lihat LAYOUTS.md.
+*@
+<html class="h-full" lang="en" dir="ltr">
+<head>
+    @await Html.PartialAsync("_Head")
+    @RenderSection("Styles", false)
+</head>
+
+<body class="bg-background text-foreground flex h-full text-base antialiased">
+
+    <!-- Overlay drawer mobile -->
+    <div class="fixed inset-0 z-40 hidden bg-black/40 lg:hidden" data-sidebar-overlay></div>
+
+    @await Html.PartialAsync("_Sidebar")
+
+    <!-- Wrapper -->
+    <div class="app-wrapper flex min-h-screen grow flex-col lg:ms-[270px]">
+
+        @await Html.PartialAsync("_Header")
+
+        <main class="grow pt-5" role="content">
+            <div class="container-fixed">
+                @RenderSection("Breadcrumb", false)
+            </div>
+            <div class="container-fixed">
+                @RenderBody()
+            </div>
+        </main>
+
+        @await Html.PartialAsync("_Footer")
+    </div>
+
+    @RenderSection("EndOfPage", false)
+
+    <vite-asset src="Libs/UI/Assets/Entries/layouts/vertical.js" />
+
+    @RenderSection("Scripts", false)
+</body>
+</html>

@@ -1,0 +1,70 @@
+@page
+@{
+    ViewData["Title"] = "Preview Theme";
+
+    // Whitelist halaman (value → path tetap) agar src iframe tak bisa diisi sembarang path.
+    var pages = new Dictionary<string, (string Path, string Label)>
+    {
+        ["dashboard"] = ("/", "Dashboard"),
+        ["components"] = ("/Components", "Components"),
+        ["tables"] = ("/Tables", "Tabel Data"),
+        ["charts"] = ("/Charts", "Charts"),
+    };
+    var page = Request.Query["page"].ToString();
+    if (!pages.ContainsKey(page)) { page = "dashboard"; }
+    var path = pages[page].Path;
+
+    var layout = Request.Query["layout"].ToString();
+    if (layout != "horizontal") { layout = "vertical"; }
+
+    string Src(string style) => $"{path}?style={style}&layout={layout}";
+}
+
+@section Breadcrumb {
+    <div class="flex flex-col gap-2 pb-7.5">
+        <h1 class="text-mono text-xl leading-none font-medium">Preview Theme</h1>
+        <div class="text-secondary-foreground text-sm">
+            Halaman yang sama, berdampingan: <b>theme1 (Metronic)</b> vs <b>theme2 (Vuexy)</b>.
+            Bukti bahwa halaman theme-agnostic — satu sumber, dua tampilan.
+        </div>
+    </div>
+}
+
+<!-- Kontrol: GET form (tanpa JS) -->
+<form method="get" class="card card-body mb-5 flex flex-row flex-wrap items-end gap-4">
+    <div>
+        <label class="form-label" for="page">Halaman</label>
+        <select id="page" name="page" class="select w-48">
+            @foreach (var kv in pages)
+            {
+                <option value="@kv.Key" selected="@(kv.Key == page)">@kv.Value.Label</option>
+            }
+        </select>
+    </div>
+    <div>
+        <label class="form-label" for="layout">Layout</label>
+        <select id="layout" name="layout" class="select w-44">
+            <option value="vertical" selected="@(layout == "vertical")">Vertical</option>
+            <option value="horizontal" selected="@(layout == "horizontal")">Horizontal</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary"><i class="ti ti-refresh"></i> Terapkan</button>
+</form>
+
+<!-- Dua iframe berdampingan -->
+<div class="mb-10 grid gap-5 xl:grid-cols-2">
+    <div class="card overflow-hidden">
+        <div class="card-header">
+            <h3 class="card-title">Theme 1 — Metronic</h3>
+            <a class="text-primary text-sm hover:underline" href="@Src("style01")" target="_blank" rel="noopener">Buka penuh <i class="ti ti-external-link"></i></a>
+        </div>
+        <iframe src="@Src("style01")" class="h-[680px] w-full border-0" title="Preview theme1" loading="lazy"></iframe>
+    </div>
+    <div class="card overflow-hidden">
+        <div class="card-header">
+            <h3 class="card-title">Theme 2 — Vuexy</h3>
+            <a class="text-primary text-sm hover:underline" href="@Src("style02")" target="_blank" rel="noopener">Buka penuh <i class="ti ti-external-link"></i></a>
+        </div>
+        <iframe src="@Src("style02")" class="h-[680px] w-full border-0" title="Preview theme2" loading="lazy"></iframe>
+    </div>
+</div>

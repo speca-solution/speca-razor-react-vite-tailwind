@@ -1,3 +1,8 @@
 ﻿@{
-    Layout = "_Layout1";
+    Layout = "_LayoutVertical";
+    // ?layout= (PREVIEW/dev, whitelist) untuk melihat halaman di layout berbeda.
+    // Halaman yang men-set Layout sendiri (auth/Layout2) tetap menang (jalan setelah ini).
+    var qLayout = Context.Request.Query["layout"].ToString();
+    if (qLayout == "horizontal") { Layout = "_LayoutHorizontal"; }
+    else if (qLayout == "blank") { Layout = "_LayoutBlank"; }
 }

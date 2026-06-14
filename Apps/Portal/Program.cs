@@ -87,6 +87,24 @@ builder.Services.AddSpecaMenu(menu =>
             Url = "/",
             Icon = "ti ti-layout-dashboard",
         },
+        new MenuItem
+        {
+            Title = "Dashboard Metronic",
+            Url = "/Dashboards/Metronic",
+            Icon = "ti ti-layout-2",
+        },
+        new MenuItem
+        {
+            Title = "Dashboard Vuexy",
+            Url = "/Dashboards/Vuexy",
+            Icon = "ti ti-layout-grid",
+        },
+        new MenuItem
+        {
+            Title = "Preview Theme",
+            Url = "/Preview",
+            Icon = "ti ti-columns-2",
+        },
         new MenuItem { Title = "Tampilan", IsHeading = true },
         new MenuItem
         {

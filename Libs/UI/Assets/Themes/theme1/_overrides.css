@@ -1,4 +1,16 @@
 /* THEME1 — override komponen khas Metronic (di atas skeleton shared/).
-   theme1 = rasa default: skeleton shared/ SUDAH ber-look Metronic via token theme1,
-   jadi belum ada override tambahan. File ini titik-ekstensi bila kelak theme1 perlu
-   menyimpang dari skeleton. Di-@import SETELAH shared/* agar menang. */
+   Di-@import SETELAH shared/* (plain rule, tak ber-@layer → menang atas .menu-link). */
+
+/* ---- Menu item AKTIF — tint primary lembut (rasa Metronic v9, flat).
+   Hover item biasa tetap netral (var --accent) → aktif jelas beda dari hover.
+   Ikon & chevron ikut primary (perbaiki ikon aktif yang dulu tetap abu). ---- */
+.menu-link-active,
+.menu-link-active:hover {
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+  color: var(--primary);
+}
+
+.menu-link-active .menu-icon,
+.menu-link-active .menu-chevron {
+  color: var(--primary);
+}

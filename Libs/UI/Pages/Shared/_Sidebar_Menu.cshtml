@@ -5,18 +5,12 @@
     var currentPath = (ViewContext.HttpContext.Request.Path.Value ?? "/").TrimEnd('/');
     if (currentPath.Length == 0) { currentPath = "/"; }
 
-    const string LinkBase = "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium";
-    const string LinkIdle = "text-foreground hover:bg-accent";
-    const string LinkActive = "bg-accent text-primary";
-    const string ChildBase = "flex items-center gap-2 rounded-md px-2.5 py-1.5 text-2sm";
-    const string ChildIdle = "text-secondary-foreground hover:bg-accent hover:text-foreground";
-    const string ChildActive = "bg-accent text-primary font-semibold";
     const string DisabledClasses = "pointer-events-none opacity-50";
 
     void RenderBadge(MenuItem item)
     {
         if (item.Badge is null) { return; }
-        <span class="menu-badge badge badge-@item.BadgeVariant ms-auto">@item.Badge</span>
+        <span class="menu-badge badge badge-@item.BadgeVariant">@item.Badge</span>
     }
 
     void RenderTitle(MenuItem item)
@@ -29,28 +23,24 @@
         RenderBadge(item);
     }
 
-    // Renderer rekursif — depth 0 = level atas (icon), depth >= 1 = anak (tanpa icon besar).
+    // Renderer rekursif — depth 0 = level atas (punya ikon), depth >= 1 = anak (di .menu-sub).
+    // Visual (idle/hover/aktif) ada di komponen .menu (shared) + state aktif per-tema.
     void RenderItems(IReadOnlyList<MenuItem> items, int depth)
     {
         foreach (var item in items)
         {
             var isTop = depth == 0;
-            var linkBase = isTop ? LinkBase : ChildBase;
-            var idle = isTop ? LinkIdle : ChildIdle;
-            var active = isTop ? LinkActive : ChildActive;
 
             if (item.IsHeading)
             {
-                <div class="menu-heading text-muted-foreground px-2.5 pt-4 pb-1 text-xs font-medium uppercase">
-                    @item.Title
-                </div>
+                <div class="menu-heading">@item.Title</div>
             }
             else if (item.Disabled)
             {
-                <span class="@linkBase @DisabledClasses">
+                <span class="menu-link @DisabledClasses">
                     @if (isTop)
                     {
-                        <i class="@(item.Icon ?? "ti ti-category") text-muted-foreground text-lg"></i>
+                        <i class="menu-icon @(item.Icon ?? "ti ti-category")"></i>
                     }
                     @{ RenderTitle(item); }
                 </span>
@@ -60,10 +50,10 @@
                 <a href="@(item.Url ?? "#")"
                    target="@(item.OpenInNewTab ? "_blank" : null)"
                    rel="@(item.OpenInNewTab ? "noopener" : null)"
-                   class="@linkBase @(item.IsActive(currentPath) ? $"menu-active {active}" : idle)">
+                   class="menu-link @(item.IsActive(currentPath) ? "menu-link-active" : "")">
                     @if (isTop)
                     {
-                        <i class="@(item.Icon ?? "ti ti-category") text-muted-foreground text-lg"></i>
+                        <i class="menu-icon @(item.Icon ?? "ti ti-category")"></i>
                     }
                     @{ RenderTitle(item); }
                 </a>
@@ -71,16 +61,16 @@
             else
             {
                 <details open="@(item.HasActiveDescendant(currentPath))">
-                    <summary class="@linkBase @idle cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                    <summary class="menu-link">
                         @if (isTop)
                         {
-                            <i class="@(item.Icon ?? "ti ti-category") text-muted-foreground text-lg"></i>
+                            <i class="menu-icon @(item.Icon ?? "ti ti-category")"></i>
                         }
                         @{ RenderTitle(item); }
-                        @* rotasi saat terbuka: CSS details[open] di theme.css (bukan class dinamis) *@
-                        <i class="menu-chevron ti ti-chevron-down text-muted-foreground @(item.Badge is null ? "ms-auto" : "") text-xs transition-transform"></i>
+                        @* rotasi chevron saat <details open> diatur CSS (#sidebar_menu details[open]) *@
+                        <i class="menu-chevron ti ti-chevron-down"></i>
                     </summary>
-                    <div class="menu-sub border-border ms-5 mt-0.5 flex flex-col gap-0.5 border-s ps-3">
+                    <div class="menu-sub">
                         @{ RenderItems(item.Children, depth + 1); }
                     </div>
                 </details>
@@ -89,8 +79,8 @@
     }
 }
 
-@* Accordion memakai <details> native; single-open diatur layout.js via data-accordion-single. *@
-<nav class="flex flex-col gap-0.5" id="sidebar_menu"
+@* Accordion <details> native; single-open diatur layout.js via data-accordion-single. *@
+<nav class="menu" id="sidebar_menu"
      data-accordion-single="@(MenuOptions.Value.AccordionSingleOpen ? "true" : "false")">
     @{ RenderItems(menuItems, 0); }
 </nav>

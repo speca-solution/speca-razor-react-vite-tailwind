@@ -6,7 +6,6 @@
     if (currentPath.Length == 0) { currentPath = "/"; }
 
     var dropdownIndex = 0;
-    const string LinkClasses = "flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium";
     const string DisabledClasses = "pointer-events-none opacity-50";
 
     void RenderBadge(MenuItem item)
@@ -36,9 +35,9 @@
     }
 }
 
-@* Menu horizontal (desktop) untuk _Layout2 — heading dilewati.
-   Kedalaman dibatasi: level-3 dirender sebagai GRUP berlabel di dalam dropdown
-   (bukan flyout bersarang) — keputusan terdokumentasi di README. *@
+@* Menu horizontal (desktop) untuk layout horizontal — heading dilewati.
+   Top item pakai komponen .menu-link (state aktif per-tema). Kedalaman dibatasi:
+   level-3 = GRUP berlabel di dalam dropdown (bukan flyout bersarang). *@
 <nav class="hidden items-center gap-0.5 lg:flex" id="horizontal_menu">
     @foreach (var item in menuItems)
     {
@@ -48,9 +47,9 @@
         }
         else if (item.Disabled)
         {
-            <span class="@LinkClasses @DisabledClasses">
-                <i class="@(item.Icon ?? "ti ti-category") text-muted-foreground"></i>
-                @item.Title
+            <span class="menu-link @DisabledClasses">
+                <i class="menu-icon @(item.Icon ?? "ti ti-category")"></i>
+                <span class="menu-label">@item.Title</span>
             </span>
         }
         else if (item.Children.Count == 0)
@@ -58,21 +57,22 @@
             <a href="@(item.Url ?? "#")"
                target="@(item.OpenInNewTab ? "_blank" : null)"
                rel="@(item.OpenInNewTab ? "noopener" : null)"
-               class="@LinkClasses @(item.IsActive(currentPath) ? "menu-active bg-accent text-primary" : "text-foreground hover:bg-accent")">
-                <i class="@(item.Icon ?? "ti ti-category") text-muted-foreground"></i>
-                @item.Title
+               class="menu-link @(item.IsActive(currentPath) ? "menu-link-active" : "")">
+                <i class="menu-icon @(item.Icon ?? "ti ti-category")"></i>
+                <span class="menu-label">@item.Title</span>
             </a>
         }
         else
         {
             var dropdownId = $"hmenu{dropdownIndex++}";
             <div class="relative">
+                @* Parent dgn anak aktif: hint teks primary (bukan pill penuh) *@
                 <button type="button"
-                        class="@LinkClasses @(item.HasActiveDescendant(currentPath) ? "text-primary" : "text-foreground hover:bg-accent")"
+                        class="menu-link @(item.HasActiveDescendant(currentPath) ? "text-primary" : "")"
                         data-dropdown-toggle="#@dropdownId">
-                    <i class="@(item.Icon ?? "ti ti-category") text-muted-foreground"></i>
-                    @item.Title
-                    <i class="ti ti-chevron-down text-muted-foreground text-xs"></i>
+                    <i class="menu-icon @(item.Icon ?? "ti ti-category")"></i>
+                    <span class="menu-label">@item.Title</span>
+                    <i class="menu-chevron ti ti-chevron-down"></i>
                 </button>
                 <div id="@dropdownId" class="dropdown-panel start-0! end-auto! hidden w-60">
                     @foreach (var child in item.Children)

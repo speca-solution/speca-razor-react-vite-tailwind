@@ -1,0 +1,48 @@
+@*
+    _Head — isi <head> BERSAMA semua layout (Blank/Vertical/Horizontal/…).
+    Satu sumber untuk meta, preconnect, font, icon-css, theme-css, dan skrip anti-flash.
+    Layout cukup memanggil: @await Html.PartialAsync("_Head") lalu @RenderSection("Styles").
+    (RenderSection tak bisa di partial → tetap di layout.)
+
+    Variasi via ViewData:
+      ViewData["Style"]      → endpoint tema (default "style"; mis. "style02" untuk pratinjau)
+      ViewData["LoadLucide"] → muat icon Lucide? (default true; Blank set false — auth/error tak pakai)
+*@
+@{
+    // Endpoint tema. Prioritas: ?style= (PREVIEW/dev, di-whitelist) > ViewData["Style"]
+    // (pin per-halaman) > "style" (default app). Whitelist mencegah @(style).css
+    // memuat path sembarangan. Ini afordans PREVIEW, bukan runtime skin-toggle end-user.
+    string[] allowedStyles = { "style", "style01", "style02" };
+    var qStyle = Context.Request.Query["style"].ToString();
+    var style = (allowedStyles.Contains(qStyle) ? qStyle : null)
+                ?? ViewData["Style"] as string ?? "style";
+    var loadLucide = ViewData["LoadLucide"] as bool? ?? true;
+    // Nonce CSP (produksi): Razor MENGHILANGKAN atribut nonce bila null (dev) → aman.
+    var cspNonce = Context.Items["csp-nonce"] as string;
+}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>@ViewBag.Title</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<vite-asset src="Libs/UI/Assets/Vendors/tabler-icons/style.css" />
+@if (loadLucide)
+{
+    <vite-asset src="Libs/UI/Assets/Vendors/lucide/style.css" />
+}
+<vite-asset src="Libs/UI/Assets/Themes/@(style).css" />
+
+@* Dark mode = preferensi USER (runtime), set sebelum paint untuk hindari flash.
+   Berbeda dari "theme" (design language) yang dipilih developer saat build. *@
+<script nonce="@cspNonce">
+    (function () {
+        var mode = localStorage.getItem('speca-theme');
+        if (!mode) {
+            mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        if (mode === 'dark') { document.documentElement.classList.add('dark'); }
+    })();
+</script>
