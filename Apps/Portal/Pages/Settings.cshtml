@@ -5,7 +5,7 @@
 }
 
 @section Breadcrumb {
-    @await Html.PartialAsync("Tailwind/_Breadcrumb", new List<Speca.UI.Components.BreadcrumbItem>
+    @await Html.PartialAsync("_Breadcrumb", new List<Speca.UI.Components.BreadcrumbItem>
     {
         new("Beranda", "/"),
         new("Pengaturan"),
@@ -13,7 +13,7 @@
 }
 
 @section Scripts {
-    @await Html.PartialAsync("Tailwind/_ValidationScripts")
+    @await Html.PartialAsync("_ValidationScripts")
 }
 
 <div class="mb-6">

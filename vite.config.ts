@@ -36,23 +36,20 @@ const getThemes = getEntryPoints(
         if (!m) return null;
 
         const themeFolder = m[3] ? m[3].toLowerCase() : '';
-        const folderCategory = m[4] ? m[4].toLowerCase() : ''; // Menangkap apa pun: widgets, pages, layouts, components, dll
+        const folderCategory = m[4] ? m[4].toLowerCase() : ''; // widgets, pages, layouts, components, dll
         const fileName = m[5].toLowerCase();    // Nama file asli
-        let entryPath = themeFolder ? `${themeFolder}/` : '';
-        const categoryPath = folderCategory ? `${folderCategory}/` : '';
 
-        entryPath = `${entryPath}${categoryPath}`;
-
-        const isMainFile = fileName === themeFolder ||
+        const isMainFile = (themeFolder !== '' && fileName === themeFolder) ||
             fileName === 'index' ||
             fileName === 'style' ||
-            fileName === 'theme'
+            fileName === 'theme';
 
-        if (isMainFile) {
-            return `themes/${themeFolder}/${folderCategory}`.replace(/\/$/, '');
-        }
-
-        return `themes/${themeFolder}/${categoryPath}${fileName}`;
+        // Susun key dari bagian NON-KOSONG. Template tailwind-only → file tema kini
+        // langsung di Assets/Themes/ tanpa subfolder, jadi themeFolder bisa kosong;
+        // filter(Boolean) mencegah '//' atau '/' menggantung pada key.
+        const parts = ['themes', themeFolder, folderCategory];
+        if (!isMainFile) parts.push(fileName);
+        return parts.filter(Boolean).join('/');
     }
 );
 
@@ -81,7 +78,9 @@ const getEntries = getEntryPoints(
 
         if (isMainFile) return `${category}/${project}/${entryPath}`.replace(/\/$/, '');
         if (entryPath == '') return `${category}/${project}/${fileName}`;
-        return `${category}/${project}/${entryPath}/${fileName}`;
+        // entryPath sudah berakhiran '/', jadi JANGAN tambah '/' lagi (mencegah '//'
+        // pada Entries bertingkat seperti Entries/layouts/vertical.js).
+        return `${category}/${project}/${entryPath}${fileName}`;
 
     }
 );

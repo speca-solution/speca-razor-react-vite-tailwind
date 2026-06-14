@@ -1,0 +1,8 @@
+/*
+ * ENDPOINT TEMA AKTIF — file inilah yang dimuat layout (<vite-asset src=".../style.css">).
+ * Pilih tema dengan mengganti SATU baris @import di bawah:
+ *   "./_theme1.css"  → rasa Metronic
+ *   "./_theme2.css"  → rasa Vuexy
+ * (style01.css & style02.css disediakan untuk pratinjau masing-masing tema.)
+ */
+@import "./_theme1.css";

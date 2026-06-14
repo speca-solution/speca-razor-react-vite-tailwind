@@ -2,11 +2,11 @@
 @model LoginModel
 @{
     ViewData["Title"] = "Masuk";
-    Layout = "Tailwind/_LayoutBlank";
+    Layout = "_LayoutBlank";
 }
 
 @section Scripts {
-    @await Html.PartialAsync("Tailwind/_ValidationScripts")
+    @await Html.PartialAsync("_ValidationScripts")
 }
 
 <div class="text-center mb-7">

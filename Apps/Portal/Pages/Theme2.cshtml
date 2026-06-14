@@ -1,8 +1,9 @@
 @page
 @model Speca.Portal.Pages.Theme2Model
 @{
-    @* Struktur default (_Layout1, sidebar vertikal) + kulit theme2 *@
-    ViewData["Theme"] = "theme2";
+    @* Struktur default (_Layout1, sidebar vertikal) + PRATINJAU endpoint theme2.
+       Memuat style02.css (theme2 Vuexy) alih-alih style.css default. *@
+    ViewData["Style"] = "style02";
     ViewData["Title"] = "Theme 2";
 }
 
@@ -18,7 +19,7 @@
     </div>
 }
 
-@await Html.PartialAsync("Tailwind/_DemoWidgets")
+@await Html.PartialAsync("_DemoWidgets")
 
 <div class="mt-5 mb-10 grid gap-5 lg:grid-cols-2">
     <div class="card">

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 @{
-    var theme = ViewData["Theme"] as string ?? "theme1";
+    var style = ViewData["Style"] as string ?? "style";
     // Nonce CSP (produksi): Razor MENGHILANGKAN atribut nonce bila null (dev) → aman.
     var cspNonce = Context.Items["csp-nonce"] as string;
 }
-<html class="h-full @theme" lang="en" dir="ltr">
+<html class="h-full" lang="en" dir="ltr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,21 +13,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     <vite-asset src="Libs/UI/Assets/Vendors/tabler-icons/style.css" />
-    <vite-asset src="Libs/UI/Assets/Themes/tailwind/theme.css" />
+    <vite-asset src="Libs/UI/Assets/Themes/@(style).css" />
 
     @RenderSection("Styles", required: false)
 
     <script nonce="@cspNonce">
         (function () {
-            var el = document.documentElement;
             var mode = localStorage.getItem('speca-theme');
             if (!mode) {
                 mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
-            if (mode === 'dark') { el.classList.add('dark'); }
-            var skin = localStorage.getItem('speca-skin');
-            if (skin === 'theme2') { el.classList.add('theme2'); }
-            else if (skin === 'theme1') { el.classList.remove('theme2'); }
+            if (mode === 'dark') { document.documentElement.classList.add('dark'); }
         })();
     </script>
 </head>
@@ -45,7 +41,7 @@
         @RenderBody()
     </div>
 
-    <vite-asset src="Libs/UI/Assets/Themes/tailwind/app/layouts/blank.js" />
+    <vite-asset src="Libs/UI/Assets/Entries/layouts/blank.js" />
 
     @RenderSection("Scripts", required: false)
 </body>

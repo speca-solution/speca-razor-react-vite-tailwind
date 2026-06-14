@@ -5,11 +5,13 @@
 
 *@
 @{
-    var theme = ViewData["Theme"] as string ?? "theme1";
+    // Endpoint tema dipilih saat build via style.css (@import _theme1/_theme2).
+    // Halaman bisa override ke pratinjau theme tertentu: ViewData["Style"]="style02".
+    var style = ViewData["Style"] as string ?? "style";
     // Nonce CSP (produksi): Razor MENGHILANGKAN atribut nonce bila null (dev) → aman.
     var cspNonce = Context.Items["csp-nonce"] as string;
 }
-<html class="h-full @theme" lang="en" dir="ltr">
+<html class="h-full" lang="en" dir="ltr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,23 +21,18 @@
 
     <vite-asset src="Libs/UI/Assets/Vendors/tabler-icons/style.css" />
     <vite-asset src="Libs/UI/Assets/Vendors/lucide/style.css" />
-    <vite-asset src="Libs/UI/Assets/Themes/tailwind/theme.css" />
+    <vite-asset src="Libs/UI/Assets/Themes/@(style).css" />
 
     @RenderSection("Styles", false)
 
-    <!-- Set dark-mode & skin sebelum render untuk hindari flash -->
+    <!-- Set dark-mode sebelum render untuk hindari flash -->
     <script nonce="@cspNonce">
         (function () {
-            var el = document.documentElement;
             var mode = localStorage.getItem('speca-theme');
             if (!mode) {
                 mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
-            if (mode === 'dark') { el.classList.add('dark'); }
-            // Skin theme1/theme2: localStorage menang atas default SSR (class @@theme).
-            var skin = localStorage.getItem('speca-skin');
-            if (skin === 'theme2') { el.classList.add('theme2'); }
-            else if (skin === 'theme1') { el.classList.remove('theme2'); }
+            if (mode === 'dark') { document.documentElement.classList.add('dark'); }
         })();
     </script>
 </head>
@@ -45,12 +42,12 @@
     <!-- Overlay drawer mobile -->
     <div class="fixed inset-0 z-40 hidden bg-black/40 lg:hidden" data-sidebar-overlay></div>
 
-    @await Html.PartialAsync("Tailwind/_Sidebar")
+    @await Html.PartialAsync("_Sidebar")
 
     <!-- Wrapper -->
     <div class="app-wrapper flex min-h-screen grow flex-col lg:ms-[270px]">
 
-        @await Html.PartialAsync("Tailwind/_Header")
+        @await Html.PartialAsync("_Header")
 
         <main class="grow pt-5" role="content">
             <div class="container-fixed">
@@ -61,12 +58,12 @@
             </div>
         </main>
 
-        @await Html.PartialAsync("Tailwind/_Footer")
+        @await Html.PartialAsync("_Footer")
     </div>
 
     @RenderSection("EndOfPage", false)
 
-    <vite-asset src="Libs/UI/Assets/Themes/tailwind/app/layouts/vertical.js" />
+    <vite-asset src="Libs/UI/Assets/Entries/layouts/vertical.js" />
 
     @RenderSection("Scripts", false)
 </body>

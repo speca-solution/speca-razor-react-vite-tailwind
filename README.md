@@ -5,8 +5,8 @@ Template web application: **ASP.NET Core Razor Pages (.NET 10) + Vite 8 + React 
 
 | Sumbu | Pilihan | Cara pakai di halaman |
 |---|---|---|
-| **Theme** = warna & rasa desain | `theme1` (biru, flat, bordered — referensi rasa Metronic) · `theme2` (ungu, soft, melayang — referensi rasa Vuexy) | `ViewData["Theme"] = "theme2"` (default theme1) |
-| **Layout** = struktur & fungsi | `_Layout1` (sidebar vertikal + rail collapse) · `_Layout2` (horizontal topbar) | `Layout = "Tailwind/_Layout2"` (default _Layout1) |
+| **Theme** = warna & rasa desain | `theme1` (biru, flat, bordered — referensi rasa Metronic) · `theme2` (ungu, soft, melayang — referensi rasa Vuexy) | dipilih saat build via endpoint `style.css` (`@import _theme1`/`_theme2`); pratinjau per-halaman `ViewData["Style"] = "style02"` |
+| **Layout** = struktur & fungsi | `_Layout1` (sidebar vertikal + rail collapse) · `_Layout2` (horizontal topbar) | `Layout = "_Layout2"` (default _Layout1) |
 
 Semua kombinasi valid (2×2), dan semua layout adaptif mobile (drawer + overlay).
 Demo: `/` = L1+T1 · `/Theme2` = L1+T2 · `/Layout2` = L2+T1.
@@ -72,7 +72,7 @@ Satu atribut untuk dev dan production — path sumber relatif root solution:
 
 ```html
 <vite-entry src="Apps/Portal/Assets/Entries/main.tsx" />
-<vite-asset src="Libs/UI/Assets/Themes/tailwind/theme.css" />
+<vite-asset src="Libs/UI/Assets/Themes/style.css" />
 ```
 
 - **Development**: URL `/dist/{src}` di-proxy ke Vite dev server.
@@ -91,12 +91,17 @@ Nama output ditentukan aturan di `vite.config.ts`:
 |---|---|
 | `Apps/Portal/Assets/Entries/main.tsx` | `apps/portal` *(main/index/core di-collapse ke folder)* |
 | `Apps/Portal/Assets/Entries/checkout.tsx` | `apps/portal/checkout` |
-| `Libs/UI/Assets/Themes/tailwind/theme.css` | `themes/tailwind` |
-| `Libs/UI/Assets/Themes/tailwind/app/layouts/layout.js` | `themes/tailwind/layouts/layout` |
+| `Libs/UI/Assets/Themes/style.css` | `themes` *(style = main → nama folder)* |
+| `Libs/UI/Assets/Themes/style02.css` | `themes/style02` |
+| `Libs/UI/Assets/Entries/layouts/vertical.js` | `libs/ui/layouts/vertical` |
 | `Libs/UI/Assets/Vendors/tabler-icons/style.css` | `vendors/tabler-icons` |
 
 Aturan collapse: file bernama `main`, `index`, `core` (Entries), `style`, `theme` (Themes/Vendors),
 atau yang sama dengan nama foldernya, memakai nama folder sebagai key.
+
+> **Catatan struktur:** modul script (perilaku layout & komponen) ada di `Assets/Scripts/{layouts,components}`
+> sebagai modul `_`-prefixed — di luar glob entry, jadi hanya ter-bundle saat di-import. Entry layout yang
+> benar-benar dimuat halaman ada di `Assets/Entries/layouts/{vertical,horizontal,blank}.js`.
 
 > Catatan: di `.cshtml` Anda selalu mereferensi **path sumber**, bukan key — key hanya
 > menentukan struktur nama file di `dist/`.
@@ -116,7 +121,7 @@ atau yang sama dengan nama foldernya, memakai nama folder sebagai key.
 ## Tailwind
 
 Auto-detection **dimatikan** (`@import "tailwindcss" source(none)`) demi build deterministik;
-sumber scan dideklarasikan eksplisit via `@source` di `Libs/UI/Assets/Themes/tailwind/theme.css`
+sumber scan dideklarasikan eksplisit via `@source` di `Libs/UI/Assets/Themes/_theme1.css` & `_theme2.css`
 (mencakup `*.cshtml` semua app/Libs + asset React). Class yang hanya muncul di `.cshtml`
 tetap ter-generate.
 
@@ -127,9 +132,10 @@ Apps/Portal          → web app (Razor Pages), wwwroot/dist = output Vite
 Libs/Core            → integrasi Vite: tag helper + dev-server middleware
 Libs/UI              → Razor Class Library: layout, partial, asset theme
 Libs/UI/Assets
-  ├─ Entries/        → entry milik library UI
-  ├─ Themes/         → theme tailwind (theme.css + layout JS)
-  └─ Vendors/        → icon fonts (tabler-icons, lucide)
+  ├─ Entries/        → entry yang dimuat halaman (mis. layouts/{vertical,horizontal,blank}.js)
+  ├─ Scripts/        → modul perilaku _prefixed: layouts/ (dark,sidebar,header,menu) + components/ (modal,datatable,...)
+  ├─ Themes/         → endpoint style.css/style01/style02 + shared/ (komponen) + theme1/ + theme2/
+  └─ Vendors/        → icon fonts + override vendor (tabler-icons, lucide, gridjs, datatables, ...)
 ```
 
 ## Menu sidebar (data-driven)
@@ -151,8 +157,8 @@ Renderer vertical (`_Sidebar_Menu.cshtml`): rekursif tanpa batas kedalaman, acco
 | Apa | Detail |
 |---|---|
 | Icon | **Tabler** (`ti ti-*`, MIT) + **Lucide** (`icon-*`, ISC) — dua-duanya dimuat |
-| Theme CSS | `Themes/tailwind/theme.css` — token + skin `.theme-vuexy` + komponen (`.card`, `.badge-*`) |
-| Theme JS | `themes/tailwind/layouts/layout` — dark mode, drawer/rail sidebar, dropdown, Ctrl+/ |
+| Theme CSS | `Themes/style.css` (pilih `_theme1`/`_theme2`) → `shared/` (komponen var-based) + `theme1/`\|`theme2/` (token + override) |
+| Theme JS | `Entries/layouts/{vertical,horizontal,blank}.js` → `Scripts/layouts/_base.js` — dark mode, drawer/rail sidebar, dropdown, Ctrl+/ |
 
 Menambah vendor lain: install ke `Libs/UI`, buat `Assets/Vendors/<nama>/index.js`
 yang meng-import-nya — otomatis jadi entry `vendors/<nama>`.

@@ -76,7 +76,10 @@ satu halaman hanya boleh memuat satu stack CSS (diverifikasi E2-06).
 > **RESTRUKTUR 2026-06-12 — Theme × Layout dipisah.** Theme = kulit (token warna/rasa):
 > `theme1` & `theme2` (tanpa nama brand; referensi visual Metronic/Vuexy). Layout = struktur/fungsi:
 > `_Layout1` (sidebar vertikal) & `_Layout2` (horizontal topbar, baru), keduanya adaptif mobile.
-> Pilihan independen per halaman: `ViewData["Theme"]` + `Layout`. Referensi pengembangan
+> **UPDATE 2026-06-13:** theme dipisah jadi endpoint terpisah — `style.css` memilih `_theme1`/`_theme2`
+> (shared-core: `shared/` komponen var-based + `theme1/`,`theme2/` token+override). Pilih saat build
+> (bukan toggle runtime); pratinjau per-halaman `ViewData["Style"]="style02"`. Script dipisah ke
+> `Assets/Scripts/{layouts,components}` + entry `Assets/Entries/layouts/`. Referensi pengembangan
 > layout berikutnya: Metronic demo1–10 / layout Vuexy.
 
 ## EPIC 3 — Developer Experience & Skala (P2)

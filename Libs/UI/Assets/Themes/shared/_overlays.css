@@ -418,13 +418,6 @@ dialog.modal.modal-fullscreen .modal-footer {
   }
 }
 
-/* Card melayang khas theme2: putih di light, panel gelap di dark (var --muted);
-   shadow dari --shadow-card */
-.theme2 .card {
-  background: var(--muted);
-  border-color: transparent;
-}
-
 /* ---- Image input (E8-06) — avatar upload dengan preview on-hover ---- */
 .image-input {
   position: relative;

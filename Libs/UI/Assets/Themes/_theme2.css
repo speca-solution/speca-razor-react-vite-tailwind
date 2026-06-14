@@ -1,0 +1,27 @@
+/*
+ * THEME2 (rasa Vuexy) — aggregator: skeleton komponen BERSAMA (shared/) + token &
+ * override khas theme2. Bukan endpoint langsung; dipakai oleh style.css / style02.css
+ * via @import. Token theme2 STANDALONE di :root (bukan overlay .theme2).
+ */
+@import "tailwindcss" source(none);
+
+@source '../../Pages/**/*.cshtml';
+@source '../../Areas/**/*.cshtml';
+@source '../Entries/**/*.{ts,tsx,jsx}';
+@source '../../../../Apps/*/Pages/**/*.cshtml';
+@source '../../../../Apps/*/Areas/**/*.cshtml';
+@source '../../../../Apps/*/Assets/**/*.{tsx,jsx,ts}';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Token theme2 (Vuexy, standalone) */
+@import "./theme2/_tokens.css";
+
+/* Skeleton komponen BERSAMA (sama dengan theme1) */
+@import "./shared/_base.css";
+@import "./shared/_overlays.css";
+@import "./shared/_widgets.css";
+
+/* Override khas theme2 (navbar detached, menu solid, modal close mengambang) + vendor */
+@import "./theme2/_overrides.css";
+@import "./theme2/_vendor.css";

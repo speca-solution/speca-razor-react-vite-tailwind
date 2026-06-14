@@ -59,9 +59,9 @@ namespace Speca.Core.Tests
         {
             var env = new FakeEnv { EnvironmentName = "Development" };
 
-            var (html, _) = Run(env, "Libs/UI/Assets/Themes/tailwind/theme.css");
+            var (html, _) = Run(env, "Libs/UI/Assets/Themes/style.css");
 
-            Assert.Contains("<link rel=\"stylesheet\" href=\"/dist/Libs/UI/Assets/Themes/tailwind/theme.css\" />", html);
+            Assert.Contains("<link rel=\"stylesheet\" href=\"/dist/Libs/UI/Assets/Themes/style.css\" />", html);
             Assert.DoesNotContain("@react-refresh", html);
         }
 
@@ -70,14 +70,14 @@ namespace Speca.Core.Tests
         {
             var env = new FakeEnv { EnvironmentName = "Development" };
             var (first, context) = Run(env, "Apps/Portal/Assets/Entries/main.tsx");
-            var (second, _) = Run(env, "Libs/UI/Assets/Themes/tailwind/app/layouts/layout.js", context);
+            var (second, _) = Run(env, "Libs/UI/Assets/Themes/app/layouts/layout.js", context);
 
             Assert.Contains("@react-refresh", first);
             Assert.Contains("/dist/@vite/client", first);
             Assert.Contains("src=\"/dist/Apps/Portal/Assets/Entries/main.tsx\"", first);
 
             Assert.DoesNotContain("@react-refresh", second);
-            Assert.Contains("src=\"/dist/Libs/UI/Assets/Themes/tailwind/app/layouts/layout.js\"", second);
+            Assert.Contains("src=\"/dist/Libs/UI/Assets/Themes/app/layouts/layout.js\"", second);
         }
 
         [Fact]
@@ -112,11 +112,11 @@ namespace Speca.Core.Tests
         public void Prod_CssEntry_RendersLink()
         {
             var root = WriteManifest("""
-                { "Libs/UI/Assets/Themes/tailwind/theme.css": { "file": "css/themes/tailwind-xyz.css" } }
+                { "Libs/UI/Assets/Themes/style.css": { "file": "css/themes/tailwind-xyz.css" } }
                 """);
             var env = new FakeEnv { WebRootPath = root };
 
-            var (html, _) = Run(env, "Libs/UI/Assets/Themes/tailwind/theme.css");
+            var (html, _) = Run(env, "Libs/UI/Assets/Themes/style.css");
 
             Assert.Contains("<link rel=\"stylesheet\" href=\"/dist/css/themes/tailwind-xyz.css\" />", html);
         }

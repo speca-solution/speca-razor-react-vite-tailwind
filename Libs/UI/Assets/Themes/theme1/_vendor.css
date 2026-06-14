@@ -1,0 +1,6 @@
+/* THEME1 — penyesuaian VENDOR khusus theme1 (opsional).
+   Catatan jujur: override dasar vendor (Grid.js, DataTables, flatpickr, Tom Select,
+   Pickr, Quill) bersifat theme-agnostic (pakai var(--*)) dan tinggal di
+   Assets/Vendors/<vendor>/_theme.css|_overrides.css — dimuat HANYA saat vendornya
+   dimuat (bukan global). File ini hanya untuk tweak vendor yang spesifik theme1.
+   Saat ini kosong. */

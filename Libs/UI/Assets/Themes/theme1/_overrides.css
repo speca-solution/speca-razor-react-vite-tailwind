@@ -1,0 +1,4 @@
+/* THEME1 — override komponen khas Metronic (di atas skeleton shared/).
+   theme1 = rasa default: skeleton shared/ SUDAH ber-look Metronic via token theme1,
+   jadi belum ada override tambahan. File ini titik-ekstensi bila kelak theme1 perlu
+   menyimpang dari skeleton. Di-@import SETELAH shared/* agar menang. */

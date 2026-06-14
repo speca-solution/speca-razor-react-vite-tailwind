@@ -186,7 +186,7 @@
         <div class="flex flex-col gap-5">
             <div>
                 <div class="form-label">Breadcrumb (partial reusable)</div>
-                <partial name="Tailwind/_Breadcrumb"
+                <partial name="_Breadcrumb"
                          model="@(new List<Speca.UI.Components.BreadcrumbItem> { new("Home", "/"), new("Komponen", "/Components"), new("Primitif") })" />
             </div>
             <div>
@@ -252,7 +252,7 @@
                     </details>
                     <details class="accordion-item">
                         <summary>Apakah theme bisa diganti? <i class="menu-chevron ti ti-chevron-down text-muted-foreground text-xs transition-transform"></i></summary>
-                        <div class="accordion-body">Ya — theme1/theme2 via ViewData, dark mode via toggle.</div>
+                        <div class="accordion-body">Ya — theme1/theme2 dipilih via endpoint style.css, dark mode via toggle.</div>
                     </details>
                     <details class="accordion-item">
                         <summary>Lisensinya aman? <i class="menu-chevron ti ti-chevron-down text-muted-foreground text-xs transition-transform"></i></summary>
@@ -724,7 +724,7 @@
 }
 
 @section Scripts {
-    <partial name="Tailwind/_ValidationScripts" />
+    <partial name="_ValidationScripts" />
     @* Vendor opsional — sengaja dimuat per halaman, bukan di layout *@
     <vite-asset src="Libs/UI/Assets/Vendors/tom-select/index.js" />
     <vite-asset src="Libs/UI/Assets/Vendors/flatpickr/index.js" />

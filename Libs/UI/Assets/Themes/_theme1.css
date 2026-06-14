@@ -1,0 +1,31 @@
+/*
+ * THEME1 (rasa Metronic) — aggregator: skeleton komponen BERSAMA (shared/) +
+ * token & override khas theme1. Bukan endpoint langsung; dipakai oleh style.css /
+ * style01.css via @import. File ini di Themes/tailwind/ → path @source sama persis
+ * dengan theme.css lama.
+ */
+/* source(none): auto-detection DIMATIKAN — sumber scan 100% eksplisit.
+   Tanpa ini file nyasar (mis. vendor di wwwroot) ikut ter-scan & hash non-deterministik. */
+@import "tailwindcss" source(none);
+
+@source '../../Pages/**/*.cshtml';
+@source '../../Areas/**/*.cshtml';
+@source '../Entries/**/*.{ts,tsx,jsx}';
+@source '../../../../Apps/*/Pages/**/*.cshtml';
+@source '../../../../Apps/*/Areas/**/*.cshtml';
+@source '../../../../Apps/*/Assets/**/*.{tsx,jsx,ts}';
+
+/* Dark mode via class .dark di <html> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Token theme1 (Metronic) */
+@import "./theme1/_tokens.css";
+
+/* Skeleton komponen BERSAMA (var-based, identik untuk semua theme) */
+@import "./shared/_base.css";
+@import "./shared/_overlays.css";
+@import "./shared/_widgets.css";
+
+/* Override khas theme1 (saat ini kosong) + vendor theme1 */
+@import "./theme1/_overrides.css";
+@import "./theme1/_vendor.css";

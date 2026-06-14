@@ -1,0 +1,4 @@
+/* THEME2 — penyesuaian VENDOR khusus theme2 (opsional).
+   Override dasar vendor bersifat theme-agnostic (var-based) dan tinggal di
+   Assets/Vendors/<vendor>/ (dimuat per-vendor). File ini hanya untuk tweak vendor
+   yang spesifik theme2. Saat ini kosong. */

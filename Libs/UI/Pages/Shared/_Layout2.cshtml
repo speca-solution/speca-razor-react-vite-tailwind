@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 @*
     Layout2 — struktur HORIZONTAL: topbar berisi brand + menu horizontal (desktop),
-    drawer sidebar untuk mobile. Theme dipilih bebas via ViewData["Theme"] (theme1/theme2).
+    drawer sidebar untuk mobile. Endpoint tema dimuat via style.css; halaman bisa
+    pratinjau tema lain dengan ViewData["Style"]="style02".
     Adaptif: < lg menu pindah ke drawer (burger), >= lg menu di topbar.
 *@
 @{
-    var theme = ViewData["Theme"] as string ?? "theme1";
+    var style = ViewData["Style"] as string ?? "style";
     var stickyNavbar = ViewData["StickyNavbar"] as bool? ?? true;
     ViewData["SidebarDrawerOnly"] = true;
     // Nonce CSP (produksi): Razor MENGHILANGKAN atribut nonce bila null (dev) → aman.
     var cspNonce = Context.Items["csp-nonce"] as string;
 }
-<html class="h-full @theme" lang="en" dir="ltr">
+<html class="h-full" lang="en" dir="ltr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -22,23 +23,18 @@
 
     <vite-asset src="Libs/UI/Assets/Vendors/tabler-icons/style.css" />
     <vite-asset src="Libs/UI/Assets/Vendors/lucide/style.css" />
-    <vite-asset src="Libs/UI/Assets/Themes/tailwind/theme.css" />
+    <vite-asset src="Libs/UI/Assets/Themes/@(style).css" />
 
     @RenderSection("Styles", false)
 
-    <!-- Set dark-mode & skin sebelum render untuk hindari flash -->
+    <!-- Set dark-mode sebelum render untuk hindari flash -->
     <script nonce="@cspNonce">
         (function () {
-            var el = document.documentElement;
             var mode = localStorage.getItem('speca-theme');
             if (!mode) {
                 mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
-            if (mode === 'dark') { el.classList.add('dark'); }
-            // Skin theme1/theme2: localStorage menang atas default SSR (class @@theme).
-            var skin = localStorage.getItem('speca-skin');
-            if (skin === 'theme2') { el.classList.add('theme2'); }
-            else if (skin === 'theme1') { el.classList.remove('theme2'); }
+            if (mode === 'dark') { document.documentElement.classList.add('dark'); }
         })();
     </script>
 </head>
@@ -49,7 +45,7 @@
     <div class="fixed inset-0 z-40 hidden bg-black/40" data-sidebar-overlay></div>
 
     @* Drawer menu (mobile & tablet) — markup sama dengan sidebar vertikal *@
-    @await Html.PartialAsync("Tailwind/_Sidebar")
+    @await Html.PartialAsync("_Sidebar")
 
     <!-- Topbar -->
     <header class="app-header border-border bg-background @(stickyNavbar ? "sticky top-0 z-30" : "") border-b">
@@ -60,10 +56,10 @@
 
             <a href="/" class="text-mono text-lg font-semibold tracking-tight">Speca</a>
 
-            @await Html.PartialAsync("Tailwind/_Menu_Horizontal")
+            @await Html.PartialAsync("_Menu_Horizontal")
 
             <div class="ms-auto">
-                @await Html.PartialAsync("Tailwind/_Header_Actions")
+                @await Html.PartialAsync("_Header_Actions")
             </div>
         </div>
     </header>
@@ -77,11 +73,11 @@
         </div>
     </main>
 
-    @await Html.PartialAsync("Tailwind/_Footer")
+    @await Html.PartialAsync("_Footer")
 
     @RenderSection("EndOfPage", false)
 
-    <vite-asset src="Libs/UI/Assets/Themes/tailwind/app/layouts/horizontal.js" />
+    <vite-asset src="Libs/UI/Assets/Entries/layouts/horizontal.js" />
 
     @RenderSection("Scripts", false)
 </body>
