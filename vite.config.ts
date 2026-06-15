@@ -113,15 +113,15 @@ const entryPoint = {
 }
 
 // ---------------------------------------------------------------------------
-// Multi-app: target app dipilih lewat env SPECA_APP (default: Portal).
+// Multi-app: target app dipilih lewat env BUILD_APP_NAME (default: Portal).
 // `pnpm build` (scripts/build-apps.mjs) membangun semua app di Apps/*.
 // ---------------------------------------------------------------------------
-const appName = process.env.SPECA_APP || 'Portal';
+const appName = process.env.BUILD_APP_NAME || 'Portal';
 const webAppPath = path.join(__dirname, 'Apps', appName);
 
 if (!fs.existsSync(webAppPath)) {
     console.error(`Error: folder app '${appName}' tidak ditemukan di Apps/.`);
-    console.error(`Set env SPECA_APP ke salah satu: ${fs.readdirSync(path.join(__dirname, 'Apps')).join(', ')}`);
+    console.error(`Set env BUILD_APP_NAME ke salah satu: ${fs.readdirSync(path.join(__dirname, 'Apps')).join(', ')}`);
     process.exit(1);
 }
 

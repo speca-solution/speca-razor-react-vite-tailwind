@@ -100,15 +100,22 @@ Pendekatan yang disarankan: **`dotnet new` template pack** (folder `.template.co
 bukan VSIX — VS 2022+ (termasuk 2026) menampilkan template `dotnet new` langsung di dialog
 New Project, lintas-platform, dan jauh lebih mudah dirawat.
 
+> **STATUS 2026-06-15:** template `dotnet new` jalan & terverifikasi end-to-end untuk fokus
+> user = **rename nama solution + rename nama project app**. Metadata di `.template.config/`
+> (`template.json` + `dotnetcli.host.json`); panduan di `TEMPLATE.md`. Diuji `-n Acme --app-name Web`:
+> instantiate → `grep -ri speca|portal` = 0 → `dotnet publish -c Release` sukses → run + smoke **14/14**.
+> Prasyarat yang dikerjakan: env build di-generikkan `SPECA_APP`→`BUILD_APP_NAME` (hapus brand uppercase).
+> Sisa (E4-02/05/06) = peningkatan opsional, bukan blocker pemakaian.
+
 | ID | Item | Acceptance Criteria |
 |----|------|---------------------|
-| E4-01 ☐ | Buat `.template.config/template.json` dengan symbol/parameter: `--theme` (metronic/vuexy/none), `--frontend` (react/none), `--AppName` (rename Speca.Portal → {AppName}) | `dotnet new install .` lalu `dotnet new speca-platform -n MyApp --theme metronic` menghasilkan solution yang langsung build |
-| E4-02 ☐ | Conditional content: file/folder theme yang tidak dipilih tidak ikut ter-generate (pakai `sources.modifiers` + `#if` symbol di csproj/cshtml) | Instance `--theme vuexy` tidak berisi folder Metronic sama sekali, dan sebaliknya |
-| E4-03 ☐ | Ganti semua identifier "Speca"/"speca.portal" dengan source name substitution; sertakan rename cert name, appsettings `Application:name`, pnpm package names | `grep -ri speca` di hasil instantiate = 0 hit |
-| E4-04 ☐ | Exclude dari paket template: `node_modules`, `wwwroot/dist`, `publish/`, `certs/`, `.vs/`, `bin/obj`, `*.user` | Ukuran paket .nupkg < 5 MB (tanpa aset theme) atau terdokumentasi jika theme disertakan |
-| E4-05 ☐ | Uji matrix instantiate di VS 2026 Community: New Project → parameter UI muncul (theme dropdown) → F5 jalan → publish jalan, untuk tiap kombinasi theme×frontend | Checklist matrix 100% lulus, didokumentasikan |
-| E4-06 ☐ | Pack & distribusi: `dotnet pack` template pack → nupkg privat (folder/feed lokal atau GitHub Packages) | Tim bisa `dotnet new install Speca.Templates` dari feed |
-| E4-07 ☐ | Post-action: instruksi/automation `pnpm install` setelah instantiate (template.json postActions atau instruksi README yang muncul) | Developer tidak bingung kenapa build pertama gagal |
+| E4-01 ☑ | `.template.config/template.json` + `dotnetcli.host.json`: `sourceName=Speca` (+ form lowercase `nameLower`) untuk **nama solution** lewat `-n`; symbol `AppName` (`replaces`+`fileRename` `Portal`, + `appNameLower`) untuk **nama project app** lewat `--app-name`/`-a` | `dotnet new install .` lalu `dotnet new speca-platform -n Acme -a Web` → solution langsung **publish sukses** ✓ |
+| E4-02 ◐ | Conditional content (`sources.modifiers` + `#if` symbol). **Mekanisme TERBUKTI jalan via E9-06** (`--data-comm proto\|none`). Untuk theme belum diterapkan (theme1/theme2 dipilih saat build via `style.css`, prioritas rendah). | pola conditional content tervalidasi ✓; penerapan ke theme menyusul bila perlu |
+| E4-03 ☑ | Source name substitution menyeluruh: namespace, csproj/slnx/workspace, `appsettings name`, scope `package.json`, prefix JS/CSS milik sendiri (`specaToast`/`.speca-scroll`/key localStorage), cookie `speca.antiforgery`, CI workflow | `grep -ri speca` & `grep -riw portal` di hasil = **0** ✓ |
+| E4-04 ☑ | Exclude: `node_modules`, `wwwroot/dist`, `_pub`/`publish/`, `certs/`, `.vs`, `.git`, `bin/obj`, `*.user`, `pnpm-lock.yaml`, `BACKLOG.md`, `.template.config` | exclude aktif & terverifikasi; nupkg → E4-06 (snippet pack di `TEMPLATE.md`) |
+| E4-05 ☐ | Uji matrix instantiate di **VS 2026 Community** (GUI New Project). *Belum diuji manual di GUI; jalur CLI sudah lulus & VS membaca template yang sama.* | Checklist matrix GUI lulus |
+| E4-06 ☑ | Pack & distribusi `.nupkg`: `packaging/Speca.Templates.csproj` (`PackageType=Template`). Terverifikasi: pack → nupkg **1,1 MB** → `dotnet new install <nupkg>` → instantiate `-n FromPkg -a Web` → publish + smoke 15/15 + gRPC ✓. (Temuan: `wwwroot/assets/media` 23 MB = demo mati 0 referensi kode → dikecualikan dari nupkg & instantiate; repo belum dihapus.) | `dotnet new install` dari nupkg → solution langsung build ✓ |
+| E4-07 ☑ | Post-action: `dotnet restore` otomatis (postAction `210D431B`, kondisional `--no-restore`); `pnpm install` via manual-instruction + otomatis saat build pertama (target MSBuild `Exec pnpm i` bila `node_modules` hilang) | build pertama tidak gagal diam-diam ✓ |
 
 ---
 
@@ -132,7 +139,7 @@ New Project, lintas-platform, dan jauh lebih mudah dirawat.
 | E5-06 ☑ | **Hover-trigger horizontal (desktop)**: dropdown terbuka saat hover dengan delay tutup kecil; click tetap bekerja (touch) | Hover buka/tutup mulus di desktop; di layar sentuh click tetap berfungsi; tidak ada dropdown "nyangkut" |
 | E5-07 ☑ | ~~Tooltip saat rail~~ — **dibatalkan dengan alasan terdokumentasi**: rail kita hover-expand (pola Vuexy), hover icon langsung melebarkan sidebar sehingga tooltip tidak pernah sempat tampil; tooltip hanya relevan bila hover-expand dimatikan (pola Metronic) | Keputusan tercatat; tidak ada kode mati |
 | E5-08 ☑ | **Active prefix-matching**: opsi `MatchPrefix` per item — `/products/123` mengaktifkan item `/products` | Halaman anak route menandai induknya active; exact-match tetap default |
-| E5-09 ☐ | Mega menu multi-kolom (horizontal) — *prioritas terendah, kerjakan bila ada kebutuhan nyata* | Dropdown multi-kolom dengan heading per kolom di _Layout2 |
+| E5-09 ☑ | Mega menu multi-kolom (horizontal) — *2026-06-13* | `RenderMega` di `_Menu_Horizontal.cshtml`: panel full-width `grid sm:grid-cols-2 lg:grid-cols-3` + heading per kolom (`border-b … uppercase`) + link kaya (ikon+judul+Description) ✓ |
 
 **Sprint usulan:** Sprint A = E5-01…05 + E5-08 + update menu demo Program.cs (3 level, badge, disabled, eksternal);
 Sprint B = E5-06…07; E5-09 ditunda sampai dibutuhkan.
@@ -224,8 +231,24 @@ stepper/wizard · clipboard · fullcalendar · (deferred: carousel, kanban, tour
 | E8-01 ☑ | **Halaman auth** (login, register, lupa password) — UI only, layout blank, siap disambungkan ke Identity | 3 halaman di 2 theme; form pakai komponen E6 + validasi E6-02 |
 | E8-02 ☑ | **Halaman error** (404, 500) menggantikan Error.cshtml polos | Styled, tanpa layout app-shell, tombol kembali |
 | E8-03 ☑ | **Halaman settings/profile** (pola umum CRUD: form + tabs + upload avatar) | 1 halaman contoh memakai komponen E6 |
-| E8-04 ☐ | Dashboard charts demo (gabung E7-01) | Dashboard / menampilkan 2 chart hidup |
+| E8-04 ☑ | Dashboard charts demo (gabung E7-01) | `Dashboards/Metronic` (area+donut+…) & `Dashboards/Vuexy` (radialBar+…) masing-masing 3 `data-apexchart` hidup ✓ |
 | E8-05 ☐ | Integrasi ASP.NET Identity (scaffold, opsional saat packaging) | Keputusan didokumentasikan; bukan blocker template |
+
+## EPIC 9 — Komunikasi Data: Proto / gRPC (P2)
+
+> **Selesai 2026-06-15** (rekomendasi pasca-EPIC-4). Satu `.proto` = sumber kebenaran → server C# +
+> klien TypeScript di-generate, dipanggil React via gRPC-Web. Detail: `TEMPLATE.md §6`, README
+> "Komunikasi data via gRPC / Proto".
+
+| ID | Item | Acceptance Criteria |
+|----|------|---------------------|
+| E9-01 ☑ | `Libs/Contracts` (`Grpc.AspNetCore` + `Protos/greeter.proto`, `GrpcServices=Server`) → C# di-generate Grpc.Tools saat build (obj/, tak di-commit) | `dotnet build` menghasilkan `GreeterServiceBase`; namespace dari `csharp_namespace` ✓ |
+| E9-02 ☑ | Server: `GreeterRpcService` + `Program.cs` `AddGrpc`/`UseGrpcWeb`/`MapGrpcService().EnableGrpcWeb()`; Portal refs `Grpc.AspNetCore.Web` | endpoint `/greeter.v1.GreeterService/SayHello` jalan via gRPC-Web ✓ |
+| E9-03 ☑ | Klien TS: Buf (`@bufbuild/buf`+`protoc-gen-es` v2) `buf.yaml`/`buf.gen.yaml`/`pnpm buf:generate` → `Assets/gen` (di-commit); React `rpcdemo.tsx` (Connect-ES `createGrpcWebTransport` same-origin) + page `/RpcDemo` | typecheck + vite bundle + halaman 200 ✓ |
+| E9-04 ☑ | Tahan rename `dotnet new`: `package` proto generik (`greeter.v1`, wire stabil) + `csharp_namespace` branded (ikut rename) | instance `-n Acme -a Web`: grep speca/portal=0, publish sukses, gRPC round-trip "Halo, Acme!" ✓ (`scripts/rpc-smoke.ts`) |
+| E9-05 ☑ | Pola produksi: interceptor server (logging+auth, `GrpcLoggingInterceptor`) + interceptor klien (header `Authorization`) + **server-streaming** (`StreamTicks` → React live) + pemetaan error (`RpcException`→`ConnectError`) | terverifikasi: unary+auth echo "token diterima", 4 tick berurutan, `InvalidArgument` terpetakan, interceptor log muncul ✓ (`scripts/rpc-smoke.ts`) |
+| E9-06 ☑ | Conditional content `--data-comm proto\|none`: symbol choice + computed `proto` + exclude bersyarat (`Libs/Contracts`, `Services`, `/RpcDemo`, `gen`, `buf.*`, `rpc-smoke`) + `#if (proto)` di Program.cs/csproj/slnx/smoke-test.mjs (source tetap valid: DefineConstants `proto` + komentar XML/JS) | terverifikasi DUA jalur: `none` → publish + smoke 14/14 + `/RpcDemo` 404 + 0 ref gRPC; default `proto` (+rename) → gRPC 3-assert + smoke 15/15 ✓. (Pertama kalinya E4-02 conditional content terbukti jalan.) |
+| — | **Batas jujur:** gRPC-Web hanya unary + server-streaming; client/bidi-streaming tak didukung dari browser (butuh HTTP/2 penuh / WebSocket) — sengaja tak ditambahkan. Sisa npm `@bufbuild`/`@connectrpc` tetap di package.json saat `none` (JSON tak bisa dikondisikan) tapi tree-shaken. | tercatat |
 
 ## Urutan eksekusi yang disarankan
 

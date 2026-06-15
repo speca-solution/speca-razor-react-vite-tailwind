@@ -44,7 +44,7 @@ Atau manual dari root: `pnpm dev` (Vite saja) + `dotnet run` terpisah.
 dotnet publish Apps/Portal/Speca.Portal.csproj -c Release -o out
 ```
 
-Publish Release otomatis menjalankan `vite build` untuk app tersebut (env `SPECA_APP`
+Publish Release otomatis menjalankan `vite build` untuk app tersebut (env `BUILD_APP_NAME`
 dari properti MSBuild `SpecaAppName` di csproj). Hasil Vite masuk ke `wwwroot/dist`
 beserta `manifest.json`.
 
@@ -65,6 +65,18 @@ Model server di-serialize ke attribute `data-initial` pada elemen mount
 (lihat `ReactDemo.cshtml.cs` + `ReactDemo.cshtml`), dibaca `main.tsx` dan diteruskan sebagai
 props saat hydrate. Kontrak bentuk data: `DashboardData` (C#, camelCase via
 `JsonSerializerDefaults.Web`) ↔ `DashboardData` (TypeScript, `App.tsx`).
+
+## Komunikasi data via gRPC / Proto (typed lintas-bahasa)
+
+Untuk kontrak data yang kuat dan tervalidasi (bukan hanya hydration awal), template menyertakan
+jalur **Protobuf/gRPC** end-to-end — satu `.proto` = sumber kebenaran untuk server **dan** klien:
+
+- Kontrak: `Libs/Contracts/Protos/greeter.proto`.
+- Server C#: di-generate `Grpc.Tools` saat build; implementasi `Apps/Portal/Services/GreeterRpcService.cs`;
+  dipetakan di `Program.cs` (`AddGrpc` / `UseGrpcWeb` / `MapGrpcService().EnableGrpcWeb()`).
+- Klien TypeScript: `pnpm buf:generate` → `Apps/Portal/Assets/gen/`; dipanggil React di
+  `Assets/Entries/rpcdemo.tsx` via **gRPC-Web same-origin** (Connect-ES). Demo: **`/RpcDemo`**.
+- Verifikasi: `node scripts/rpc-smoke.ts` (round-trip nyata). Detail & cara menambah RPC: `TEMPLATE.md §6`.
 
 ## Cara memuat asset di halaman Razor
 

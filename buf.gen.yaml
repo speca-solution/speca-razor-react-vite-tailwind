@@ -1,0 +1,9 @@
+# Generate klien TypeScript (protobuf-es v2) dari proto yang SAMA dengan server C#.
+# Jalankan: pnpm buf:generate  (butuh @bufbuild/buf + @bufbuild/protoc-gen-es).
+version: v2
+clean: true
+plugins:
+  - local: protoc-gen-es
+    out: Apps/Portal/Assets/gen
+    opt:
+      - target=ts

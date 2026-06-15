@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+// Package GENERIK (tanpa brand) → path wire `/greeter.v1.GreeterService/...`
+// stabil & identik di server (C#) maupun klien (TypeScript), tidak ikut
+// substitusi saat `dotnet new` rename solution. Satu file ini = SUMBER KEBENARAN
+// untuk kontrak data: C# di-generate Grpc.Tools saat build, TS di-generate Buf.
+package greeter.v1;
+
+// Namespace C# branded (ikut rename Speca→<Solution> saat instantiate).
+option csharp_namespace = "Speca.Contracts.Greeter";
+
+// Contoh layanan: unary + server-streaming. Tambahkan service/method lain di
+// file .proto baru dalam folder ini; C# & TS otomatis ikut ter-generate.
+service GreeterService {
+  // Unary. Memvalidasi input (name kosong → InvalidArgument) & membaca metadata auth.
+  rpc SayHello(SayHelloRequest) returns (SayHelloResponse);
+  // Server-streaming: kirim `count` tick berurutan (untuk live update di klien).
+  rpc StreamTicks(StreamTicksRequest) returns (stream TickMessage);
+}
+
+message SayHelloRequest {
+  string name = 1;
+}
+
+message SayHelloResponse {
+  string message = 1;
+  // Contoh field non-string (epoch milidetik) untuk membuktikan tipe ikut lintas-bahasa.
+  int64 served_at_unix_ms = 2;
+}
+
+message StreamTicksRequest {
+  int32 count = 1;
+}
+
+message TickMessage {
+  int32 index = 1;
+  int64 at_unix_ms = 2;
+}

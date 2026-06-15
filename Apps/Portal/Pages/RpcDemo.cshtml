@@ -1,0 +1,26 @@
+@page
+@{
+    ViewData["Title"] = "Demo gRPC (Proto)";
+}
+
+@section Breadcrumb {
+    <div class="flex flex-col gap-2 pb-7.5">
+        <h1 class="text-mono text-xl leading-none font-medium">Proto → gRPC-Web → React</h1>
+        <div class="text-secondary-foreground text-sm">
+            Satu file <code>Libs/Contracts/Protos/greeter.proto</code> = sumber kebenaran.
+            Server C# di-generate <code>Grpc.Tools</code>; klien TypeScript di-generate
+            <code>Buf</code> (<code>pnpm buf:generate</code>). React memanggilnya via gRPC-Web
+            same-origin — tipe konsisten lintas-bahasa, tanpa nulis DTO manual.
+        </div>
+    </div>
+}
+
+<div class="mb-10 grid max-w-xl gap-5">
+    <div id="rpc-root">
+        <div class="text-muted-foreground p-10">Inisialisasi klien gRPC…</div>
+    </div>
+</div>
+
+@section Scripts {
+    <vite-entry src="Apps/Portal/Assets/Entries/rpcdemo.tsx" />
+}

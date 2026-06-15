@@ -14,6 +14,9 @@ const get = (url) => fetch(url, { headers });
 const pages = [
     '/', '/Layout2', '/Components', '/Tables', '/Charts', '/Privacy',
     '/Dashboards/Metronic', '/Dashboards/Vuexy', '/ReactDemo',
+//#if (proto)
+    '/RpcDemo',
+//#endif
     '/Account/Login', '/Account/Register', '/Account/ForgotPassword',
     '/Settings', '/StatusCode/404',
 ];

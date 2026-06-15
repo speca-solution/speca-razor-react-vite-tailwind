@@ -1,6 +1,9 @@
 
 using Microsoft.AspNetCore.HttpOverrides;
 using Speca.Core.Extensions;
+#if (proto)
+using Speca.Portal.Services;
+#endif
 using Speca.UI.Navigation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +13,18 @@ var ApplicationConfig = config.GetSection("Application");
 
 builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();
+
+#if (proto)
+// ---- gRPC + gRPC-Web (kontrak di Libs/Contracts/Protos/*.proto) ----
+// Server bicara gRPC; gRPC-Web (UseGrpcWeb + EnableGrpcWeb di bawah) membuat
+// endpoint yang sama bisa dipanggil dari browser (fetch) same-origin — klien
+// TypeScript di-generate Buf dari proto yang sama (lihat buf.gen.yaml).
+// Interceptor logging/auth = lintas-cutting untuk SEMUA method (lihat Services/GrpcLoggingInterceptor).
+builder.Services.AddGrpc(options =>
+{
+    options.Interceptors.Add<GrpcLoggingInterceptor>();
+});
+#endif
 
 // ---- Forwarded headers: deteksi HTTPS & IP-klien yang benar di balik reverse
 // proxy yang terminasi TLS (nginx/IIS/ALB/App Service). WAJIB agar Secure-cookie,
@@ -156,6 +171,14 @@ builder.Services.AddSpecaMenu(menu =>
             Url = "/ReactDemo",
             Icon = "ti ti-brand-react",
         },
+#if (proto)
+        new MenuItem
+        {
+            Title = "Demo gRPC (Proto)",
+            Url = "/RpcDemo",
+            Icon = "ti ti-binary-tree",
+        },
+#endif
         new MenuItem
         {
             Title = "Mega Menu",
@@ -327,6 +350,12 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
+#if (proto)
+// gRPC-Web: bungkus request gRPC-Web (dari browser) → gRPC. Harus setelah UseRouting,
+// sebelum endpoint dipetakan. Same-origin → tak perlu CORS gRPC-Web.
+app.UseGrpcWeb();
+
+#endif
 // CookiePolicy menjaring SEMUA cookie (Secure di produksi); CORS antara routing & auth.
 app.UseCookiePolicy();
 app.UseCors("SpecaCors");
@@ -337,6 +366,11 @@ app.UseAuthorization();
 app.MapStaticAssets();
 app.MapRazorPages().WithStaticAssets();
 app.MapDefaultControllerRoute();
+
+#if (proto)
+// Endpoint gRPC (juga aktif untuk gRPC-Web). Path wire: /greeter.v1.GreeterService/SayHello
+app.MapGrpcService<GreeterRpcService>().EnableGrpcWeb();
+#endif
 
 
 if (app.Environment.IsDevelopment())

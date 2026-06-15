@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!-- Grpc.AspNetCore butuh tipe ASP.NET Core untuk base-class server yang di-generate. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <!-- Grpc.Tools (transitif dari Grpc.AspNetCore) meng-generate C# dari .proto saat build (ke obj/, tidak di-commit). -->
+  <ItemGroup>
+    <Protobuf Include="Protos\**\*.proto" GrpcServices="Server" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.80.0" />
+  </ItemGroup>
+
+</Project>

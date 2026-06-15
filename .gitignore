@@ -270,3 +270,8 @@ _pub/
 
 # Dev certificates (auto-generated oleh vite.config.ts via dotnet dev-certs)
 certs/
+
+# Template pack output
+_nupkg/
+packaging/bin/
+packaging/obj/

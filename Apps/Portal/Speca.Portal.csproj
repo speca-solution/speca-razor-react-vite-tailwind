@@ -9,6 +9,11 @@
     <SpecaRootDir Condition="'$(SpecaRootDir)' == ''">$(MSBuildProjectDirectory)\..\..\</SpecaRootDir>
     <!-- Nama app untuk vite build (folder di Apps/) -->
     <SpecaAppName>Portal</SpecaAppName>
+    <!--#if (proto) -->
+    <!-- Konstanta 'proto' agar blok #if(proto) di Program.cs ikut dikompilasi.
+         Pada instantiate data-comm=none, baris ini dihapus template engine. -->
+    <DefineConstants>$(DefineConstants);proto</DefineConstants>
+    <!--#endif -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +28,12 @@
     <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="3.0.71" />
   </ItemGroup>
 
+  <!--#if (proto) -->
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore.Web" Version="2.80.0" />
+  </ItemGroup>
+  <!--#endif -->
+
   <ItemGroup>
 	<Content Update="Assets\**\*.*" CopyToPublishDirectory="Never" />
 	<Content Update="Areas\**\*.*" CopyToPublishDirectory="Never" />
@@ -31,6 +42,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Libs\UI\Speca.UI.csproj" />
+    <!--#if (proto) -->
+    <ProjectReference Include="..\..\Libs\Contracts\Speca.Contracts.csproj" />
+    <!--#endif -->
   </ItemGroup>
 
   <Target Name="CheckAndInstallPnpm" BeforeTargets="Build">
@@ -46,7 +60,7 @@
        kalau tidak cache kompresi obj/ menunjuk file hash lama dan publish gagal -->
   <Target Name="ViteBuildProduction" BeforeTargets="AssignTargetPaths" DependsOnTargets="CheckAndInstallPnpm" Condition="'$(Configuration)' == 'Release'">
 	<Message Importance="high" Text="[Speca] Menjalankan vite build (app: $(SpecaAppName)) untuk mode produksi..." />
-	<Exec Command="pnpm build:app" WorkingDirectory="$(SpecaRootDir)" EnvironmentVariables="SPECA_APP=$(SpecaAppName)" />
+	<Exec Command="pnpm build:app" WorkingDirectory="$(SpecaRootDir)" EnvironmentVariables="BUILD_APP_NAME=$(SpecaAppName)" />
   </Target>
 
   <Target Name="ViteClean" BeforeTargets="Clean">

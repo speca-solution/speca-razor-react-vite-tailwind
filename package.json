@@ -5,9 +5,14 @@
     "dev": "vite",
     "build": "node scripts/build-apps.mjs",
     "build:app": "vite build",
+    "buf:generate": "buf generate",
+    "buf:lint": "buf lint",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@bufbuild/protobuf": "^2.12.0",
+    "@connectrpc/connect": "^2.1.2",
+    "@connectrpc/connect-web": "^2.1.2",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
   },
@@ -17,6 +22,8 @@
     }
   },
   "devDependencies": {
+    "@bufbuild/buf": "^1.70.0",
+    "@bufbuild/protoc-gen-es": "^2.12.0",
     "@rollup/plugin-inject": "^5.0.5",
     "@tailwindcss/vite": "^4.2.2",
     "@types/node": "^25.6.0",

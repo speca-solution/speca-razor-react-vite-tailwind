@@ -3,6 +3,9 @@
     <Project Path="Apps/Portal/Speca.Portal.csproj" />
   </Folder>
   <Folder Name="/Libs/">
+    <!--#if (proto) -->
+    <Project Path="Libs/Contracts/Speca.Contracts.csproj" />
+    <!--#endif -->
     <Project Path="Libs/Core/Speca.Core.csproj" />
     <Project Path="Libs/UI/Speca.UI.csproj" />
   </Folder>

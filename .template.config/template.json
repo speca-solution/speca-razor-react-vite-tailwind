@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Speca",
+  "classifications": [ "Web", "Razor Pages", "React", "Tailwind", "Vite", "Solution" ],
+  "identity": "Speca.Platform.Solution.CSharp",
+  "name": "Speca Platform Solution (Razor Pages + Vite + React + Tailwind + TypeScript)",
+  "description": "Solution monorepo ASP.NET Core Razor Pages (.NET 10) + Vite 8/Rolldown + React 19 + Tailwind 4 + TypeScript, dengan pnpm workspaces (Apps/* aplikasi, Libs/* library). Nama solution & nama project aplikasi dapat diganti saat instantiate.",
+  "shortName": "speca-platform",
+  "defaultName": "MyApp",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "solution"
+  },
+  "sourceName": "Speca",
+  "symbols": {
+    "AppName": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "Portal",
+      "replaces": "Portal",
+      "fileRename": "Portal",
+      "description": "Nama project aplikasi web (folder Apps/<AppName> dan namespace <Solution>.<AppName>). Default: Portal."
+    },
+    "nameLower": {
+      "type": "generated",
+      "generator": "casing",
+      "parameters": { "source": "name", "toLower": true },
+      "replaces": "speca"
+    },
+    "appNameLower": {
+      "type": "generated",
+      "generator": "casing",
+      "parameters": { "source": "AppName", "toLower": true },
+      "replaces": "portal"
+    },
+    "skipRestore": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Lewati 'dotnet restore' otomatis setelah instantiate."
+    },
+    "dataComm": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        { "choice": "proto", "description": "Sertakan jalur gRPC/Proto (Libs/Contracts + server + demo /RpcDemo)." },
+        { "choice": "none", "description": "Tanpa gRPC/Proto." }
+      ],
+      "defaultValue": "proto",
+      "description": "Sertakan jalur komunikasi data gRPC/Proto (Libs/Contracts, server gRPC-Web, demo /RpcDemo)."
+    },
+    "proto": {
+      "type": "computed",
+      "value": "(dataComm == \"proto\")"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [
+            "**/[Bb]in/**",
+            "**/[Oo]bj/**",
+            "**/node_modules/**",
+            "**/wwwroot/dist/**",
+            "**/wwwroot/assets/media/**",
+            "**/.vs/**",
+            "**/.git/**",
+            "**/.github/workflows/*.cache",
+            "**/_pub/**",
+            "**/publish/**",
+            "**/certs/**",
+            "**/*.user",
+            "pnpm-lock.yaml",
+            "BACKLOG.md",
+            "TEMPLATE.md",
+            "packaging/**",
+            "_nupkg/**",
+            ".template.config/**"
+          ]
+        },
+        {
+          "condition": "(!proto)",
+          "exclude": [
+            "Libs/Contracts/**",
+            "Apps/Portal/Services/**",
+            "Apps/Portal/Pages/RpcDemo.cshtml",
+            "Apps/Portal/Assets/Entries/rpcdemo.tsx",
+            "Apps/Portal/Assets/gen/**",
+            "buf.yaml",
+            "buf.gen.yaml",
+            "scripts/rpc-smoke.ts"
+          ]
+        }
+      ]
+    }
+  ],
+  "postActions": [
+    {
+      "condition": "(!skipRestore)",
+      "description": "Restore .NET dependencies",
+      "manualInstructions": [
+        { "text": "Jalankan 'dotnet restore', lalu 'pnpm install' di root solution (build pertama juga menjalankan 'pnpm i' otomatis), lalu F5 / 'dotnet run'." }
+      ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    }
+  ]
+}

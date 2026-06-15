@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Template-pack: membungkus seluruh solution (root repo) menjadi .nupkg berisi
+       template `dotnet new`. BUKAN project kode (tidak ada output build). -->
+  <PropertyGroup>
+    <PackageType>Template</PackageType>
+    <PackageId>Speca.Templates</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Title>Speca Platform Templates</Title>
+    <Authors>Speca</Authors>
+    <Description>Template dotnet new: solution Razor Pages (.NET 10) + Vite + React + Tailwind + TypeScript (+ gRPC/Proto opsional).</Description>
+    <PackageTags>dotnet-new;templates;razor-pages;react;tailwind;vite;grpc</PackageTags>
+
+    <TargetFramework>net10.0</TargetFramework>
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <ContentTargetFolders>content</ContentTargetFolders>
+    <!-- NU5128: tanpa dependency lib (template pack). NU5110/NU5111: run-prod.ps1 hanya content
+         (NuGet tak menjalankannya saat install — memang disengaja). -->
+    <NoWarn>$(NoWarn);NU5128;NU5110;NU5111</NoWarn>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+  </PropertyGroup>
+
+  <!-- Sertakan seluruh isi root repo SEBAGAI content template (mirror struktur di bawah content/).
+       Kecualikan artefak berat/irelevan agar .nupkg ramping; .template.config WAJIB ikut. -->
+  <ItemGroup>
+    <Content Include="..\**\*"
+             Exclude="..\**\bin\**;..\**\obj\**;..\**\node_modules\**;..\**\wwwroot\dist\**;..\**\wwwroot\assets\media\**;..\.git\**;..\.vs\**;..\_pub\**;..\_nupkg\**;..\certs\**;..\packaging\**;..\**\*.user"
+             PackagePath="content\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Remove="**\*" />
+  </ItemGroup>
+
+</Project>

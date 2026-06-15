@@ -1,5 +1,5 @@
 // Build Vite untuk semua app di Apps/* (yang punya appsettings.json).
-// Per-app: SPECA_APP=<nama> vite build  →  output ke Apps/<nama>/wwwroot/dist.
+// Per-app: BUILD_APP_NAME=<nama> vite build  →  output ke Apps/<nama>/wwwroot/dist.
 import { spawnSync } from 'node:child_process';
 import { readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
@@ -23,7 +23,7 @@ for (const app of apps) {
         cwd: root,
         stdio: 'inherit',
         shell: true,
-        env: { ...process.env, SPECA_APP: app },
+        env: { ...process.env, BUILD_APP_NAME: app },
     });
     if (result.status !== 0) {
         console.error(`[Speca] build gagal untuk app: ${app}`);
