@@ -1,5 +1,7 @@
 # Speca Platform
 
+[![CI](https://github.com/speca-solution/speca-razor-react-vite-tailwind/actions/workflows/ci.yml/badge.svg)](https://github.com/speca-solution/speca-razor-react-vite-tailwind/actions/workflows/ci.yml)
+
 Template web application: **ASP.NET Core Razor Pages (.NET 10) + Vite 8 + React 19 + Tailwind CSS 4**.
 **Theme** (kulit) dan **Layout** (struktur) adalah dua sumbu independen:
 

@@ -33,11 +33,11 @@ jobs:
       - name: Unit tests
         run: dotnet test Tests/Speca.Core.Tests/Speca.Core.Tests.csproj --nologo
 
-      # Publish Release sekaligus menjalankan vite build (target MSBuild ViteBuildProduction)
+      # Publish Release sekaligus menjalankan vite build (target MSBuild ViteBuildProduction).
       - name: Publish (Release)
         run: dotnet publish Apps/Portal/Speca.Portal.csproj -c Release -o out --nologo
 
-      - name: Smoke test (5 halaman + asset + isolasi stack)
+      - name: Smoke (semua halaman + asset) + gRPC round-trip
         run: |
           ASPNETCORE_ENVIRONMENT=Production ASPNETCORE_URLS=http://localhost:5599 \
             dotnet out/Speca.Portal.dll &
@@ -47,6 +47,45 @@ jobs:
             sleep 1
           done
           node scripts/smoke-test.mjs http://localhost:5599
-          STATUS=$?
+          S1=$?
+          node --experimental-strip-types scripts/rpc-smoke.ts http://localhost:5599
+          S2=$?
           kill $APP_PID || true
-          exit $STATUS
+          exit $(( S1 | S2 ))
+
+  # Menjaga template `dotnet new`: instantiate kedua jalur (proto & none) harus build,
+  # dan rename harus bersih (tak ada sisa identitas sumber).
+  template:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install template
+        run: dotnet new install .
+
+      - name: Instantiate (proto, + rename) → build
+        run: |
+          dotnet new speca-platform -n CiProto --app-name Web -o /tmp/ciproto --no-restore
+          test "$(grep -rIi speca /tmp/ciproto --include=*.cs --include=*.csproj --include=*.cshtml | wc -l)" = "0"
+          test "$(grep -rIiw portal /tmp/ciproto --include=*.cs --include=*.csproj --include=*.cshtml | wc -l)" = "0"
+          dotnet build /tmp/ciproto/Apps/Web/CiProto.Web.csproj -c Debug --nologo
+
+      - name: Instantiate (--data-comm none) → build + assert tanpa gRPC
+        run: |
+          dotnet new speca-platform -n CiNone --data-comm none -o /tmp/cinone --no-restore
+          test ! -d /tmp/cinone/Libs/Contracts
+          test "$(grep -rIF 'AddGrpc' /tmp/cinone/Apps/Portal --include=*.cs | wc -l)" = "0"
+          dotnet build /tmp/cinone/Apps/Portal/CiNone.Portal.csproj -c Debug --nologo
