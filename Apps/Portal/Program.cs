@@ -1,6 +1,9 @@
 
 using Microsoft.AspNetCore.HttpOverrides;
 using Speca.Core.Extensions;
+#if (useAuth)
+using Speca.Data;
+#endif
 #if (proto)
 using Speca.Portal.Services;
 #endif
@@ -13,6 +16,12 @@ var ApplicationConfig = config.GetSection("Application");
 
 builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();
+
+#if (useAuth)
+// ---- Data HYBRID: EF Core (Identity + skema/migrasi) + Dapper (query objects).
+// DB default SQLite (ConnectionStrings:Default). Lihat Libs/Data. ----
+builder.Services.AddSpecaData(config);
+#endif
 
 #if (proto)
 // ---- gRPC + gRPC-Web (kontrak di Libs/Contracts/Protos/*.proto) ----
@@ -96,30 +105,93 @@ builder.Services.AddSpecaMenu(menu =>
 {
     menu.Items.AddRange(
     [
+        // Landing
         new MenuItem
         {
-            Title = "Preview Theme",
+            Title = "Preview Tema",
             Url = "/",
             Icon = "ti ti-home",
             MobilePrimary = true,
             ShortLabel = "Home",
         },
+
+        // ───────────── 1. Layouts (contoh struktur layout) ─────────────
+        new MenuItem { Title = "Layouts", IsHeading = true },
+        // Blank TIDAK di-link: layout blank tak punya menu (dead-end); dipakai oleh Auth & Error.
+        new MenuItem { Title = "Vertikal (Default)", Url = "/?layout=vertical", Icon = "ti ti-layout-sidebar" },
+        new MenuItem { Title = "Horizontal (Topbar)", Url = "/Layout2", Icon = "ti ti-layout-navbar" },
+
+        // ───────────── 2. Themes (pilihan tema) ─────────────
+        new MenuItem { Title = "Themes", IsHeading = true },
+#if (useTheme1)
+        new MenuItem { Title = "Tema 1 — Metronic", Url = "/Dashboards/Metronic", Icon = "ti ti-layout-2" },
+#endif
+#if (useTheme2)
+        new MenuItem { Title = "Tema 2 — Vuexy", Url = "/Dashboards/Vuexy", Icon = "ti ti-layout-grid" },
+#endif
+
+        // ───────────── 3. Components (dasar · tambahan · lanjutan) ─────────────
+        new MenuItem { Title = "Components", IsHeading = true },
+        new MenuItem { Title = "Komponen (Galeri)", Url = "/Components", Icon = "ti ti-components" },
         new MenuItem
         {
-            Title = "Dashboard Metronic",
-            Url = "/Dashboards/Metronic",
-            Icon = "ti ti-layout-2",
+            Title = "Tabel Data",
+            Url = "/Tables",
+            Icon = "ti ti-table",
+            MobilePrimary = true,
+            ShortLabel = "Tabel",
         },
         new MenuItem
         {
-            Title = "Dashboard Vuexy",
-            Url = "/Dashboards/Vuexy",
-            Icon = "ti ti-layout-grid",
+            Title = "Charts",
+            Url = "/Charts",
+            Icon = "ti ti-chart-line",
+            MobilePrimary = true,
+            ShortLabel = "Chart",
         },
+        new MenuItem { Title = "Form Repeater", Url = "/RepeaterDemo", Icon = "ti ti-list-details" },
+        new MenuItem { Title = "Kalender (FullCalendar)", Url = "/Calendar", Icon = "ti ti-calendar-event" },
+        new MenuItem { Title = "Widget Lanjutan", Url = "/Advanced", Icon = "ti ti-stack-2" },
+
+        // ───────────── 4. Apps (contoh aplikasi / fitur kompleks) ─────────────
+        new MenuItem { Title = "Apps", IsHeading = true },
+        new MenuItem { Title = "Pengaturan", Url = "/Settings", Icon = "ti ti-settings" },
+#if (useAuth)
+        new MenuItem { Title = "Produk (EF + Dapper)", Url = "/Products", Icon = "ti ti-database" },
+#endif
+        new MenuItem { Title = "Demo React (Razor↔React)", Url = "/ReactDemo", Icon = "ti ti-brand-react" },
+#if (proto)
+        new MenuItem { Title = "Demo gRPC (Proto)", Url = "/RpcDemo", Icon = "ti ti-binary-tree" },
+#endif
+        new MenuItem
+        {
+            Title = "Autentikasi",
+            Icon = "ti ti-lock-access",
+            Children =
+            [
+                new MenuItem { Title = "Masuk (Login)", Url = "/Account/Login", Icon = "ti ti-login" },
+                new MenuItem { Title = "Daftar (Register)", Url = "/Account/Register", Icon = "ti ti-user-plus" },
+                new MenuItem { Title = "Lupa Password", Url = "/Account/ForgotPassword", Icon = "ti ti-key" },
+            ],
+        },
+        new MenuItem
+        {
+            // Halaman utilitas ber-layout blank — sejenis dgn Auth, jadi dikelompokkan di sini.
+            Title = "Halaman Error",
+            Icon = "ti ti-alert-triangle",
+            Children =
+            [
+                new MenuItem { Title = "Error 404", Url = "/StatusCode/404", Icon = "ti ti-mood-sad" },
+                new MenuItem { Title = "Error 500", Url = "/Error", Icon = "ti ti-alert-triangle" },
+            ],
+        },
+
+        // ───────────── 5. Lainnya — demo kemampuan komponen MENU (bukan halaman) ─────────────
+        new MenuItem { Title = "Lainnya (Demo Menu)", IsHeading = true },
         new MenuItem
         {
             // Demo MULTI-LEVEL: sidebar = accordion; horizontal = flyout ke samping (ala Vuexy).
-            Title = "Katalog",
+            Title = "Menu Multi-level",
             Icon = "ti ti-list-tree",
             Children =
             [
@@ -158,27 +230,6 @@ builder.Services.AddSpecaMenu(menu =>
                 new MenuItem { Title = "Promo Spesial", Url = "#", Icon = "ti ti-discount-2" },
             ],
         },
-        new MenuItem { Title = "Tampilan", IsHeading = true },
-        new MenuItem
-        {
-            Title = "Layout 2 — Horizontal",
-            Url = "/Layout2",
-            Icon = "ti ti-layout-navbar",
-        },
-        new MenuItem
-        {
-            Title = "Demo React",
-            Url = "/ReactDemo",
-            Icon = "ti ti-brand-react",
-        },
-#if (proto)
-        new MenuItem
-        {
-            Title = "Demo gRPC (Proto)",
-            Url = "/RpcDemo",
-            Icon = "ti ti-binary-tree",
-        },
-#endif
         new MenuItem
         {
             Title = "Mega Menu",
@@ -220,67 +271,7 @@ builder.Services.AddSpecaMenu(menu =>
         },
         new MenuItem
         {
-            Title = "Components",
-            Url = "/Components",
-            Icon = "ti ti-components",
-        },
-        new MenuItem
-        {
-            Title = "Tabel Data",
-            Url = "/Tables",
-            Icon = "ti ti-table",
-            MobilePrimary = true,
-            ShortLabel = "Tabel",
-        },
-        new MenuItem
-        {
-            Title = "Charts",
-            Url = "/Charts",
-            Icon = "ti ti-chart-line",
-            MobilePrimary = true,
-            ShortLabel = "Chart",
-        },
-        new MenuItem
-        {
-            Title = "Pengaturan",
-            Url = "/Settings",
-            Icon = "ti ti-settings",
-        },
-        new MenuItem { Title = "Halaman Auth & Error", IsHeading = true },
-        new MenuItem
-        {
-            Title = "Masuk (Login)",
-            Url = "/Account/Login",
-            Icon = "ti ti-login",
-        },
-        new MenuItem
-        {
-            Title = "Daftar (Register)",
-            Url = "/Account/Register",
-            Icon = "ti ti-user-plus",
-        },
-        new MenuItem
-        {
-            Title = "Lupa Password",
-            Url = "/Account/ForgotPassword",
-            Icon = "ti ti-key",
-        },
-        new MenuItem
-        {
-            Title = "Error 404",
-            Url = "/StatusCode/404",
-            Icon = "ti ti-mood-sad",
-        },
-        new MenuItem
-        {
-            Title = "Error 500",
-            Url = "/Error",
-            Icon = "ti ti-alert-triangle",
-        },
-        new MenuItem { Title = "Contoh Fitur Menu", IsHeading = true },
-        new MenuItem
-        {
-            Title = "Bertingkat 3 Level",
+            Title = "Menu Bertingkat (Badge)",
             Icon = "ti ti-sitemap",
             Badge = "3",
             Children =
@@ -299,7 +290,7 @@ builder.Services.AddSpecaMenu(menu =>
         },
         new MenuItem
         {
-            Title = "Notifikasi",
+            Title = "Notifikasi (Badge)",
             Url = "#",
             Icon = "ti ti-bell",
             Badge = "5",
@@ -307,7 +298,7 @@ builder.Services.AddSpecaMenu(menu =>
         },
         new MenuItem
         {
-            Title = "Segera Hadir",
+            Title = "Segera Hadir (Disabled)",
             Url = "#",
             Icon = "ti ti-lock",
             Disabled = true,
@@ -325,6 +316,12 @@ builder.Services.AddSpecaMenu(menu =>
 });
 
 var app = builder.Build();
+
+#if (useAuth)
+// Terapkan migrasi EF saat startup → buat/upgrade SQLite + seed (demo; untuk produksi
+// pertimbangkan migrasi terpisah dari startup).
+app.Services.MigrateSpecaDatabase();
+#endif
 
 // PALING AWAL: terjemahkan X-Forwarded-* dari reverse proxy menjadi scheme/IP asli
 // SEBELUM middleware lain (HTTPS-redirect, security headers, antiforgery) membacanya.
@@ -360,7 +357,9 @@ app.UseGrpcWeb();
 app.UseCookiePolicy();
 app.UseCors("SpecaCors");
 
-// Tambahkan app.UseAuthentication() di sini bila memakai autentikasi.
+#if (useAuth)
+app.UseAuthentication();
+#endif
 app.UseAuthorization();
 
 app.MapStaticAssets();

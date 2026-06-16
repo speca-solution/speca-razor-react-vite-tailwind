@@ -53,6 +53,52 @@
     "proto": {
       "type": "computed",
       "value": "(dataComm == \"proto\")"
+    },
+    "theme": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        { "choice": "both", "description": "Kedua tema (theme1 Metronic + theme2 Vuexy) + preview banding." },
+        { "choice": "theme1", "description": "Hanya theme1 (rasa Metronic)." },
+        { "choice": "theme2", "description": "Hanya theme2 (rasa Vuexy)." }
+      ],
+      "defaultValue": "both",
+      "description": "Tema yang disertakan. 'both' = showcase 2 tema; satu tema = file tema lain + dashboard-nya dibuang & style.css memakai tema terpilih."
+    },
+    "useTheme1": {
+      "type": "computed",
+      "value": "(theme == \"both\" || theme == \"theme1\")"
+    },
+    "useTheme2": {
+      "type": "computed",
+      "value": "(theme == \"both\" || theme == \"theme2\")"
+    },
+    "themeAggregate": {
+      "type": "generated",
+      "generator": "switch",
+      "replaces": "_theme1",
+      "parameters": {
+        "evaluator": "C++",
+        "datatype": "string",
+        "cases": [
+          { "condition": "(theme == \"theme2\")", "value": "_theme2" },
+          { "condition": "", "value": "_theme1" }
+        ]
+      }
+    },
+    "dataAuth": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        { "choice": "none", "description": "Tanpa auth/DB." },
+        { "choice": "identity", "description": "ASP.NET Identity + EF Core + Dapper (Libs/Data, SQLite, demo /Products)." }
+      ],
+      "defaultValue": "none",
+      "description": "Sertakan auth + akses data: ASP.NET Identity (EF Core) + query Dapper di Libs/Data. Default none (instance ramping). (Simbol BUKAN bernama 'auth' agar tak dibajak UI 'Authentication type' bawaan VS.)"
+    },
+    "useAuth": {
+      "type": "computed",
+      "value": "(dataAuth == \"identity\")"
     }
   },
   "sources": [
@@ -64,7 +110,6 @@
             "**/[Oo]bj/**",
             "**/node_modules/**",
             "**/wwwroot/dist/**",
-            "**/wwwroot/assets/media/**",
             "**/.vs/**",
             "**/.git/**",
             "**/.github/workflows/*.cache",
@@ -91,6 +136,37 @@
             "buf.yaml",
             "buf.gen.yaml",
             "scripts/rpc-smoke.ts"
+          ]
+        },
+        {
+          "condition": "(!useAuth)",
+          "exclude": [
+            "Libs/Data/**",
+            "Apps/Portal/Pages/Products.cshtml",
+            "Apps/Portal/Pages/Products.cshtml.cs",
+            "Apps/Portal/Pages/Account/Logout.cshtml",
+            "Apps/Portal/Pages/Account/Logout.cshtml.cs",
+            ".config/dotnet-tools.json"
+          ]
+        },
+        {
+          "condition": "(!useTheme1)",
+          "exclude": [
+            "Libs/UI/Assets/Themes/theme1/**",
+            "Libs/UI/Assets/Themes/_theme1.css",
+            "Libs/UI/Assets/Themes/style01.css",
+            "Apps/Portal/Pages/Dashboards/Metronic.cshtml",
+            "Apps/Portal/Pages/Dashboards/Metronic.cshtml.cs"
+          ]
+        },
+        {
+          "condition": "(!useTheme2)",
+          "exclude": [
+            "Libs/UI/Assets/Themes/theme2/**",
+            "Libs/UI/Assets/Themes/_theme2.css",
+            "Libs/UI/Assets/Themes/style02.css",
+            "Apps/Portal/Pages/Dashboards/Vuexy.cshtml",
+            "Apps/Portal/Pages/Dashboards/Vuexy.cshtml.cs"
           ]
         }
       ]

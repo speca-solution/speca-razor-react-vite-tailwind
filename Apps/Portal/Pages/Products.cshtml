@@ -1,0 +1,37 @@
+@page
+@model ProductsModel
+@{
+    ViewData["Title"] = "Produk (Data)";
+}
+
+@section Breadcrumb {
+    <div class="flex flex-col gap-2 pb-7.5">
+        <h1 class="text-mono text-xl leading-none font-medium">Produk — EF Core + Dapper</h1>
+        <div class="text-secondary-foreground text-sm">
+            Pola <strong>hybrid</strong>: skema &amp; seed dikelola <strong>EF Core</strong> (migrasi),
+            data dibaca via <strong>Dapper</strong> (<code>IProductQueries</code>, SQL eksplisit). DB SQLite
+            (<code>app.db</code>) dibuat otomatis saat startup. Auth: <a class="text-primary hover:underline" href="/Account/Register">daftar</a> / <a class="text-primary hover:underline" href="/Account/Login">masuk</a>.
+        </div>
+    </div>
+}
+
+<div class="card">
+    <div class="card-header"><h3 class="card-title">Produk (urut stok ↓, via Dapper)</h3></div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr><th>Nama</th><th class="text-right">Harga</th><th class="text-right">Stok</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model.Products)
+                {
+                    <tr>
+                        <td>@p.Name</td>
+                        <td class="text-right">Rp @p.Price.ToString("N0")</td>
+                        <td class="text-right">@p.Stock</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,100 @@
+@page
+@{
+    ViewData["Title"] = "Widget Lanjutan";
+}
+
+@section Breadcrumb {
+    <div class="flex flex-wrap items-center justify-between gap-4 pb-7.5">
+        <div class="flex flex-col gap-2">
+            <h1 id="adv-title" class="text-mono text-xl leading-none font-medium">Widget Lanjutan</h1>
+            <div class="text-secondary-foreground text-sm">
+                Vendor <strong>opsional</strong>: Shepherd (tur), SortableJS (kanban), Leaflet (peta).
+                Dimuat hanya di halaman ini; warna ikut tema aktif.
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary" data-tour-start="#tourSteps">
+            <i class="ti ti-route"></i> Mulai tur
+        </button>
+    </div>
+}
+
+@* Langkah tur sebagai JSON (aman-CSP) — dibaca vendors/shepherd. *@
+<script type="application/json" id="tourSteps" data-tour-steps>
+[
+    { "element": "#adv-title", "on": "bottom", "title": "Selamat datang 👋", "text": "Ini demo widget lanjutan. Tur ini dibuat dengan Shepherd.js — konfigurasi via JSON." },
+    { "element": "#card-swiper", "on": "bottom", "title": "Carousel", "text": "Slider sentuh Swiper — geser, panah, atau titik. Warna kontrol mengikuti tema." },
+    { "element": "#card-kanban", "on": "top", "title": "Papan Kanban", "text": "Seret kartu antar kolom. Dibangun dari SortableJS (group sama = bisa saling tukar)." },
+    { "element": "#card-map", "on": "top", "title": "Peta", "text": "Peta interaktif Leaflet + tile OpenStreetMap. Penanda berwarna mengikuti tema." }
+]
+</script>
+
+<div class="grid gap-5 xl:grid-cols-2">
+    <!-- Carousel -->
+    <div id="card-swiper" class="card xl:col-span-2">
+        <div class="card-header"><h3 class="card-title">Carousel (Swiper)</h3>
+            <span class="text-muted-foreground text-xs">geser · panah · titik · keyboard</span>
+        </div>
+        <div class="card-body">
+            <div class="swiper" data-swiper>
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide"><div class="bg-primary/10 text-primary flex h-44 flex-col items-center justify-center gap-2"><i class="ti ti-rocket text-3xl"></i><span class="font-medium">Cepat &amp; ringan</span></div></div>
+                    <div class="swiper-slide"><div class="bg-mono/5 text-mono flex h-44 flex-col items-center justify-center gap-2"><i class="ti ti-shield-check text-3xl"></i><span class="font-medium">Aman (CSP ketat)</span></div></div>
+                    <div class="swiper-slide"><div class="bg-primary/10 text-primary flex h-44 flex-col items-center justify-center gap-2"><i class="ti ti-palette text-3xl"></i><span class="font-medium">Dua tema</span></div></div>
+                    <div class="swiper-slide"><div class="bg-muted text-foreground flex h-44 flex-col items-center justify-center gap-2"><i class="ti ti-puzzle text-3xl"></i><span class="font-medium">Komponen lengkap</span></div></div>
+                </div>
+                <div class="swiper-pagination"></div>
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-next"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kanban -->
+    <div id="card-kanban" class="card xl:col-span-2">
+        <div class="card-header"><h3 class="card-title">Kanban (SortableJS)</h3>
+            <span class="text-muted-foreground text-xs">seret kartu antar kolom</span>
+        </div>
+        <div class="card-body grid gap-4 sm:grid-cols-3">
+            @{
+                var cols = new (string Title, string Variant, string[] Cards)[]
+                {
+                    ("To Do", "secondary", new[] { "Riset kompetitor", "Wireframe halaman", "Setup CI" }),
+                    ("Proses", "warning", new[] { "Komponen tabel", "Integrasi gRPC" }),
+                    ("Selesai", "success", new[] { "Skema warna", "Layout dasar" }),
+                };
+            }
+            @foreach (var col in cols)
+            {
+                <div class="bg-muted/40 flex flex-col gap-2 rounded-lg p-2.5">
+                    <div class="flex items-center justify-between px-1">
+                        <span class="text-sm font-medium">@col.Title</span>
+                        <span class="badge badge-@col.Variant badge-sm">@col.Cards.Length</span>
+                    </div>
+                    <ul data-sortable data-sortable-group="board" class="flex min-h-16 flex-col gap-2">
+                        @foreach (var card in col.Cards)
+                        {
+                            <li class="bg-background border-border cursor-grab rounded-md border px-3 py-2 text-sm shadow-sm">@card</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Peta -->
+    <div id="card-map" class="card xl:col-span-2">
+        <div class="card-header"><h3 class="card-title">Peta (Leaflet)</h3>
+            <span class="text-muted-foreground text-xs">OpenStreetMap · penanda ikut tema</span>
+        </div>
+        <div class="card-body">
+            <div data-map data-lat="-6.1751" data-lng="106.8650" data-zoom="12" data-label="Jakarta"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <vite-asset src="Libs/UI/Assets/Vendors/swiper/index.js" />
+    <vite-asset src="Libs/UI/Assets/Vendors/shepherd/index.js" />
+    <vite-asset src="Libs/UI/Assets/Vendors/sortablejs/index.js" />
+    <vite-asset src="Libs/UI/Assets/Vendors/leaflet/index.js" />
+}

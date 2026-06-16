@@ -1,0 +1,18 @@
+/* Leaflet — kontainer butuh tinggi eksplisit; selaraskan radius & popup dgn token tema.
+   z-index:0 + isolation agar pane peta tak menimpa dropdown/menu aplikasi. */
+[data-map] {
+    min-height: 360px;
+    border-radius: var(--radius, 0.5rem);
+    position: relative;
+    z-index: 0;
+    isolation: isolate;
+}
+.leaflet-container { background: var(--muted, #e5e7eb); font: inherit; }
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip { background: var(--card, var(--background)); color: var(--foreground); }
+.leaflet-bar a {
+    background: var(--card, var(--background));
+    color: var(--foreground);
+    border-bottom-color: var(--border);
+}
+.leaflet-bar a:hover { background: var(--muted); }

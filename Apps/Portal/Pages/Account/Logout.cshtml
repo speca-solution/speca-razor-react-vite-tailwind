@@ -1,0 +1,20 @@
+@page
+@model LogoutModel
+@{
+    ViewData["Title"] = "Keluar";
+    Layout = "_LayoutBlank";
+}
+
+<div class="flex min-h-screen items-center justify-center p-5">
+    <div class="card w-full max-w-sm">
+        <div class="card-body flex flex-col items-center gap-4 text-center">
+            <i class="ti ti-logout text-primary text-3xl"></i>
+            <p class="text-secondary-foreground text-sm">Keluar dari sesi Anda?</p>
+            <form method="post" class="w-full">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-primary w-full">Keluar</button>
+            </form>
+            <a href="/" class="text-primary text-sm hover:underline">Batal</a>
+        </div>
+    </div>
+</div>

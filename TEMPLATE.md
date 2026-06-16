@@ -18,6 +18,8 @@ Metadata template ada di [`.template.config/`](.template.config/):
 | Nama solution | `-n` / `--name` | `MyApp` | `Speca` (PascalCase) + `speca` (lowercase) + `SPECA`→tidak ada (sudah generik) | `Speca.Core` → `Acme.Core`, `@speca/platform` → `@acme/platform`, cookie `speca.antiforgery` → `acme.antiforgery` |
 | Nama project app | `--app-name` / `-a` | `Portal` | `Portal` (PascalCase) + `portal` (lowercase) | folder `Apps/Portal` → `Apps/Web`, `Speca.Portal.csproj` → `Acme.Web.csproj`, `appsettings name` `speca.portal` → `acme.web` |
 | Jalur data gRPC/Proto | `--data-comm` | `proto` | `proto` \| `none` | `none` = tanpa `Libs/Contracts`, server gRPC, & demo `/RpcDemo` (lihat §6) |
+| Tema disertakan | `--theme` / `-t` | `both` | `both` \| `theme1` \| `theme2` | satu tema = file tema lain + dashboard-nya dibuang; `style.css` otomatis pakai tema terpilih |
+| Auth + Data | `--auth` | `none` | `none` \| `identity` | `identity` = ASP.NET Identity + EF Core + Dapper (`Libs/Data`, SQLite, demo `/Products`); `none` = tanpa DB (halaman auth jadi mockup) |
 | Lewati restore | `--no-restore` | `false` | — | tidak menjalankan `dotnet restore` otomatis |
 
 > **Apa yang ikut berganti otomatis** (terverifikasi: `grep -ri speca|portal` pada hasil = **0**):
@@ -78,7 +80,7 @@ dotnet run --project Apps/Web/Acme.Web.csproj
 
 `dotnet new install .` cukup untuk pemakaian lokal. Untuk dibagikan via feed (NuGet privat /
 GitHub Packages), project template-pack **sudah disediakan**: [`packaging/Speca.Templates.csproj`](packaging/Speca.Templates.csproj)
-(`PackageType=Template`, membungkus root repo sebagai `content/`, mengecualikan `bin/obj/node_modules/dist/.git/.vs/_pub/certs/` + `wwwroot/assets/media`).
+(`PackageType=Template`, membungkus root repo sebagai `content/`, mengecualikan `bin/obj/node_modules/dist/.git/.vs/_pub/certs/`).
 
 ```bash
 dotnet pack packaging/Speca.Templates.csproj -o ./_nupkg
@@ -106,11 +108,53 @@ Diatur di `template.json > sources.modifiers.exclude`:
 ## 5. Verifikasi (yang sudah diuji)
 
 Diuji dengan `-n Acme --app-name Web`:
-1. Struktur ter-rename: `Acme Platform.slnx`, `Apps/Web/Acme.Web.csproj`, `Acme.Core/UI/Core.Tests`, `Acme.Contracts`. ✓
+1. Struktur ter-rename: `Acme.slnx` (solution), `Apps/Web/Acme.Web.csproj`, `Acme.Core/UI/Core.Tests`, `Acme.Contracts`. ✓
 2. `grep -ri speca` & `grep -riw portal` pada hasil = **0**. ✓
 3. `dotnet publish -c Release` → vite build + compile + publish **sukses**. ✓
 4. Jalankan hasil publish + `node scripts/smoke-test.mjs` → **15/15 halaman 200, CSP produksi bersih**. ✓
 5. gRPC round-trip pada instance ter-rename: `node scripts/rpc-smoke.ts` → balasan typed, int64→bigint. ✓
+6. Matrix CLI tema×data-comm: `both/theme1/theme2` × `proto/none` (termasuk sudut theme1+none & theme2+none) → instantiate + build **sukses**, exclude benar. ✓
+
+---
+
+## 5b. Uji di Visual Studio 2026 (GUI) — checklist manual
+
+Metadata GUI ada di [`.template.config/ide.host.json`](.template.config/ide.host.json) (label parameter).
+Parameter `choice` (`--theme`, `--data-comm`) muncul sebagai **dropdown** di halaman *Additional information*.
+
+**Langkah:**
+1. Pasang template agar VS melihatnya: `dotnet new install .` (di root repo). VS 2022+/2026 membaca template `dotnet new` yang terpasang.
+2. VS 2026 → **File → New → Project** → cari **"Speca Platform"** → **Next**.
+3. **WAJIB centang "Place solution and project in the same directory"** (kalau tidak, VS membungkus
+   solution → `package.json` ter-nesting & `pnpm i` gagal — lihat ⚠️ di bawah).
+4. Halaman **Additional information**: isi **Nama project aplikasi**, pilih **Tema** (both/theme1/theme2) & **Jalur data gRPC/Proto** (proto/none) dari dropdown → **Create**.
+5. **F5** → halaman ter-render (build pertama menjalankan `pnpm i` + `vite build` otomatis).
+6. **Build → Publish** → publish sukses.
+
+**Matrix yang diuji** (centang tiap kombinasi):
+
+| Tema \ Data | `proto` | `none` |
+|---|---|---|
+| `both` | ☐ F5 ☐ publish | ☐ F5 ☐ publish |
+| `theme1` | ☐ F5 ☐ publish | ☐ F5 ☐ publish |
+| `theme2` | ☐ F5 ☐ publish | ☐ F5 ☐ publish |
+
+> Keenam kombinasi sudah divalidasi **instantiate+build via CLI** (template & engine sama persis dengan
+> yang dibaca VS) — uji GUI ini terutama mengonfirmasi **UX dialog + alur F5/Publish** di IDE.
+
+**⚠️ Nesting di VS New Project.** VS bisa membungkus solution → membuat `Lokasi\Nama\Nama\` (isi solution
++ `package.json` ada di subfolder kedua) dan `.slnx` pembungkus sendiri di atas. Akibatnya `pnpm i` di root
+atas gagal (`ERR_PNPM_NO_PKG_MANIFEST`). Cara menghindari:
+> - **Centang "Place solution and project in the same directory"** di dialog New Project, **atau**
+> - Instantiate via **CLI** (`dotnet new speca-platform -n MyApp`) — tidak pernah nesting.
+>
+> Walau ter-nesting, build tetap jalan: deteksi root vite pakai `$(MSBuildProjectDirectory)\..\..\`
+> (relatif project, bukan `$(SolutionDir)`) sehingga selalu menemukan `package.json` yang benar.
+
+**Solution Explorer ber-folder.** File solusi `<Nama>.slnx` sudah mengelompokkan project ke **solution
+folder** (virtual): `Apps/`, `Libs/`, `Tests/`, `Solution Items/` — tampil sebagai folder di Solution
+Explorer VS (bukan folder disk). Nama `<Nama>.slnx` kini **sama** dengan yang VS harapkan, sehingga VS
+sebaiknya memakai file template ber-folder ini langsung. (Via `dotnet new` CLI selalu satu file ber-folder.)
 
 ---
 

@@ -19,6 +19,10 @@
     <div class="card-body">
         <form method="post" data-val="true" novalidate>
             @Html.AntiForgeryToken()
+            @if (Model.ErrorMessage is not null)
+            {
+                <div class="alert alert-danger mb-4"><i class="ti ti-alert-triangle"></i><span>@Model.ErrorMessage</span></div>
+            }
             <div class="flex flex-col gap-4">
                 <div>
                     <label asp-for="Input.FullName" class="form-label">Nama Lengkap</label>

@@ -2,5 +2,23 @@
    Catatan jujur: override dasar vendor (Grid.js, DataTables, flatpickr, Tom Select,
    Pickr, Quill) bersifat theme-agnostic (pakai var(--*)) dan tinggal di
    Assets/Vendors/<vendor>/_theme.css|_overrides.css — dimuat HANYA saat vendornya
-   dimuat (bukan global). File ini hanya untuk tweak vendor yang spesifik theme1.
-   Saat ini kosong. */
+   dimuat (bukan global). File ini hanya untuk tweak vendor yang spesifik theme1. */
+
+/* FullCalendar — CIRIKHAS THEME1 (Metronic): rapat, border tegas, event SOLID kotak,
+   tombol flat kapital. Aktif hanya bila vendor fullcalendar dimuat (ada elemen .fc). */
+.fc {
+    --fc-event-bg-color: var(--primary);
+    --fc-event-border-color: var(--primary);
+    --fc-event-text-color: var(--primary-foreground);
+    --fc-today-bg-color: color-mix(in oklab, var(--primary) 8%, transparent);
+}
+.fc .fc-button-primary {
+    border-radius: var(--radius, 0.375rem);
+    font-weight: 600;
+    text-transform: capitalize;
+}
+.fc .fc-button-primary:hover { background: color-mix(in oklab, var(--primary) 88%, black); }
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active { background: color-mix(in oklab, var(--primary) 78%, black); }
+.fc .fc-event,
+.fc .fc-daygrid-event { border-radius: 0.25rem; font-weight: 500; }

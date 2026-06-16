@@ -1,13 +1,22 @@
+#if (useAuth)
+using Microsoft.AspNetCore.Identity;
+#endif
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 
 namespace Speca.Portal.Pages.Account;
 
+#if (useAuth)
+public class RegisterModel(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager) : PageModel
+#else
 public class RegisterModel : PageModel
+#endif
 {
     [BindProperty]
     public InputModel Input { get; set; } = new();
+
+    public string? ErrorMessage { get; set; }
 
     public class InputModel
     {
@@ -40,10 +49,30 @@ public class RegisterModel : PageModel
 
     public void OnGet() { }
 
+#if (useAuth)
+    public async Task<IActionResult> OnPostAsync()
+    {
+        if (!ModelState.IsValid) return Page();
+
+        // UserName = Email agar bisa login dengan email. (FullName demo: bisa disimpan
+        // sebagai claim/kolom kustom bila perlu.)
+        var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
+        var result = await userManager.CreateAsync(user, Input.Password);
+        if (result.Succeeded)
+        {
+            await signInManager.SignInAsync(user, isPersistent: false);
+            return RedirectToPage("/Index");
+        }
+
+        ErrorMessage = string.Join(" ", result.Errors.Select(e => e.Description));
+        return Page();
+    }
+#else
     public IActionResult OnPost()
     {
         if (!ModelState.IsValid) return Page();
-        // TODO: sambungkan ke ASP.NET Identity
+        // Demo UI saja. Aktifkan auth nyata: dotnet new speca-platform --auth identity
         return RedirectToPage("/Account/Login");
     }
+#endif
 }

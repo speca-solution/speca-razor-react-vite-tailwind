@@ -1,4 +1,31 @@
 /* THEME2 — penyesuaian VENDOR khusus theme2 (opsional).
    Override dasar vendor bersifat theme-agnostic (var-based) dan tinggal di
    Assets/Vendors/<vendor>/ (dimuat per-vendor). File ini hanya untuk tweak vendor
-   yang spesifik theme2. Saat ini kosong. */
+   yang spesifik theme2. */
+
+/* FullCalendar — CIRIKHAS THEME2 (Vuexy): lembut & lapang, event TINTED membulat,
+   tombol pill ber-shadow, today halus. Aktif hanya bila vendor fullcalendar dimuat. */
+.fc {
+    --fc-border-color: color-mix(in oklab, var(--border) 70%, transparent);
+    --fc-event-bg-color: color-mix(in oklab, var(--primary) 16%, transparent);
+    --fc-event-border-color: transparent;
+    --fc-event-text-color: var(--primary);
+    --fc-today-bg-color: color-mix(in oklab, var(--primary) 6%, transparent);
+}
+.fc .fc-button-primary {
+    border-radius: 9999px;
+    border-color: transparent;
+    padding-inline: 0.95rem;
+    font-weight: 500;
+    box-shadow: 0 2px 6px color-mix(in oklab, var(--primary) 35%, transparent);
+}
+.fc .fc-button-primary:hover { background: color-mix(in oklab, var(--primary) 90%, white); }
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active { background: color-mix(in oklab, var(--primary) 85%, black); }
+.fc .fc-event,
+.fc .fc-daygrid-event {
+    border-radius: 0.5rem;
+    padding-inline: 0.3rem;
+    font-weight: 500;
+}
+.fc .fc-daygrid-day-frame { padding: 2px; }

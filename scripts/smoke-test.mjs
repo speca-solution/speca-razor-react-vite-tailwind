@@ -12,13 +12,23 @@ const headers = { 'X-Forwarded-Proto': 'https' };
 const get = (url) => fetch(url, { headers });
 
 const pages = [
-    '/', '/Layout2', '/Components', '/Tables', '/Charts', '/Privacy',
-    '/Dashboards/Metronic', '/Dashboards/Vuexy', '/ReactDemo',
+    '/', '/Layout2', '/Components', '/RepeaterDemo', '/Calendar', '/Advanced', '/Tables', '/Charts', '/Privacy',
+//#if (useTheme1)
+    '/Dashboards/Metronic',
+//#endif
+//#if (useTheme2)
+    '/Dashboards/Vuexy',
+//#endif
+    '/ReactDemo',
 //#if (proto)
     '/RpcDemo',
 //#endif
     '/Account/Login', '/Account/Register', '/Account/ForgotPassword',
-    '/Settings', '/StatusCode/404',
+    '/Settings',
+//#if (useAuth)
+    '/Products',
+//#endif
+    '/StatusCode/404',
 ];
 
 let failed = false;

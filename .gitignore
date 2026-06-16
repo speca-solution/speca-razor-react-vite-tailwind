@@ -275,3 +275,8 @@ certs/
 _nupkg/
 packaging/bin/
 packaging/obj/
+
+# SQLite (dibuat runtime; skema via migrasi EF)
+app.db
+app.db-shm
+app.db-wal

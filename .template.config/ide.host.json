@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json.schemastore.org/vs-2017.3.host",
+  "symbolInfo": [
+    {
+      "id": "AppName",
+      "name": { "text": "Nama project aplikasi (Apps/<nama>)" },
+      "isVisible": "true"
+    },
+    {
+      "id": "theme",
+      "name": { "text": "Tema disertakan (both / theme1 / theme2)" },
+      "isVisible": "true"
+    },
+    {
+      "id": "dataComm",
+      "name": { "text": "Jalur data gRPC/Proto" },
+      "isVisible": "true"
+    },
+    {
+      "id": "dataAuth",
+      "name": { "text": "Auth + Data (Identity + EF Core + Dapper)" },
+      "isVisible": "true"
+    },
+    {
+      "id": "skipRestore",
+      "name": { "text": "Lewati 'dotnet restore' otomatis" },
+      "isVisible": "true"
+    }
+  ]
+}

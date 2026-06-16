@@ -1,0 +1,41 @@
+@page
+@{
+    ViewData["Title"] = "Kalender";
+}
+
+@section Breadcrumb {
+    <div class="flex flex-col gap-2 pb-7.5">
+        <h1 class="text-mono text-xl leading-none font-medium">Kalender — FullCalendar</h1>
+        <div class="text-secondary-foreground text-sm">
+            Vendor <strong>opsional</strong> (MIT), dimuat hanya di halaman ini. Konfigurasi via JSON
+            (aman-CSP). Tampilan punya <strong>cirikhas berbeda di theme1 &amp; theme2</strong> — bandingkan di
+            <a class="text-primary hover:underline" href="/?page=calendar">Preview</a>.
+        </div>
+    </div>
+}
+
+<div class="card">
+    <div class="card-body">
+        @* Auto-init: konfigurasi (events, view) sebagai JSON — dibaca vendors/fullcalendar. *@
+        <div data-fullcalendar>
+            <script type="application/json">
+            {
+                "initialView": "dayGridMonth",
+                "initialDate": "2026-06-15",
+                "events": [
+                    { "title": "Rapat Tim", "start": "2026-06-03" },
+                    { "title": "Sprint Review", "start": "2026-06-09", "end": "2026-06-11" },
+                    { "title": "Rilis v1.0", "start": "2026-06-15" },
+                    { "title": "Workshop UI", "start": "2026-06-18T09:00:00", "end": "2026-06-18T12:00:00" },
+                    { "title": "Retro", "start": "2026-06-24" },
+                    { "title": "Deploy Produksi", "start": "2026-06-27" }
+                ]
+            }
+            </script>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <vite-asset src="Libs/UI/Assets/Vendors/fullcalendar/index.js" />
+}

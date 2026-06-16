@@ -1,0 +1,25 @@
+/* Shepherd — selaraskan popup tur dengan token tema (warna ikut --primary,
+   jadi otomatis beda di theme1 vs theme2 + aman dark mode). */
+.shepherd-element.speca-shepherd {
+    background: var(--card, var(--background));
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    border-radius: var(--radius, 0.5rem);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+    max-width: 22rem;
+}
+.speca-shepherd .shepherd-header { background: transparent; padding: 0.85rem 1rem 0; }
+.speca-shepherd .shepherd-title { font-weight: 600; color: var(--foreground); }
+.speca-shepherd .shepherd-text { padding: 0.5rem 1rem; color: var(--secondary-foreground, var(--foreground)); font-size: 0.875rem; line-height: 1.5; }
+.speca-shepherd .shepherd-footer { padding: 0.5rem 1rem 1rem; gap: 0.5rem; }
+.speca-shepherd .shepherd-button {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-radius: var(--radius, 0.375rem);
+    padding: 0.4rem 0.9rem;
+    font-weight: 500;
+}
+.speca-shepherd .shepherd-button:hover { background: color-mix(in oklab, var(--primary) 88%, black); }
+.speca-shepherd .shepherd-button.shepherd-button-secondary { background: var(--muted); color: var(--foreground); }
+.speca-shepherd .shepherd-cancel-icon { color: var(--muted-foreground, var(--foreground)); }
+.speca-shepherd .shepherd-arrow::before { background: var(--card, var(--background)); border: 1px solid var(--border); }

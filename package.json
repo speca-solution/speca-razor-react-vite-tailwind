@@ -13,8 +13,17 @@
     "@bufbuild/protobuf": "^2.12.0",
     "@connectrpc/connect": "^2.1.2",
     "@connectrpc/connect-web": "^2.1.2",
+    "@fullcalendar/core": "^6.1.20",
+    "@fullcalendar/daygrid": "^6.1.20",
+    "@fullcalendar/interaction": "^6.1.20",
+    "@fullcalendar/list": "^6.1.20",
+    "@fullcalendar/timegrid": "^6.1.20",
+    "leaflet": "^1.9.4",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "shepherd.js": "^15.2.2",
+    "sortablejs": "^1.15.7",
+    "swiper": "^12.2.0"
   },
   "pnpm": {
     "overrides": {

@@ -1,0 +1,68 @@
+@page
+@model RepeaterDemoModel
+@{
+    ViewData["Title"] = "Demo Repeater (Model Binding)";
+}
+
+@section Breadcrumb {
+    <div class="flex flex-col gap-2 pb-7.5">
+        <h1 class="text-mono text-xl leading-none font-medium">Form Repeater → List&lt;T&gt;</h1>
+        <div class="text-secondary-foreground text-sm">
+            Baris dinamis (tanpa jQuery): tombol Tambah/Hapus + <strong>re-index otomatis</strong>
+            <code>Contacts[i].*</code> agar ter-bind ke <code>List&lt;Contact&gt;</code> saat POST.
+        </div>
+    </div>
+}
+
+<div class="grid max-w-2xl gap-5">
+    <form method="post" data-repeater class="card">
+        <div class="card-body flex flex-col gap-4">
+            <div data-repeater-list class="flex flex-col gap-2.5">
+                @for (var i = 0; i < Model.Contacts.Count; i++)
+                {
+                    <div data-repeater-item class="flex gap-2">
+                        <input class="input" name="Contacts[@i].Name" value="@Model.Contacts[i].Name" placeholder="Nama" />
+                        <input class="input max-w-44" name="Contacts[@i].Phone" value="@Model.Contacts[i].Phone" placeholder="Telepon" />
+                        <button type="button" class="btn-icon shrink-0" data-repeater-remove aria-label="Hapus baris">
+                            <i class="ti ti-trash text-sm"></i>
+                        </button>
+                    </div>
+                }
+            </div>
+
+            @* Template baris baru: index [0] di-re-index JS saat ditambahkan. *@
+            <template data-repeater-template>
+                <div data-repeater-item class="flex gap-2">
+                    <input class="input" name="Contacts[0].Name" placeholder="Nama" />
+                    <input class="input max-w-44" name="Contacts[0].Phone" placeholder="Telepon" />
+                    <button type="button" class="btn-icon shrink-0" data-repeater-remove aria-label="Hapus baris">
+                        <i class="ti ti-trash text-sm"></i>
+                    </button>
+                </div>
+            </template>
+
+            <div class="flex gap-2.5">
+                <button type="button" class="btn-outline btn-sm" data-repeater-add>
+                    <i class="ti ti-plus text-sm"></i> Tambah baris
+                </button>
+                <button type="submit" class="btn btn-primary btn-sm">Kirim (POST)</button>
+            </div>
+        </div>
+    </form>
+
+    @if (Model.Submitted)
+    {
+        <div class="alert alert-success">
+            <i class="ti ti-circle-check"></i>
+            <div>
+                <div class="font-medium">Ter-bind @Model.Contacts.Count kontak ke <code>List&lt;Contact&gt;</code>:</div>
+                <ul class="mt-1 list-inside list-disc text-sm">
+                    @foreach (var c in Model.Contacts)
+                    {
+                        <li>@c.Name — @c.Phone</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+</div>

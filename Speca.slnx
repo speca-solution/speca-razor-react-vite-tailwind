@@ -7,6 +7,9 @@
     <Project Path="Libs/Contracts/Speca.Contracts.csproj" />
     <!--#endif -->
     <Project Path="Libs/Core/Speca.Core.csproj" />
+    <!--#if (useAuth) -->
+    <Project Path="Libs/Data/Speca.Data.csproj" />
+    <!--#endif -->
     <Project Path="Libs/UI/Speca.UI.csproj" />
   </Folder>
   <Folder Name="/Tests/">

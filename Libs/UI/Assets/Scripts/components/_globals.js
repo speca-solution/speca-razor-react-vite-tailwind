@@ -49,14 +49,30 @@ window.specaToast = (message, variant = 'primary', timeoutMs = 4000) => {
 //   data-remove-closest="selector"                         → hapus elemen leluhur terdekat
 //   data-action="reload|back|avatar-reset"                 → aksi bernama
 //     avatar-reset: data-avatar-target="#img" data-avatar-src="url"
+//   data-copy="teks"  ATAU  data-copy-target="#sel"        → salin ke clipboard (Clipboard API)
 document.addEventListener('click', (e) => {
     const el = e.target.closest(
-        '[data-toast],[data-block-demo],[data-remove-closest],[data-action]'
+        '[data-toast],[data-block-demo],[data-remove-closest],[data-action],[data-copy],[data-copy-target]'
     );
     if (!el) return;
 
     if (el.hasAttribute('data-toast')) {
         window.specaToast(el.getAttribute('data-toast'), el.getAttribute('data-toast-variant') || 'primary');
+    }
+
+    // Clipboard: teks dari data-copy (literal) atau nilai/teks elemen data-copy-target.
+    if (el.hasAttribute('data-copy') || el.hasAttribute('data-copy-target')) {
+        const targetSel = el.getAttribute('data-copy-target');
+        const target = targetSel ? document.querySelector(targetSel) : null;
+        const text = target
+            ? ('value' in target ? target.value : target.textContent || '')
+            : (el.getAttribute('data-copy') || '');
+        if (text && navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(
+                () => window.specaToast('Tersalin ke clipboard', 'success'),
+                () => window.specaToast('Gagal menyalin', 'danger'),
+            );
+        }
     }
 
     const blockSel = el.getAttribute('data-block-demo');

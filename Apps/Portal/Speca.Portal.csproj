@@ -4,15 +4,29 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <!-- SolutionDir kosong/*Undefined* saat build langsung ke csproj (CI, dotnet publish) -->
-    <SpecaRootDir Condition="'$(SolutionDir)' != '' and '$(SolutionDir)' != '*Undefined*'">$(SolutionDir)</SpecaRootDir>
-    <SpecaRootDir Condition="'$(SpecaRootDir)' == ''">$(MSBuildProjectDirectory)\..\..\</SpecaRootDir>
+    <!-- Root solution (tempat package.json/pnpm) = DUA level di atas project: project SELALU
+         di Apps/<App>/, jadi root = $(MSBuildProjectDirectory)\..\..\. SENGAJA tidak pakai
+         $(SolutionDir): saat VS membungkus solution (Solution/Project nesting), $(SolutionDir)
+         menunjuk folder pembungkus yang TIDAK punya package.json → vite build gagal. Pendekatan
+         relatif-project ini benar di semua kasus (CLI, dotnet publish, VS, VS-nested). -->
+    <SpecaRootDir>$(MSBuildProjectDirectory)\..\..\</SpecaRootDir>
     <!-- Nama app untuk vite build (folder di Apps/) -->
     <SpecaAppName>Portal</SpecaAppName>
     <!--#if (proto) -->
     <!-- Konstanta 'proto' agar blok #if(proto) di Program.cs ikut dikompilasi.
          Pada instantiate data-comm=none, baris ini dihapus template engine. -->
     <DefineConstants>$(DefineConstants);proto</DefineConstants>
+    <!--#endif -->
+    <!-- Konstanta tema (default keduanya); template engine melucuti yang tak dipilih saat instantiate. -->
+    <!--#if (useTheme1) -->
+    <DefineConstants>$(DefineConstants);useTheme1</DefineConstants>
+    <!--#endif -->
+    <!--#if (useTheme2) -->
+    <DefineConstants>$(DefineConstants);useTheme2</DefineConstants>
+    <!--#endif -->
+    <!--#if (useAuth) -->
+    <!-- Konstanta 'useAuth' agar blok #if(useAuth) (Identity di Login/Register/Program) ikut dikompilasi. -->
+    <DefineConstants>$(DefineConstants);useAuth</DefineConstants>
     <!--#endif -->
   </PropertyGroup>
 
@@ -42,9 +56,16 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Libs\UI\Speca.UI.csproj" />
+    <!--#if (useAuth) -->
+    <ProjectReference Include="..\..\Libs\Data\Speca.Data.csproj" />
+    <!--#endif -->
     <!--#if (proto) -->
     <ProjectReference Include="..\..\Libs\Contracts\Speca.Contracts.csproj" />
     <!--#endif -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\Shared\" />
   </ItemGroup>
 
   <Target Name="CheckAndInstallPnpm" BeforeTargets="Build">

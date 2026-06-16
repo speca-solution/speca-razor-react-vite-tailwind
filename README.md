@@ -80,6 +80,20 @@ jalur **Protobuf/gRPC** end-to-end — satu `.proto` = sumber kebenaran untuk se
   `Assets/Entries/rpcdemo.tsx` via **gRPC-Web same-origin** (Connect-ES). Demo: **`/RpcDemo`**.
 - Verifikasi: `node scripts/rpc-smoke.ts` (round-trip nyata). Detail & cara menambah RPC: `TEMPLATE.md §6`.
 
+## Auth + Akses Data — hybrid EF Core + Dapper (opsional)
+
+Aktifkan saat instantiate: `dotnet new speca-platform -n App --auth identity` (default `none` = tanpa DB).
+Disertakan di **`Libs/Data`** (Speca.Data):
+
+- **EF Core** (SQLite) — ASP.NET **Identity** store + skema/migrasi/seed. `AddSpecaData()` mendaftarkan
+  DbContext + Identity + query objects; `app.db` dibuat saat startup (`Database.Migrate()`).
+- **Dapper** — *query objects* sisi-baca (`IProductQueries`), SQL eksplisit ke DB yang sama. Bukan
+  generic-repository (anti-pattern di atas EF); EF untuk write/skema/auth, Dapper untuk read.
+- Halaman `Account/Login`+`Register`+`Logout` tersambung ke `SignInManager`/`UserManager` (UserName=Email);
+  demo **`/Products`** membaca via Dapper.
+- Ganti DB produksi: ganti provider (`UseSqlServer`/`UseNpgsql`) + `ConnectionStrings:Default`. Tambah
+  migrasi: `dotnet tool restore` lalu `dotnet ef migrations add <Nama> --project Libs/Data`.
+
 ## Cara memuat asset di halaman Razor
 
 Satu atribut untuk dev dan production — path sumber relatif root solution:
@@ -173,9 +187,20 @@ Renderer vertical (`_Sidebar_Menu.cshtml`): rekursif tanpa batas kedalaman, acco
 | Icon | **Tabler** (`ti ti-*`, MIT) + **Lucide** (`icon-*`, ISC) — dua-duanya dimuat |
 | Theme CSS | `Themes/style.css` (pilih `_theme1`/`_theme2`) → `shared/` (komponen var-based) + `theme1/`\|`theme2/` (token + override) |
 | Theme JS | `Entries/layouts/{vertical,horizontal,blank}.js` → `Scripts/layouts/_base.js` — dark mode, drawer/rail sidebar, dropdown, Ctrl+/ |
+| Vendor opsional | ApexCharts, Grid.js/DataTables, flatpickr, Tom Select, Pickr, Quill, SortableJS, **FullCalendar**, **Swiper** (carousel), **Shepherd** (tur), **Leaflet** (peta) — masing-masing `Assets/Vendors/<nama>/index.js`, dimuat **hanya** di halaman yang butuh (via `@@section Scripts`), bukan di layout |
 
 Menambah vendor lain: install ke `Libs/UI`, buat `Assets/Vendors/<nama>/index.js`
 yang meng-import-nya — otomatis jadi entry `vendors/<nama>`.
+
+**FullCalendar** (MIT, demo `/Calendar`): auto-init `<div data-fullcalendar>` + opsi JSON
+(aman-CSP). Cirikhas berbeda per tema lewat `--fc-*` di `theme1/_vendor.css` (flat, event kotak,
+tombol kapital) vs `theme2/_vendor.css` (lembut, event membulat, tombol pill) — bandingkan di `/?page=calendar`.
+
+**Widget lanjutan** (demo `/Advanced`): **Swiper** (carousel — `data-swiper`, kontrol ikut `--primary`),
+**Shepherd** (tur — tombol `data-tour-start` + langkah JSON),
+**SortableJS** kanban (`data-sortable-group` = list saling tukar), **Leaflet** peta (`data-map data-lat/lng/zoom`,
+penanda `circleMarker` ikut `--primary`). Tile OpenStreetMap = `<img>` https → sudah diizinkan `img-src https:`
+(tanpa ubah CSP); butuh koneksi internet untuk memuat tile.
 
 CSS icon Tabler/Lucide di-generate woff2-only oleh `node scripts/sync-icon-fonts.mjs` —
 jalankan ulang setelah upgrade paket icon. File ber-prefix `_` tidak menjadi entry Vite.

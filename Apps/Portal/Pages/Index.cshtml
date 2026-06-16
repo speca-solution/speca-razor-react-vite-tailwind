@@ -1,19 +1,21 @@
 @page
+@using Speca.Portal
 @{
     ViewData["Title"] = "Preview Theme";
 
-    // Whitelist halaman (value → path tetap) agar src iframe tak bisa diisi sembarang path.
-    var pages = new Dictionary<string, (string Path, string Label)>
-    {
-        ["metronic"] = ("/Dashboards/Metronic", "Dashboard Metronic"),
-        ["vuexy"] = ("/Dashboards/Vuexy", "Dashboard Vuexy"),
-        ["components"] = ("/Components", "Components"),
-        ["tables"] = ("/Tables", "Tabel Data"),
-        ["charts"] = ("/Charts", "Charts"),
-        ["react"] = ("/ReactDemo", "Demo React"),
-    };
+    // Halaman yang bisa dipratinjau. Dashboard per-tema dibangun dari ThemeInfo (hanya tema
+    // yang disertakan) + halaman statis. Whitelist → src iframe tak bisa diisi path sembarang.
+    var pages = new Dictionary<string, (string Path, string Label)>();
+    foreach (var t in ThemeInfo.All) { pages[t.Key] = (t.DashboardPath, "Dashboard " + t.Label); }
+    pages["components"] = ("/Components", "Components");
+    pages["tables"] = ("/Tables", "Tabel Data");
+    pages["charts"] = ("/Charts", "Charts");
+    pages["calendar"] = ("/Calendar", "Kalender");
+    pages["advanced"] = ("/Advanced", "Widget Lanjutan");
+    pages["react"] = ("/ReactDemo", "Demo React");
+
     var page = Request.Query["page"].ToString();
-    if (!pages.ContainsKey(page)) { page = "metronic"; }
+    if (!pages.ContainsKey(page)) { page = pages.Keys.First(); }
     var path = pages[page].Path;
 
     var layout = Request.Query["layout"].ToString();
@@ -26,8 +28,8 @@
     <div class="flex flex-col gap-2 pb-7.5">
         <h1 class="text-mono text-xl leading-none font-medium">Preview Theme</h1>
         <div class="text-secondary-foreground text-sm">
-            Halaman yang sama, berdampingan: <b>theme1 (Metronic)</b> vs <b>theme2 (Vuexy)</b>.
-            Bukti bahwa halaman theme-agnostic — satu sumber, dua tampilan.
+            Halaman yang sama di tiap tema yang tersedia — bukti halaman theme-agnostic
+            (satu sumber, banyak tampilan).
         </div>
     </div>
 }
@@ -53,20 +55,16 @@
     <button type="submit" class="btn btn-primary"><i class="ti ti-refresh"></i> Terapkan</button>
 </form>
 
-<!-- Dua iframe berdampingan -->
-<div class="mb-10 grid gap-5 xl:grid-cols-2">
-    <div class="card overflow-hidden">
-        <div class="card-header">
-            <h3 class="card-title">Theme 1 — Metronic</h3>
-            <a class="text-primary text-sm hover:underline" href="@Src("style01")" target="_blank" rel="noopener">Buka penuh <i class="ti ti-external-link"></i></a>
+<!-- Iframe per tema yang tersedia (berdampingan bila >1) -->
+<div class="mb-10 grid gap-5 @(ThemeInfo.All.Length > 1 ? "xl:grid-cols-2" : "")">
+    @foreach (var t in ThemeInfo.All)
+    {
+        <div class="card overflow-hidden">
+            <div class="card-header">
+                <h3 class="card-title">@t.Label</h3>
+                <a class="text-primary text-sm hover:underline" href="@Src(t.Style)" target="_blank" rel="noopener">Buka penuh <i class="ti ti-external-link"></i></a>
+            </div>
+            <iframe src="@Src(t.Style)" class="h-[680px] w-full border-0" title="Preview @t.Label" loading="lazy"></iframe>
         </div>
-        <iframe src="@Src("style01")" class="h-[680px] w-full border-0" title="Preview theme1" loading="lazy"></iframe>
-    </div>
-    <div class="card overflow-hidden">
-        <div class="card-header">
-            <h3 class="card-title">Theme 2 — Vuexy</h3>
-            <a class="text-primary text-sm hover:underline" href="@Src("style02")" target="_blank" rel="noopener">Buka penuh <i class="ti ti-external-link"></i></a>
-        </div>
-        <iframe src="@Src("style02")" class="h-[680px] w-full border-0" title="Preview theme2" loading="lazy"></iframe>
-    </div>
+    }
 </div>

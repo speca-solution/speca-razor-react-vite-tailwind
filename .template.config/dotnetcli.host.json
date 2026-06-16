@@ -12,6 +12,14 @@
     "dataComm": {
       "longName": "data-comm",
       "shortName": ""
+    },
+    "theme": {
+      "longName": "theme",
+      "shortName": "t"
+    },
+    "dataAuth": {
+      "longName": "auth",
+      "shortName": ""
     }
   }
 }

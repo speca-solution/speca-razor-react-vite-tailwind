@@ -27,7 +27,7 @@
        Kecualikan artefak berat/irelevan agar .nupkg ramping; .template.config WAJIB ikut. -->
   <ItemGroup>
     <Content Include="..\**\*"
-             Exclude="..\**\bin\**;..\**\obj\**;..\**\node_modules\**;..\**\wwwroot\dist\**;..\**\wwwroot\assets\media\**;..\.git\**;..\.vs\**;..\_pub\**;..\_nupkg\**;..\certs\**;..\packaging\**;..\**\*.user"
+             Exclude="..\**\bin\**;..\**\obj\**;..\**\node_modules\**;..\**\wwwroot\dist\**;..\.git\**;..\.vs\**;..\_pub\**;..\_nupkg\**;..\certs\**;..\packaging\**;..\**\*.user"
              PackagePath="content\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Remove="**\*" />
   </ItemGroup>

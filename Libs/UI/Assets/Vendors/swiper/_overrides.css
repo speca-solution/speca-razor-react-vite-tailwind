@@ -1,0 +1,25 @@
+/* Swiper — warna kontrol ikut token tema (otomatis beda theme1 vs theme2),
+   slide membulat selaras radius tema. */
+[data-swiper] {
+    --swiper-theme-color: var(--primary);
+    --swiper-navigation-size: 1.5rem;
+    --swiper-pagination-bullet-inactive-color: var(--muted-foreground, #94a3b8);
+    --swiper-pagination-bullet-inactive-opacity: 0.5;
+    padding-bottom: 2rem; /* ruang untuk pagination */
+}
+[data-swiper] .swiper-slide {
+    border-radius: var(--radius, 0.5rem);
+    overflow: hidden;
+}
+/* Panah dalam lingkaran lembut. */
+[data-swiper] .swiper-button-prev,
+[data-swiper] .swiper-button-next {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 9999px;
+    background: var(--card, var(--background));
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+}
+[data-swiper] .swiper-button-prev::after,
+[data-swiper] .swiper-button-next::after { font-size: 1rem; font-weight: 700; }

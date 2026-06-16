@@ -62,18 +62,34 @@ export function initFormAdvanced() {
         render();
     });
 
-    // ---- Repeater: tambah/hapus baris form dinamis dari <template> ----
+    // ---- Repeater: tambah/hapus baris form dinamis dari <template>, lalu RE-INDEX
+    //      name/id tiap baris (Items[0], Items[1], …) agar ter-bind ke List<T> ASP.NET.
+    //      name "Items[0].Prop" → "Items[i].Prop"; id "Items_0__Prop" → "Items_i__Prop".
     document.querySelectorAll('[data-repeater]').forEach((rep) => {
         const list = rep.querySelector('[data-repeater-list]');
         const tpl = rep.querySelector('template[data-repeater-template]');
+        if (!list) return;
+
+        const reindex = () => {
+            list.querySelectorAll('[data-repeater-item]').forEach((item, i) => {
+                item.querySelectorAll('[name]').forEach((f) => {
+                    f.name = f.name.replace(/\[\d+\]/, `[${i}]`);
+                });
+                item.querySelectorAll('[id]').forEach((el) => {
+                    el.id = el.id.replace(/_\d+__/, `_${i}__`);
+                });
+            });
+        };
+
         rep.querySelectorAll('[data-repeater-add]').forEach((btn) =>
             btn.addEventListener('click', () => {
                 const node = tpl?.content.firstElementChild?.cloneNode(true);
-                if (node && list) list.appendChild(node);
+                if (node) { list.appendChild(node); reindex(); }
             }));
-        list?.addEventListener('click', (e) => {
+        list.addEventListener('click', (e) => {
             const rm = e.target.closest('[data-repeater-remove]');
-            if (rm) rm.closest('[data-repeater-item]')?.remove();
+            if (rm) { rm.closest('[data-repeater-item]')?.remove(); reindex(); }
         });
+        reindex(); // normalisasi baris awal (server-rendered)
     });
 }
