@@ -108,7 +108,7 @@ Diatur di `template.json > sources.modifiers.exclude`:
 ## 5. Verifikasi (yang sudah diuji)
 
 Diuji dengan `-n Acme --app-name Web`:
-1. Struktur ter-rename: `Acme.slnx` (solution), `Apps/Web/Acme.Web.csproj`, `Acme.Core/UI/Core.Tests`, `Acme.Contracts`. ✓
+1. Struktur ter-rename: `Acme.slnx` (solution, ber-folder), `Apps/Web/Acme.Web.csproj`, `Acme.Core/UI/Core.Tests`, `Acme.Contracts`. ✓
 2. `grep -ri speca` & `grep -riw portal` pada hasil = **0**. ✓
 3. `dotnet publish -c Release` → vite build + compile + publish **sukses**. ✓
 4. Jalankan hasil publish + `node scripts/smoke-test.mjs` → **15/15 halaman 200, CSP produksi bersih**. ✓
@@ -151,10 +151,17 @@ atas gagal (`ERR_PNPM_NO_PKG_MANIFEST`). Cara menghindari:
 > Walau ter-nesting, build tetap jalan: deteksi root vite pakai `$(MSBuildProjectDirectory)\..\..\`
 > (relatif project, bukan `$(SolutionDir)`) sehingga selalu menemukan `package.json` yang benar.
 
-**Solution Explorer ber-folder.** File solusi `<Nama>.slnx` sudah mengelompokkan project ke **solution
-folder** (virtual): `Apps/`, `Libs/`, `Tests/`, `Solution Items/` — tampil sebagai folder di Solution
-Explorer VS (bukan folder disk). Nama `<Nama>.slnx` kini **sama** dengan yang VS harapkan, sehingga VS
-sebaiknya memakai file template ber-folder ini langsung. (Via `dotnet new` CLI selalu satu file ber-folder.)
+**Solution Explorer ber-folder.** File solusi **`<Nama>.slnx`** mengelompokkan project ke **solution
+folder** virtual (`Apps/`, `Libs/`, `Tests/`, `Solution Items/`) — tampil sebagai folder di Solution
+Explorer (bukan folder disk).
+
+> - Via **`dotnet new` CLI**: `<Nama>.slnx` langsung ber-folder. ✓
+> - Via **VS New Project**: VS **meng-generate ulang** `<Nama>.slnx` miliknya secara **DATAR** (hanya
+>   daftar project, tanpa folder) — ini perilaku VS yang tak bisa dikendalikan template. Untuk
+>   mengelompokkan, tambah **Solution Folder** manual di Solution Explorer (kanan-klik Solution →
+>   Add → New Solution Folder, lalu drag project) — sekali saja.
+>
+> (Nama `<Nama>.slnx` dipilih bersih sengaja; tidak memakai akhiran " Platform".)
 
 ---
 
