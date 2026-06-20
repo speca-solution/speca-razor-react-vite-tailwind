@@ -82,7 +82,7 @@ jalur **Protobuf/gRPC** end-to-end — satu `.proto` = sumber kebenaran untuk se
 
 ## Auth + Akses Data — hybrid EF Core + Dapper (opsional)
 
-Aktifkan saat instantiate: `dotnet new speca-platform -n App --auth identity` (default `none` = tanpa DB).
+Aktifkan saat instantiate: `dotnet new speca-template -n App --auth identity` (default `none` = tanpa DB).
 Disertakan di **`Libs/Data`** (Speca.Data):
 
 - **EF Core** (SQLite) — ASP.NET **Identity** store + skema/migrasi/seed. `AddSpecaData()` mendaftarkan

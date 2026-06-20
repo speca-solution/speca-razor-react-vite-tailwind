@@ -71,7 +71,7 @@ public class RegisterModel : PageModel
     public IActionResult OnPost()
     {
         if (!ModelState.IsValid) return Page();
-        // Demo UI saja. Aktifkan auth nyata: dotnet new speca-platform --auth identity
+        // Demo UI saja. Aktifkan auth nyata: dotnet new speca-template --auth identity
         return RedirectToPage("/Account/Login");
     }
 #endif

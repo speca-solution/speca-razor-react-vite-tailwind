@@ -78,14 +78,14 @@ jobs:
 
       - name: Instantiate (proto, + rename) → build
         run: |
-          dotnet new speca-platform -n CiProto --app-name Web -o /tmp/ciproto --no-restore
+          dotnet new speca-template -n CiProto --app-name Web -o /tmp/ciproto --no-restore
           test "$(grep -rIi speca /tmp/ciproto --include=*.cs --include=*.csproj --include=*.cshtml | wc -l)" = "0"
           test "$(grep -rIiw portal /tmp/ciproto --include=*.cs --include=*.csproj --include=*.cshtml | wc -l)" = "0"
           dotnet build /tmp/ciproto/Apps/Web/CiProto.Web.csproj -c Debug --nologo
 
       - name: Instantiate (--data-comm none) → build + assert tanpa gRPC
         run: |
-          dotnet new speca-platform -n CiNone --data-comm none -o /tmp/cinone --no-restore
+          dotnet new speca-template -n CiNone --data-comm none -o /tmp/cinone --no-restore
           test ! -d /tmp/cinone/Libs/Contracts
           test "$(grep -rIF 'AddGrpc' /tmp/cinone/Apps/Portal --include=*.cs | wc -l)" = "0"
           dotnet build /tmp/cinone/Apps/Portal/CiNone.Portal.csproj -c Debug --nologo

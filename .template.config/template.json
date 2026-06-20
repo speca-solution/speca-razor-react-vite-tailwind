@@ -2,10 +2,10 @@
   "$schema": "http://json.schemastore.org/template",
   "author": "Speca",
   "classifications": [ "Web", "Razor Pages", "React", "Tailwind", "Vite", "Solution" ],
-  "identity": "Speca.Platform.Solution.CSharp",
-  "name": "Speca Platform Solution (Razor Pages + Vite + React + Tailwind + TypeScript)",
+  "identity": "Speca.Template.Solution.CSharp",
+  "name": "Speca Template Solution (Razor Pages + Vite + React + Tailwind + TypeScript)",
   "description": "Solution monorepo ASP.NET Core Razor Pages (.NET 10) + Vite 8/Rolldown + React 19 + Tailwind 4 + TypeScript, dengan pnpm workspaces (Apps/* aplikasi, Libs/* library). Nama solution & nama project aplikasi dapat diganti saat instantiate.",
-  "shortName": "speca-platform",
+  "shortName": "speca-template",
   "defaultName": "MyApp",
   "preferNameDirectory": true,
   "tags": {

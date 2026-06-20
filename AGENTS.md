@@ -48,6 +48,8 @@ Known decision:
 
 - CLI `dotnet new` preserves solution folders.
 - Visual Studio New Project may regenerate a flat `.slnx`; this is documented as a VS limitation, not a template defect.
+- `--content demo|starter` (default `demo`) selects page scope; orthogonal to `--theme`/`--data-comm`/`--auth`. See `TEMPLATE.md` §7.
+- The templating engine resolves C# `#if (symbol)` using template SYMBOLS at instantiate (directives are stripped from output); csproj `DefineConstants` exist only so the raw SOURCE repo compiles. Therefore C# conditionals must reference real symbols (e.g. `isStarter`), never invented constant names. Cross-project runtime gating uses `Speca.Core.BuildFlags.IsStarter` (in `Libs/Core`, visible to both `Apps/*` and `Libs/UI`).
 
 ## Recommended Quality Gates
 
@@ -71,9 +73,9 @@ Template-sensitive changes:
 
 ```powershell
 dotnet new install . --force
-dotnet new speca-platform -n CiProto --app-name Web -o <temp-proto> --no-restore
+dotnet new speca-template -n CiProto --app-name Web -o <temp-proto> --no-restore
 dotnet build <temp-proto>\Apps\Web\CiProto.Web.csproj -c Debug --nologo
-dotnet new speca-platform -n CiNone --data-comm none -o <temp-none> --no-restore
+dotnet new speca-template -n CiNone --data-comm none -o <temp-none> --no-restore
 dotnet build <temp-none>\Apps\Portal\CiNone.Portal.csproj -c Debug --nologo
 ```
 
@@ -82,13 +84,14 @@ For release readiness, prefer matrix verification across:
 - `--theme both|theme1|theme2`
 - `--data-comm proto|none`
 - `--auth none|identity`
+- `--content demo|starter`
 
 ## Prompt Handoff Pattern
 
 When asking Claude Code to fix a reviewed issue, use precise, bounded prompts:
 
 ```text
-Please fix only the issue in <file/area>. Do not refactor unrelated code. Preserve template options --theme, --data-comm, and --auth. After the change, run <specific command> and report the result.
+Please fix only the issue in <file/area>. Do not refactor unrelated code. Preserve template options --theme, --data-comm, --auth, and --content. After the change, run <specific command> and report the result.
 ```
 
 When Codex gives a final recommendation, it should clearly separate:

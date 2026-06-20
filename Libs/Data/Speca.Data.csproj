@@ -18,6 +18,11 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
+    <!-- Mitigasi CVE-2025-6965 (GHSA-2m69-gcr7-jv3q): binary native e_sqlite3 yang dibawa EF Core
+         (SQLitePCLRaw.*.2.1.11) memuat SQLite < 3.50.2 (rentan). Override HANYA binary native ke
+         3.50.x (SQLite >= 3.50.2, sudah dipatch); lapisan managed core/provider/bundle tetap 2.1.11
+         agar kompatibel dengan EF Core 10. Hapus override ini begitu EF Core memutakhirkan SQLitePCLRaw. -->
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.50.3" />
   </ItemGroup>
 
 </Project>

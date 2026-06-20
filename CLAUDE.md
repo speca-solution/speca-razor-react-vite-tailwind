@@ -14,6 +14,7 @@ Speca Platform is a `dotnet new` / Visual Studio template for:
 - optional gRPC/Proto (`--data-comm proto|none`)
 - optional ASP.NET Identity + EF Core + Dapper (`--auth identity|none`)
 - theme selection (`--theme both|theme1|theme2`)
+- content scope (`--content demo|starter`, default `demo`; `starter` = lean — see `TEMPLATE.md` §7)
 
 This repository itself is the source template. Template behavior matters as much as source behavior.
 
@@ -58,15 +59,33 @@ For template changes, also verify at least the affected instantiate paths:
 
 ```powershell
 dotnet new install . --force
-dotnet new speca-platform -n Acme -a Web -o <temp-path> --no-restore
+dotnet new speca-template -n Acme -a Web -o <temp-path> --no-restore
 dotnet build <temp-path>\Apps\Web\Acme.Web.csproj -c Debug --nologo
+# content variant (when --content is touched):
+dotnet new speca-template -n Strt --content starter -o <temp-starter> --no-restore
+dotnet build <temp-starter>\Apps\Portal\Strt.Portal.csproj -c Debug --nologo
 ```
 
 If a command cannot be run, say exactly why.
 
+### Run/smoke gotchas (verified)
+
+- Run the **published** DLL from inside the `_pub` directory (`cd _pub; dotnet Acme.Portal.dll ...`). ContentRoot defaults to the current working directory; launching from elsewhere makes WebRoot wrong → `Manifest Vite tidak ditemukan` → HTTP 500 on every page.
+- Pass AllowedHosts as a **command-line arg**: `--AllowedHosts "*"`. The `ASPNETCORE_ALLOWEDHOSTS` env var is not read into app config here → HostFiltering returns HTTP 400 "Invalid Hostname".
+- `smoke-test.mjs` needs the server already running and sends `X-Forwarded-Proto: https` (production hardening expects it). Example launch:
+  `cd _pub; $env:ASPNETCORE_ENVIRONMENT="Production"; dotnet Acme.Portal.dll --urls http://localhost:5599 --AllowedHosts "*"`
+
+## Template Engine Notes (must-know)
+
+- The templating engine resolves C# `#if (symbol)` using **template symbols** at instantiate and **strips the directives** from output (0 `#if` remains). csproj `DefineConstants` exist only so the **raw SOURCE repo** compiles. Consequences:
+  - C# conditionals must reference **real symbols** (`proto`, `useAuth`, `useTheme1/2`, `isStarter`). An invented constant name is treated as unknown→false and gets stripped in **every** instance (silent breakage).
+  - A symbol that should be **off in source** (like `isStarter`) needs **no** DefineConstants — undefined = false = demo. Symbols that are **on by default** (proto/auth/theme) keep their `DefineConstants` line active between the inert `<!--#if-->` markers in source.
+- `sources.modifiers.exclude` needs **explicit paths**; the glob suffix `Foo.cshtml*` does **not** match. List `Foo.cshtml` and `Foo.cshtml.cs` separately.
+- Cross-project runtime gating (a view in `Libs/UI` that must know an app-level choice) uses `Speca.Core.BuildFlags.IsStarter` in `Libs/Core` (visible to both `Apps/*` and `Libs/UI`). Same pattern as `ThemeInfo`. Razor views avoid raw `.cshtml` template conditionals.
+
 ## Implementation Priorities
 
-1. Preserve template correctness across rename, theme, data-comm, and auth options.
+1. Preserve template correctness across rename, theme, data-comm, auth, and content options.
 2. Keep production publish and smoke tests healthy.
 3. Keep UI patterns consistent with existing Tailwind/theme/layout architecture.
 4. Prefer documented, boring, maintainable code over clever abstractions.

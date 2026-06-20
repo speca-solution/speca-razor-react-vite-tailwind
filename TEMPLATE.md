@@ -53,13 +53,13 @@ Visual Studio 2026 (VS membaca template `dotnet new` yang terpasang).
 
 ```bash
 # nama solution Acme, app default "Portal"
-dotnet new speca-platform -n Acme
+dotnet new speca-template -n Acme
 
 # nama solution Acme, project app diganti jadi "Web"
-dotnet new speca-platform -n Acme --app-name Web
+dotnet new speca-template -n Acme --app-name Web
 
 # tanpa restore otomatis
-dotnet new speca-platform -n Toko.Online -a Storefront --no-restore
+dotnet new speca-template -n Toko.Online -a Storefront --no-restore
 ```
 
 ### c. Jalankan hasil
@@ -87,7 +87,7 @@ GitHub Packages), project template-pack **sudah disediakan**: [`packaging/Speca.
 dotnet pack packaging/Speca.Templates.csproj -o ./_nupkg
 dotnet new install ./_nupkg/Speca.Templates.1.0.0.nupkg
 # lalu seperti biasa:
-dotnet new speca-platform -n Acme --app-name Web
+dotnet new speca-template -n Acme --app-name Web
 ```
 
 **Terverifikasi:** pack → `.nupkg` **1,1 MB** (tanpa node_modules & demo-media) → `install` dari nupkg →
@@ -147,7 +147,7 @@ Parameter `choice` (`--theme`, `--data-comm`) muncul sebagai **dropdown** di hal
 + `package.json` ada di subfolder kedua) dan `.slnx` pembungkus sendiri di atas. Akibatnya `pnpm i` di root
 atas gagal (`ERR_PNPM_NO_PKG_MANIFEST`). Cara menghindari:
 > - **Centang "Place solution and project in the same directory"** di dialog New Project, **atau**
-> - Instantiate via **CLI** (`dotnet new speca-platform -n MyApp`) — tidak pernah nesting.
+> - Instantiate via **CLI** (`dotnet new speca-template -n MyApp`) — tidak pernah nesting.
 >
 > Walau ter-nesting, build tetap jalan: deteksi root vite pakai `$(MSBuildProjectDirectory)\..\..\`
 > (relatif project, bukan `$(SolutionDir)`) sehingga selalu menemukan `package.json` yang benar.
@@ -212,7 +212,7 @@ tanpa proxy tambahan.
 **Dependensi yang ditambahkan:** C# `Grpc.AspNetCore` (+`.Web`); npm `@bufbuild/protobuf`,
 `@connectrpc/connect`, `@connectrpc/connect-web` (runtime) + `@bufbuild/buf`, `@bufbuild/protoc-gen-es` (dev).
 
-**Menonaktifkan saat instantiate:** `dotnet new speca-platform -n Acme --data-comm none` → instance
+**Menonaktifkan saat instantiate:** `dotnet new speca-template -n Acme --data-comm none` → instance
 **tanpa** `Libs/Contracts`, server gRPC, demo `/RpcDemo`, `Assets/gen`, `buf.*`, `rpc-smoke.ts`
 (blok di `Program.cs`/`.csproj`/`.slnx`/`smoke-test.mjs` dilucuti otomatis lewat `#if (proto)`).
 Terverifikasi: instance `none` publish + smoke 14/14, `/RpcDemo` → 404, nol referensi gRPC di kode.
@@ -239,9 +239,9 @@ Dua varian dari **satu** template (default `demo`):
 | Komponen `Libs/UI` | tersedia | **tetap tersedia** (hanya halaman demo yang hilang) |
 
 ```bash
-dotnet new speca-platform -n Acme --content starter
+dotnet new speca-template -n Acme --content starter
 # kombinasikan dgn flag lain, mis. starter paling ramping:
-dotnet new speca-platform -n Acme --content starter --data-comm none --theme theme2
+dotnet new speca-template -n Acme --content starter --data-comm none --theme theme2
 ```
 
 **Cara kerja (jujur):** parameter `content` → computed `isStarter`. Halaman showcase di-*exclude*
