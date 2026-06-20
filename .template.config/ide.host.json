@@ -22,6 +22,11 @@
       "isVisible": "true"
     },
     {
+      "id": "content",
+      "name": { "text": "Konten (demo showcase / starter ramping)" },
+      "isVisible": "true"
+    },
+    {
       "id": "skipRestore",
       "name": { "text": "Lewati 'dotnet restore' otomatis" },
       "isVisible": "true"

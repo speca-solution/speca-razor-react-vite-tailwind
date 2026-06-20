@@ -106,7 +106,10 @@
     <div class="card xl:col-span-2">
         <div class="card-header">
             <h3 class="card-title">Order Terbaru</h3>
-            <a class="text-primary text-sm font-medium hover:underline" href="/Tables">Lihat semua</a>
+            @if (!Speca.Core.BuildFlags.IsStarter)
+            {
+                <a class="text-primary text-sm font-medium hover:underline" href="/Tables">Lihat semua</a>
+            }
         </div>
         <div class="card-body overflow-x-auto pt-0">
             <table class="w-full text-sm">

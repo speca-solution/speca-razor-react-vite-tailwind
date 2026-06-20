@@ -20,6 +20,7 @@ Metadata template ada di [`.template.config/`](.template.config/):
 | Jalur data gRPC/Proto | `--data-comm` | `proto` | `proto` \| `none` | `none` = tanpa `Libs/Contracts`, server gRPC, & demo `/RpcDemo` (lihat §6) |
 | Tema disertakan | `--theme` / `-t` | `both` | `both` \| `theme1` \| `theme2` | satu tema = file tema lain + dashboard-nya dibuang; `style.css` otomatis pakai tema terpilih |
 | Auth + Data | `--auth` | `none` | `none` \| `identity` | `identity` = ASP.NET Identity + EF Core + Dapper (`Libs/Data`, SQLite, demo `/Products`); `none` = tanpa DB (halaman auth jadi mockup) |
+| Cakupan konten | `--content` | `demo` | `demo` \| `starter` | `demo` = showcase lengkap; `starter` = ramping (Home sambutan + Dashboard + Account + Error/Privacy), halaman showcase & menu demo dibuang (lihat §7) |
 | Lewati restore | `--no-restore` | `false` | — | tidak menjalankan `dotnet restore` otomatis |
 
 > **Apa yang ikut berganti otomatis** (terverifikasi: `grep -ri speca|portal` pada hasil = **0**):
@@ -223,3 +224,32 @@ tak ada yang meng-import) — hapus manual bila ingin benar-benar bersih.
 *server-streaming*. *Client-streaming* & *bidirectional-streaming* TIDAK bisa dari browser via gRPC-Web —
 butuh gRPC HTTP/2 penuh (tak terjangkau `fetch`) atau transport berbasis WebSocket. Karena itu template
 hanya menyertakan pola yang benar-benar jalan di browser.
+
+## 7. Cakupan konten: `--content demo` vs `starter`
+
+Dua varian dari **satu** template (default `demo`):
+
+| | `demo` (default) | `starter` |
+|---|---|---|
+| Home (`/`) | Preview tema (iframe banding) | Sambutan ringkas + pintasan ke Dashboard/Login |
+| Halaman showcase | Components, Charts, Tables, Calendar, Advanced, ReactDemo, RepeaterDemo, Layout2, Settings | **dibuang** |
+| Dashboard tema | ada | **ada** (tetap, sebagai contoh dashboard) |
+| Account / Error / Privacy | ada | ada |
+| Menu sidebar | lengkap + seksi "Demo Menu" (multi-level/mega/badge) | ramping (Beranda, Dashboard, Auth, Error) |
+| Komponen `Libs/UI` | tersedia | **tetap tersedia** (hanya halaman demo yang hilang) |
+
+```bash
+dotnet new speca-platform -n Acme --content starter
+# kombinasikan dgn flag lain, mis. starter paling ramping:
+dotnet new speca-platform -n Acme --content starter --data-comm none --theme theme2
+```
+
+**Cara kerja (jujur):** parameter `content` → computed `isStarter`. Halaman showcase di-*exclude*
+template engine; menu showcase di `Program.cs` dilucuti via `#if (!isStarter)` (engine mengevaluasi
+simbol & menghapus directive saat instantiate). Flag runtime `Speca.Core.BuildFlags.IsStarter`
+(di `Libs/Core`, terlihat oleh app & `Libs/UI`) dipakai view untuk mengganti isi Home dan
+menyembunyikan tautan ke halaman yang dibuang (mis. `/Settings` di header & bottom-nav). `--content`
+**ortogonal** terhadap `--auth`/`--data-comm`/`--theme` — bebas dikombinasikan.
+
+Terverifikasi: instance `starter` & `demo` keduanya publish Release + smoke **lulus**; starter tanpa
+halaman showcase & nol tautan mati; demo utuh; SOURCE repo (= demo) build 0 error.

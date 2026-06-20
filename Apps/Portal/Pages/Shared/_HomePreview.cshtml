@@ -1,0 +1,61 @@
+@using Speca.Portal
+@{
+    // Body halaman Home varian DEMO: pratinjau halaman yang sama di tiap tema (iframe).
+    // Dipisah ke partial agar varian starter (--content starter) tak menyertakannya
+    // (file ini di-exclude template engine saat starter). Sections (Breadcrumb) tetap di Index.
+
+    // Halaman yang bisa dipratinjau. Dashboard per-tema dibangun dari ThemeInfo (hanya tema
+    // yang disertakan) + halaman statis. Whitelist → src iframe tak bisa diisi path sembarang.
+    var pages = new Dictionary<string, (string Path, string Label)>();
+    foreach (var t in ThemeInfo.All) { pages[t.Key] = (t.DashboardPath, "Dashboard " + t.Label); }
+    pages["components"] = ("/Components", "Components");
+    pages["tables"] = ("/Tables", "Tabel Data");
+    pages["charts"] = ("/Charts", "Charts");
+    pages["calendar"] = ("/Calendar", "Kalender");
+    pages["advanced"] = ("/Advanced", "Widget Lanjutan");
+    pages["react"] = ("/ReactDemo", "Demo React");
+
+    var page = Context.Request.Query["page"].ToString();
+    if (!pages.ContainsKey(page)) { page = pages.Keys.First(); }
+    var path = pages[page].Path;
+
+    var layout = Context.Request.Query["layout"].ToString();
+    if (layout != "horizontal") { layout = "vertical"; }
+
+    string Src(string style) => $"{path}?style={style}&layout={layout}";
+}
+
+<!-- Kontrol: GET form (tanpa JS) -->
+<form method="get" class="card card-body mb-5 flex flex-row flex-wrap items-end gap-4">
+    <div>
+        <label class="form-label" for="page">Halaman</label>
+        <select id="page" name="page" class="select w-52">
+            @foreach (var kv in pages)
+            {
+                <option value="@kv.Key" selected="@(kv.Key == page)">@kv.Value.Label</option>
+            }
+        </select>
+    </div>
+    <div>
+        <label class="form-label" for="layout">Layout</label>
+        <select id="layout" name="layout" class="select w-44">
+            <option value="vertical" selected="@(layout == "vertical")">Vertical</option>
+            <option value="horizontal" selected="@(layout == "horizontal")">Horizontal</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary"><i class="ti ti-refresh"></i> Terapkan</button>
+</form>
+
+<!-- Iframe per tema yang tersedia (berdampingan bila >1) -->
+<div class="mb-10 grid gap-5 @(ThemeInfo.All.Length > 1 ? "xl:grid-cols-2" : "")">
+    @foreach (var t in ThemeInfo.All)
+    {
+        <div class="card overflow-hidden">
+            <div class="card-header">
+                <h3 class="card-title">@t.Label</h3>
+                <a class="text-primary text-sm hover:underline" href="@Src(t.Style)" target="_blank" rel="noopener">Buka penuh <i class="ti ti-external-link"></i></a>
+            </div>
+            <iframe src="@Src(t.Style)" class="h-[680px] w-full border-0" title="Preview @t.Label" loading="lazy"></iframe>
+        </div>
+    }
+</div>

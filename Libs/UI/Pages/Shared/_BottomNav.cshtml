@@ -38,8 +38,8 @@
 
         @foreach (var it in right) { NavItem(it); }
 
-        @* Profil → avatar (selaras dengan header). *@
-        <a href="/Settings"
+        @* Profil → avatar (selaras dengan header). Pada starter /Settings dibuang → href no-op. *@
+        <a href="@(Speca.Core.BuildFlags.IsStarter ? "#" : "/Settings")"
            class="flex flex-1 flex-col items-center justify-center gap-1 py-1.5 text-[11px] leading-none transition-colors @(currentPath.StartsWith("/Settings", StringComparison.OrdinalIgnoreCase) ? "text-primary" : "text-muted-foreground")">
             <span class="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-full text-[10px] font-semibold">S</span>
             <span>Akun</span>

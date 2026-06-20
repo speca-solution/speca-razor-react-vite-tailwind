@@ -99,6 +99,20 @@
     "useAuth": {
       "type": "computed",
       "value": "(dataAuth == \"identity\")"
+    },
+    "content": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        { "choice": "demo", "description": "Demo/showcase lengkap: semua halaman contoh (Components, Charts, Tables, Calendar, Advanced, React, Repeater, Settings, Layout2) + Home preview tema." },
+        { "choice": "starter", "description": "Starter ramping: hanya Home + Dashboard + Account + halaman Error/Privacy; halaman showcase & menu demo dibuang (komponen Libs/UI tetap tersedia)." }
+      ],
+      "defaultValue": "demo",
+      "description": "Cakupan konten halaman. 'demo' = showcase lengkap (default). 'starter' = kanvas ramping siap dikembangkan."
+    },
+    "isStarter": {
+      "type": "computed",
+      "value": "(content == \"starter\")"
     }
   },
   "sources": [
@@ -147,6 +161,28 @@
             "Apps/Portal/Pages/Account/Logout.cshtml",
             "Apps/Portal/Pages/Account/Logout.cshtml.cs",
             ".config/dotnet-tools.json"
+          ]
+        },
+        {
+          "condition": "(isStarter)",
+          "exclude": [
+            "Apps/Portal/Pages/Advanced.cshtml",
+            "Apps/Portal/Pages/Calendar.cshtml",
+            "Apps/Portal/Pages/Charts.cshtml",
+            "Apps/Portal/Pages/Charts.cshtml.cs",
+            "Apps/Portal/Pages/Components.cshtml",
+            "Apps/Portal/Pages/Components.cshtml.cs",
+            "Apps/Portal/Pages/Tables.cshtml",
+            "Apps/Portal/Pages/Tables.cshtml.cs",
+            "Apps/Portal/Pages/RepeaterDemo.cshtml",
+            "Apps/Portal/Pages/RepeaterDemo.cshtml.cs",
+            "Apps/Portal/Pages/ReactDemo.cshtml",
+            "Apps/Portal/Pages/ReactDemo.cshtml.cs",
+            "Apps/Portal/Pages/Layout2.cshtml",
+            "Apps/Portal/Pages/Layout2.cshtml.cs",
+            "Apps/Portal/Pages/Settings.cshtml",
+            "Apps/Portal/Pages/Settings.cshtml.cs",
+            "Apps/Portal/Pages/Shared/_HomePreview.cshtml"
           ]
         },
         {

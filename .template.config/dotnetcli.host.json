@@ -20,6 +20,10 @@
     "dataAuth": {
       "longName": "auth",
       "shortName": ""
+    },
+    "content": {
+      "longName": "content",
+      "shortName": ""
     }
   }
 }

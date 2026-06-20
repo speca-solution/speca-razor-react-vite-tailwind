@@ -108,18 +108,24 @@ builder.Services.AddSpecaMenu(menu =>
         // Landing
         new MenuItem
         {
+#if (isStarter)
+            Title = "Beranda",
+#else
             Title = "Preview Tema",
+#endif
             Url = "/",
             Icon = "ti ti-home",
             MobilePrimary = true,
             ShortLabel = "Home",
         },
 
+#if (!isStarter)
         // ───────────── 1. Layouts (contoh struktur layout) ─────────────
         new MenuItem { Title = "Layouts", IsHeading = true },
         // Blank TIDAK di-link: layout blank tak punya menu (dead-end); dipakai oleh Auth & Error.
         new MenuItem { Title = "Vertikal (Default)", Url = "/?layout=vertical", Icon = "ti ti-layout-sidebar" },
         new MenuItem { Title = "Horizontal (Topbar)", Url = "/Layout2", Icon = "ti ti-layout-navbar" },
+#endif
 
         // ───────────── 2. Themes (pilihan tema) ─────────────
         new MenuItem { Title = "Themes", IsHeading = true },
@@ -130,6 +136,7 @@ builder.Services.AddSpecaMenu(menu =>
         new MenuItem { Title = "Tema 2 — Vuexy", Url = "/Dashboards/Vuexy", Icon = "ti ti-layout-grid" },
 #endif
 
+#if (!isStarter)
         // ───────────── 3. Components (dasar · tambahan · lanjutan) ─────────────
         new MenuItem { Title = "Components", IsHeading = true },
         new MenuItem { Title = "Komponen (Galeri)", Url = "/Components", Icon = "ti ti-components" },
@@ -152,14 +159,19 @@ builder.Services.AddSpecaMenu(menu =>
         new MenuItem { Title = "Form Repeater", Url = "/RepeaterDemo", Icon = "ti ti-list-details" },
         new MenuItem { Title = "Kalender (FullCalendar)", Url = "/Calendar", Icon = "ti ti-calendar-event" },
         new MenuItem { Title = "Widget Lanjutan", Url = "/Advanced", Icon = "ti ti-stack-2" },
+#endif
 
         // ───────────── 4. Apps (contoh aplikasi / fitur kompleks) ─────────────
         new MenuItem { Title = "Apps", IsHeading = true },
+#if (!isStarter)
         new MenuItem { Title = "Pengaturan", Url = "/Settings", Icon = "ti ti-settings" },
+#endif
 #if (useAuth)
         new MenuItem { Title = "Produk (EF + Dapper)", Url = "/Products", Icon = "ti ti-database" },
 #endif
+#if (!isStarter)
         new MenuItem { Title = "Demo React (Razor↔React)", Url = "/ReactDemo", Icon = "ti ti-brand-react" },
+#endif
 #if (proto)
         new MenuItem { Title = "Demo gRPC (Proto)", Url = "/RpcDemo", Icon = "ti ti-binary-tree" },
 #endif
@@ -186,6 +198,7 @@ builder.Services.AddSpecaMenu(menu =>
             ],
         },
 
+#if (!isStarter)
         // ───────────── 5. Lainnya — demo kemampuan komponen MENU (bukan halaman) ─────────────
         new MenuItem { Title = "Lainnya (Demo Menu)", IsHeading = true },
         new MenuItem
@@ -312,6 +325,7 @@ builder.Services.AddSpecaMenu(menu =>
             Icon = "ti ti-book",
             OpenInNewTab = true,
         },
+#endif
     ]);
 });
 
