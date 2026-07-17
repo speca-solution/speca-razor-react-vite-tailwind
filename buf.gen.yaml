@@ -7,3 +7,8 @@ plugins:
     out: Apps/Portal/Assets/gen
     opt:
       - target=ts
+  # Klien Dart untuk Apps/Mobile (Flutter) — aktifkan setelah Flutter SDK terpasang:
+  #   dart pub global activate protoc_plugin
+  # lalu hapus komentar blok di bawah ini.
+  # - local: protoc-gen-dart
+  #   out: Apps/Mobile/lib/gen

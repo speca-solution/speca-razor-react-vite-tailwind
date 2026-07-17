@@ -250,6 +250,20 @@ stepper/wizard · clipboard · fullcalendar · (deferred: carousel, kanban, tour
 | E9-06 ☑ | Conditional content `--data-comm proto\|none`: symbol choice + computed `proto` + exclude bersyarat (`Libs/Contracts`, `Services`, `/RpcDemo`, `gen`, `buf.*`, `rpc-smoke`) + `#if (proto)` di Program.cs/csproj/slnx/smoke-test.mjs (source tetap valid: DefineConstants `proto` + komentar XML/JS) | terverifikasi DUA jalur: `none` → publish + smoke 14/14 + `/RpcDemo` 404 + 0 ref gRPC; default `proto` (+rename) → gRPC 3-assert + smoke 15/15 ✓. (Pertama kalinya E4-02 conditional content terbukti jalan.) |
 | — | **Batas jujur:** gRPC-Web hanya unary + server-streaming; client/bidi-streaming tak didukung dari browser (butuh HTTP/2 penuh / WebSocket) — sengaja tak ditambahkan. Sisa npm `@bufbuild`/`@connectrpc` tetap di package.json saat `none` (JSON tak bisa dikondisikan) tapi tree-shaken. | tercatat |
 
+## EPIC 10 — Multiplatform: Desktop (Tauri) & Mobile (Flutter) (P2)
+
+Keputusan 2026-07-18: desktop = **Tauri** (shell Rust tipis, memakai ulang frontend web),
+mobile = **Flutter** (klien Dart gRPC dari proto yang sama). Keduanya monorepo di `Apps/*`.
+
+| ID | Item | Acceptance Criteria |
+|----|------|---------------------|
+| E10-01 ☑ | Scaffold `Apps/Desktop` (Tauri 2): `src-tauri` via `tauri init`, identifier `com.speca.desktop`, `devUrl` → Portal `http://localhost:5076`, `beforeDevCommand` = `dotnet run` Portal; workspace pnpm `@speca/desktop`; script root `pnpm desktop` | `pnpm desktop` membuka window native yang me-render Portal (HMR tetap jalan); `cargo check` hijau |
+| E10-02 ☐ | **Produksi desktop — sidecar**: bundel Portal hasil `dotnet publish` (self-contained) sebagai Tauri sidecar; Tauri start server di port lokal acak lalu arahkan webview ke sana; `frontendDist` placeholder diganti | `tauri build` menghasilkan installer yang jalan offline di mesin tanpa .NET SDK |
+| E10-03 ☐ | Scaffold `Apps/Mobile` (Flutter): butuh Flutter SDK + Android Studio; package id ikut identifier `com.speca.mobile` | `flutter run` di emulator Android menampilkan app skeleton |
+| E10-04 ☐ | Klien Dart gRPC: aktifkan blok `protoc-gen-dart` di `buf.gen.yaml` (sudah disiapkan sebagai komentar) → `Apps/Mobile/lib/gen`; demo SayHello dari Flutter ke Portal | round-trip `greeter.v1` dari emulator ke server dev ✓ |
+| E10-05 ☐ | Tahan rename `dotnet new` untuk file non-.NET: `tauri.conf.json`, `Cargo.toml`, `pubspec.yaml`, package id Android/iOS ikut ter-rename; exclude bersyarat bila user memilih tanpa desktop/mobile | instance `-n Acme`: grep speca=0 di Apps/Desktop & Apps/Mobile; build tiap platform sukses |
+| — | **Batas jujur:** build iOS butuh Mac (batasan Apple, bukan Flutter); Tauri dev memakai server Portal jadi bukan offline-first sampai E10-02 selesai. | tercatat |
+
 ## Urutan eksekusi yang disarankan
 
 1. **Sprint 1 (E0 semua)** — production path hidup. Tanpa ini, semua di atasnya dibangun di fondasi patah.

@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "desktop": "pnpm --filter @speca/desktop dev",
     "build": "node scripts/build-apps.mjs",
     "build:app": "vite build",
     "buf:generate": "buf generate",
