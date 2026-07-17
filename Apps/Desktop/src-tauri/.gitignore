@@ -2,3 +2,6 @@
 # will have compiled files and executables
 /target/
 /gen/schemas
+
+# Output publish sidecar Portal (di-generate scripts/desktop-publish-portal.mjs)
+/resources/

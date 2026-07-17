@@ -3,16 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <title>Speca Desktop</title>
+  <style>
+    body { font-family: system-ui, sans-serif; display: grid; place-items: center; height: 100vh; margin: 0; color: #334155; background: #f8fafc; }
+    .spin { width: 28px; height: 28px; border: 3px solid #cbd5e1; border-top-color: #2563eb; border-radius: 50%; animation: r 0.8s linear infinite; margin: 0 auto 12px; }
+    @keyframes r { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
   <!--
-    Placeholder frontendDist untuk `tauri build`.
-    Mode development (`pnpm dev` di Apps/Desktop) TIDAK memakai folder ini —
-    webview memuat devUrl http://localhost:5076 (server ASP.NET Portal).
-    Rencana produksi: bundel server Portal sebagai sidecar (lihat BACKLOG.md).
+    Splash produksi Speca Desktop. Shell Rust (src-tauri/src/lib.rs) menyalakan
+    server Portal sidecar di port lokal acak lalu menavigasi webview ke sana;
+    halaman ini hanya tampil selama server boot (atau menampilkan error bila gagal).
+    Mode dev (`pnpm desktop`) tidak memakai halaman ini — webview memuat devUrl.
   -->
-  <p style="font-family: system-ui; padding: 2rem">
-    Build produksi Speca Desktop belum dikonfigurasi — jalankan mode dev.
-  </p>
+  <div style="text-align:center">
+    <div class="spin"></div>
+    <p>Menyiapkan server lokal…</p>
+  </div>
 </body>
 </html>

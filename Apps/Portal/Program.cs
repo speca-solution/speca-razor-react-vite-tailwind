@@ -354,7 +354,13 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStatusCodePagesWithReExecute("/StatusCode/{0}");
 
-app.UseHttpsRedirection();
+// Default aktif. Host desktop (Tauri sidecar) mematikannya via arg
+// `--Hosting:HttpsRedirect false` karena webview memuat http://127.0.0.1
+// tanpa endpoint TLS (lihat Apps/Desktop/src-tauri/src/lib.rs).
+if (config.GetValue("Hosting:HttpsRedirect", true))
+{
+    app.UseHttpsRedirection();
+}
 
 // UseStaticFiles melayani wwwroot/dist (output Vite, hash di nama file);
 // MapStaticAssets menangani asset Razor lain dengan fingerprinting .NET 9+.
