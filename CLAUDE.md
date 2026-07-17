@@ -59,7 +59,8 @@ For template changes, also verify at least the affected instantiate paths:
 
 ```powershell
 dotnet new install . --force
-dotnet new speca-template -n Acme -a Web -o <temp-path> --no-restore
+dotnet new speca-template -n Acme --app-name Web -o <temp-path> --no-restore
+# (flag pendek -a kini dibajak opsi --alias bawaan dotnet new — selalu pakai --app-name)
 dotnet build <temp-path>\Apps\Web\Acme.Web.csproj -c Debug --nologo
 # content variant (when --content is touched):
 dotnet new speca-template -n Strt --content starter -o <temp-starter> --no-restore

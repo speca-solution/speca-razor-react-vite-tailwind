@@ -3,5 +3,8 @@
 /target/
 /gen/schemas
 
-# Output publish sidecar Portal (di-generate scripts/desktop-publish-portal.mjs)
-/resources/
+# Output publish sidecar Portal (di-generate scripts/desktop-publish-portal.mjs).
+# .gitkeep dipertahankan agar folder resources/portal selalu ada — tauri-build
+# memvalidasi path resource saat compile (cargo check di clone segar tetap hijau).
+/resources/portal/*
+!/resources/portal/.gitkeep

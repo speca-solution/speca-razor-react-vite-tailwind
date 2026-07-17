@@ -26,13 +26,21 @@
       "type": "generated",
       "generator": "casing",
       "parameters": { "source": "name", "toLower": true },
-      "replaces": "speca"
+      "replaces": "speca",
+      "fileRename": "speca"
+    },
+    "nameUpper": {
+      "type": "generated",
+      "generator": "casing",
+      "parameters": { "source": "name", "toLower": false },
+      "replaces": "SPECA"
     },
     "appNameLower": {
       "type": "generated",
       "generator": "casing",
       "parameters": { "source": "AppName", "toLower": true },
-      "replaces": "portal"
+      "replaces": "portal",
+      "fileRename": "portal"
     },
     "skipRestore": {
       "type": "parameter",
@@ -113,11 +121,46 @@
     "isStarter": {
       "type": "computed",
       "value": "(content == \"starter\")"
+    },
+    "desktop": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Sertakan Apps/Desktop: shell Tauri (Rust) yang membungkus frontend web — dev memuat server dev, produksi membundel server publish self-contained sebagai sidecar."
+    },
+    "mobile": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Sertakan Apps/Mobile: aplikasi Flutter (Android+iOS) dengan klien Dart gRPC dari proto yang sama (demo SayHello; butuh --data-comm proto untuk round-trip)."
+    }
+  },
+  "SpecialCustomOperations": {
+    "**/buf.gen.yaml": {
+      "operations": [
+        {
+          "type": "conditional",
+          "configuration": {
+            "if": ["#if"],
+            "else": ["#else"],
+            "elseif": ["#elseif"],
+            "endif": ["#endif"],
+            "trim": true,
+            "wholeLine": true
+          }
+        }
+      ]
     }
   },
   "sources": [
     {
       "modifiers": [
+        {
+          "copyOnly": [
+            "Apps/Mobile/android/settings.gradle.kts",
+            "Apps/Mobile/ios/Runner.xcodeproj/project.pbxproj"
+          ]
+        },
         {
           "exclude": [
             "**/[Bb]in/**",
@@ -136,7 +179,38 @@
             "TEMPLATE.md",
             "packaging/**",
             "_nupkg/**",
-            ".template.config/**"
+            ".template.config/**",
+            "**/.dart_tool/**",
+            "**/.idea/**",
+            "**/*.iml",
+            "Apps/Mobile/build/**",
+            "Apps/Mobile/android/.gradle/**",
+            "Apps/Mobile/android/local.properties",
+            "Apps/Mobile/pubspec.lock",
+            "**/ephemeral/**",
+            "Apps/Mobile/ios/Flutter/flutter_export_environment.sh",
+            "Apps/Mobile/ios/Flutter/Generated.xcconfig",
+            "Apps/Desktop/src-tauri/target/**",
+            "Apps/Desktop/src-tauri/resources/**",
+            "Apps/Desktop/src-tauri/gen/**"
+          ]
+        },
+        {
+          "include": [
+            "Apps/Desktop/src-tauri/resources/portal/.gitkeep"
+          ]
+        },
+        {
+          "condition": "(!desktop)",
+          "exclude": [
+            "Apps/Desktop/**",
+            "scripts/desktop-publish-portal.mjs"
+          ]
+        },
+        {
+          "condition": "(!mobile)",
+          "exclude": [
+            "Apps/Mobile/**"
           ]
         },
         {
