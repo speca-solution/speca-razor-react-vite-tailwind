@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
 
+# Push beruntun: batalkan run lama, hanya commit terakhir yang diuji penuh.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-test-smoke:
     runs-on: ubuntu-latest
@@ -81,7 +86,22 @@ jobs:
           dotnet new speca-template -n CiProto --app-name Web -o /tmp/ciproto --no-restore
           test "$(grep -rIi speca /tmp/ciproto --include=*.cs --include=*.csproj --include=*.cshtml | wc -l)" = "0"
           test "$(grep -rIiw portal /tmp/ciproto --include=*.cs --include=*.csproj --include=*.cshtml | wc -l)" = "0"
+          # Rename non-.NET (E10-05): Desktop/Mobile/scripts bersih dari identitas sumber
+          # (kecuali ios project.pbxproj yang sengaja copyOnly — berisi kunci containerPortal).
+          test "$(grep -rIi speca /tmp/ciproto/Apps/Desktop /tmp/ciproto/Apps/Mobile /tmp/ciproto/scripts --exclude=project.pbxproj | wc -l)" = "0"
+          grep -q 'gradlePluginPortal()' /tmp/ciproto/Apps/Mobile/android/settings.gradle.kts
+          test -f /tmp/ciproto/Apps/Desktop/src-tauri/resources/web/.gitkeep
+          test -f /tmp/ciproto/scripts/desktop-publish-web.mjs
           dotnet build /tmp/ciproto/Apps/Web/CiProto.Web.csproj -c Debug --nologo
+
+      - name: Instantiate (--desktop false --mobile false) → assert ramping
+        run: |
+          dotnet new speca-template -n CiLean --desktop false --mobile false -o /tmp/cilean --no-restore
+          test ! -d /tmp/cilean/Apps/Desktop
+          test ! -d /tmp/cilean/Apps/Mobile
+          test ! -f /tmp/cilean/scripts/desktop-publish-portal.mjs
+          ! grep -q 'protoc-gen-dart' /tmp/cilean/buf.gen.yaml
+          ! grep -q '#if' /tmp/cilean/buf.gen.yaml
 
       - name: Instantiate (--data-comm none) → build + assert tanpa gRPC
         run: |

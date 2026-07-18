@@ -1,0 +1,84 @@
+# Verifikasi berat multiplatform — terjadwal mingguan + bisa dipicu manual.
+# Sengaja TIDAK jalan per-commit: mahal (runner Windows 2x kuota, build penuh belasan menit).
+name: Platform Weekly
+
+on:
+  schedule:
+    - cron: "0 21 * * 6" # Sabtu 21:00 UTC = Minggu pagi WIB
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  # Build desktop PENUH dari source: publish sidecar self-contained + cargo release + NSIS.
+  # Artifact installer diunggah — sekalian jadi rilis internal mingguan.
+  desktop-installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: Apps/Desktop/src-tauri
+
+      - name: Install frontend deps
+        run: pnpm install --frozen-lockfile
+
+      - name: tauri build (publish sidecar + NSIS)
+        run: pnpm --filter "@speca/desktop" build
+        env:
+          CI: "true"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: speca-desktop-nsis
+          path: Apps/Desktop/src-tauri/target/release/bundle/nsis/*.exe
+          retention-days: 14
+
+  # Instance template → build APK Flutter dari hasil instantiate (jalur yang tak
+  # tercakup CI per-commit: template + mobile sekaligus).
+  instance-mobile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.6"
+          cache: true
+
+      - name: Instantiate template
+        run: |
+          dotnet new install .
+          dotnet new speca-template -n Wk --app-name Web -o /tmp/wk --no-restore
+          test "$(grep -rIi speca /tmp/wk/Apps/Mobile --exclude=project.pbxproj | wc -l)" = "0"
+
+      - name: flutter build apk (debug) dari instance
+        working-directory: /tmp/wk/Apps/Mobile
+        run: |
+          flutter pub get
+          flutter build apk --debug

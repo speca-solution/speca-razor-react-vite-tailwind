@@ -1,0 +1,36 @@
+# CI desktop (Tauri): HANYA jalan bila file desktop berubah — hemat kuota private
+# (runner Windows dihitung 2x, tapi representatif untuk target produk: Windows).
+# Build penuh (publish sidecar + NSIS) ada di platform-weekly.yml, bukan di sini.
+name: Desktop
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Apps/Desktop/**"
+      - "scripts/desktop-publish-portal.mjs"
+      - ".github/workflows/desktop.yml"
+  pull_request:
+    paths:
+      - "Apps/Desktop/**"
+      - "scripts/desktop-publish-portal.mjs"
+      - ".github/workflows/desktop.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cargo-check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Rust stable-msvc sudah terpasang di image windows-latest.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: Apps/Desktop/src-tauri
+
+      - name: cargo check
+        working-directory: Apps/Desktop/src-tauri
+        run: cargo check --locked
