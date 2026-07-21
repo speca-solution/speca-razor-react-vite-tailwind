@@ -266,6 +266,20 @@ mobile = **Flutter** (klien Dart gRPC dari proto yang sama). Keduanya monorepo d
 | — | **Batas jujur E10-05:** bundle id iOS tetap `com.speca.*` di instance (pbxproj copyOnly demi `containerPortal`) — rename manual via Xcode saat setup signing di Mac; `--data-comm none` + mobile: demo `main.dart` tetap ter-build (gen Dart standalone) tapi SayHello gagal runtime karena server tanpa gRPC; script `desktop` di package.json root tersisa saat `--desktop false` (JSON tak bisa dikondisikan — preseden E9-06). | tercatat |
 | — | **Batas jujur:** build iOS butuh Mac (batasan Apple, bukan Flutter); Tauri dev memakai server Portal jadi bukan offline-first sampai E10-02 selesai. | tercatat |
 
+## EPIC 11 — Auth token lintas klien (JWT + refresh rotation) (P2)
+
+Keputusan 2026-07-21: Portal sbg penerbit token sendiri (self-issued, bukan IdP eksternal);
+fase 1 = server + test dulu (fondasi aman diverifikasi sebelum sebar ke klien). Semua di balik `--auth identity`.
+
+| ID | Item | Acceptance Criteria |
+|----|------|---------------------|
+| E11-01 ☑ | **Server auth token** (Libs/Data/Auth): `JwtOptions` (fail-closed, `SigningKey` wajib ≥32, `ValidateOnStart`), `AuthTokenService` — access JWT HS256 pendek (15m) + refresh DIROTASI; refresh disimpan SHA-256 hash (bukan mentah); **reuse detection** → token dicabut dipakai ulang = cabut seluruh `FamilyId`. `RefreshToken` entity + migration `AddRefreshTokens` (unique idx TokenHash, idx FamilyId) | terverifikasi round-trip nyata (dev + Production publish): rotasi, reuse→401, family-revoke→401, logout→401 ✓ |
+| E11-02 ☑ | **Portal wiring**: `AddJwtBearer` (ClockSkew 30s) + policy `BearerOnly` + rate limiter login (5/menit/IP) + endpoint `/auth/login\|refresh\|logout\|me`; seed user demo (`demo@speca.test`/`Demo!2345`); fix `/auth` dikecualikan dari `StatusCodePagesWithReExecute` (POST 401 tak lagi tersamar 400 oleh re-eksekusi halaman OnGet-only); pkg `JwtBearer`+`EFCore.Design` gated `useAuth` | build Portal ✓; `/auth/me` tanpa token→401, dengan token→200+sub ✓ |
+| E11-03 ☑ | **Gerbang keamanan CI** `scripts/auth-smoke.ts` (8 asersi: enforcement, validasi, password-salah→401, rotasi, reuse→401, family-revoke, logout) + dijalankan di `ci.yml` (Production, `Jwt__SigningKey` env); template.json exclude `Endpoints/**`+`auth-smoke.ts` saat `!useAuth` | terverifikasi CI runner nyata hijau (commit b93ad22); instance `--auth none` build bersih (0 ref auth), `--auth identity` file lengkap |
+| E11-04 ☐ | **gRPC enforcement**: `[Authorize]` (policy BearerOnly) pd method gRPC + `SayHello` baca identitas tervalidasi; adaptasi `rpc-smoke.ts` (login→token, adaptif useAuth) — tanpa mematahkan demo anonim | round-trip gRPC ber-auth: tanpa token→Unauthenticated, dengan token→identitas nyata |
+| E11-05 ☐ | **Klien**: TS (fetch `/auth`, simpan access di memori), Dart Flutter (`flutter_secure_storage`, interceptor gRPC lampirkan Bearer, auto-refresh 401), desktop (sama TS) | login→token→panggilan ber-auth dari tiap klien |
+| — | **Batas jujur E11 fase 1:** `/auth/me` `Identity.Name` null (JwtBearer NameClaimType default ≠ "name"; `sub` tetap tervalidasi — kosmetik); belum ada refresh-token cleanup job (expired menumpuk); certificate pinning mobile = opsional nanti; audit keamanan formal tak tergantikan test otomatis. | tercatat |
+
 ## Urutan eksekusi yang disarankan
 
 1. **Sprint 1 (E0 semua)** — production path hidup. Tanpa ini, semua di atasnya dibangun di fondasi patah.
