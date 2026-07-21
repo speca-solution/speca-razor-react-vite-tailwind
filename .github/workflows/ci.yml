@@ -47,7 +47,10 @@ jobs:
           # WAJIB jalankan dari dalam out/: ContentRoot default = cwd; jika diluncurkan
           # dari root repo, WebRoot salah → 'Manifest Vite tidak ditemukan' → HTTP 500
           # (gotcha terdokumentasi di CLAUDE.md). Subshell menjaga cwd yang benar.
+          # Jwt__SigningKey: source ber-auth (useAuth) → app menolak start di Production
+          # tanpa kunci (fail-closed). CI-only, bukan rahasia produksi.
           ( cd out && ASPNETCORE_ENVIRONMENT=Production \
+            Jwt__SigningKey="ci-only-signing-key-min-32-chars-0123456789abcdef" \
             dotnet Speca.Portal.dll --urls http://localhost:5599 --AllowedHosts "*" ) &
           APP_PID=$!
           for i in $(seq 1 30); do
@@ -58,8 +61,11 @@ jobs:
           S1=$?
           node --experimental-strip-types scripts/rpc-smoke.ts http://localhost:5599
           S2=$?
+          # Auth security gate (login, rotasi, reuse-detection, family-revoke, logout).
+          node --experimental-strip-types scripts/auth-smoke.ts http://localhost:5599
+          S3=$?
           kill $APP_PID || true
-          exit $(( S1 | S2 ))
+          exit $(( S1 | S2 | S3 ))
 
   # Menjaga template `dotnet new`: instantiate kedua jalur (proto & none) harus build,
   # dan rename harus bersih (tak ada sisa identitas sumber).

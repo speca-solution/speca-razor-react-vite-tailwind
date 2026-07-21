@@ -48,6 +48,19 @@
   </ItemGroup>
   <!--#endif -->
 
+  <!--#if (useAuth) -->
+  <ItemGroup>
+    <!-- Validasi access JWT (skema Bearer untuk API/gRPC). -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
+    <!-- Diperlukan EF Core tools (dotnet ef migrations) karena DbContext ada di Libs/Data;
+         PrivateAssets=all → tak ikut ke output publish (murni build/design-time). -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <!--#endif -->
+
   <ItemGroup>
 	<Content Update="Assets\**\*.*" CopyToPublishDirectory="Never" />
 	<Content Update="Areas\**\*.*" CopyToPublishDirectory="Never" />

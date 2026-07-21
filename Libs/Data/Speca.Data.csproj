@@ -18,6 +18,9 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
+    <!-- Pembuatan access JWT (JsonWebTokenHandler). JwtBearer VALIDATION ada di shared
+         framework (dipakai di Portal); pembuatan token butuh paket ini. -->
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.14.0" />
     <!-- Mitigasi CVE-2025-6965 (GHSA-2m69-gcr7-jv3q): binary native e_sqlite3 yang dibawa EF Core
          (SQLitePCLRaw.*.2.1.11) memuat SQLite < 3.50.2 (rentan). Override HANYA binary native ke
          3.50.x (SQLite >= 3.50.2, sudah dipatch); lapisan managed core/provider/bundle tetap 2.1.11

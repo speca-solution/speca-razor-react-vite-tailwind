@@ -2,7 +2,13 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using Speca.Core.Extensions;
 #if (useAuth)
+using System.Text;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Speca.Data;
+using Speca.Data.Auth;
+using Speca.Portal.Endpoints;
 #endif
 #if (proto)
 using Speca.Portal.Services;
@@ -21,6 +27,48 @@ builder.Services.AddControllersWithViews();
 // ---- Data HYBRID: EF Core (Identity + skema/migrasi) + Dapper (query objects).
 // DB default SQLite (ConnectionStrings:Default). Lihat Libs/Data. ----
 builder.Services.AddSpecaData(config);
+
+// ---- Auth token API (JWT Bearer) untuk klien non-cookie (mobile/desktop/SPA) ----
+// AddSpecaData sudah mendaftarkan JwtOptions (+ ValidateOnStart: SigningKey wajib).
+// Cookie (Identity) tetap default untuk Razor; Bearer = skema tambahan untuk API/gRPC.
+var jwt = config.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
+builder.Services.AddAuthentication()
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwt.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwt.Audience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SigningKey)),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromSeconds(30), // toleransi jam kecil, bukan default 5 menit
+        };
+    });
+
+// Policy "BearerOnly": endpoint/gRPC yang wajib JWT valid (bukan cookie).
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("BearerOnly", policy =>
+    {
+        policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+        policy.RequireAuthenticatedUser();
+    });
+
+// Rate limit login: rem brute-force di lapisan HTTP (pelengkap lockout Identity).
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("auth-login", ctx =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+            }));
+});
 #endif
 
 #if (proto)
@@ -352,7 +400,16 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+#if (useAuth)
+// API /auth mengembalikan status asli (401/429) sebagai respons JSON. JANGAN
+// re-execute ke halaman HTML /StatusCode/{code}: halaman itu hanya OnGet, sehingga
+// re-eksekusi POST yang gagal auth malah menghasilkan 400 (menyamarkan 401 asli).
+app.UseWhen(
+    ctx => !ctx.Request.Path.StartsWithSegments("/auth"),
+    branch => branch.UseStatusCodePagesWithReExecute("/StatusCode/{0}"));
+#else
 app.UseStatusCodePagesWithReExecute("/StatusCode/{0}");
+#endif
 
 // Default aktif. Host desktop (Tauri sidecar) mematikannya via arg
 // `--Hosting:HttpsRedirect false` karena webview memuat http://127.0.0.1
@@ -366,6 +423,11 @@ if (config.GetValue("Hosting:HttpsRedirect", true))
 // MapStaticAssets menangani asset Razor lain dengan fingerprinting .NET 9+.
 app.UseStaticFiles();
 app.UseRouting();
+
+#if (useAuth)
+// Setelah UseRouting agar partisi per-endpoint; sebelum auth/endpoint dieksekusi.
+app.UseRateLimiter();
+#endif
 
 #if (proto)
 // gRPC-Web: bungkus request gRPC-Web (dari browser) → gRPC. Harus setelah UseRouting,
@@ -385,6 +447,11 @@ app.UseAuthorization();
 app.MapStaticAssets();
 app.MapRazorPages().WithStaticAssets();
 app.MapDefaultControllerRoute();
+
+#if (useAuth)
+// API token JSON: /auth/login, /auth/refresh, /auth/logout, /auth/me.
+app.MapAuthEndpoints();
+#endif
 
 #if (proto)
 // Endpoint gRPC (juga aktif untuk gRPC-Web). Path wire: /greeter.v1.GreeterService/SayHello

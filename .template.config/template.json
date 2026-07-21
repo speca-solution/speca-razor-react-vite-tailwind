@@ -234,6 +234,8 @@
             "Apps/Portal/Pages/Products.cshtml.cs",
             "Apps/Portal/Pages/Account/Logout.cshtml",
             "Apps/Portal/Pages/Account/Logout.cshtml.cs",
+            "Apps/Portal/Endpoints/**",
+            "scripts/auth-smoke.ts",
             ".config/dotnet-tools.json"
           ]
         },

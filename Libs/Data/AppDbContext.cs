@@ -12,10 +12,18 @@ namespace Speca.Data;
 public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<IdentityUser>(options)
 {
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.Entity<RefreshToken>(e =>
+        {
+            e.HasIndex(t => t.TokenHash).IsUnique(); // lookup by hash + cegah duplikat
+            e.HasIndex(t => t.FamilyId);             // pencabutan massal per keluarga
+            e.Property(t => t.TokenHash).HasMaxLength(64);
+        });
 
         // Seed data contoh (ikut migrasi).
         builder.Entity<Product>().HasData(
