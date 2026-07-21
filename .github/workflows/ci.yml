@@ -44,8 +44,11 @@ jobs:
 
       - name: Smoke (semua halaman + asset) + gRPC round-trip
         run: |
-          ASPNETCORE_ENVIRONMENT=Production ASPNETCORE_URLS=http://localhost:5599 \
-            dotnet out/Speca.Portal.dll &
+          # WAJIB jalankan dari dalam out/: ContentRoot default = cwd; jika diluncurkan
+          # dari root repo, WebRoot salah → 'Manifest Vite tidak ditemukan' → HTTP 500
+          # (gotcha terdokumentasi di CLAUDE.md). Subshell menjaga cwd yang benar.
+          ( cd out && ASPNETCORE_ENVIRONMENT=Production \
+            dotnet Speca.Portal.dll --urls http://localhost:5599 --AllowedHosts "*" ) &
           APP_PID=$!
           for i in $(seq 1 30); do
             curl -sf -o /dev/null http://localhost:5599/ && break

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
 
@@ -9,6 +10,20 @@ import 'gen/greeter.pbgrpc.dart';
 const String kServerHost =
     String.fromEnvironment('SPECA_HOST', defaultValue: '10.0.2.2');
 const int kServerPort = int.fromEnvironment('SPECA_PORT', defaultValue: 7251);
+
+/// Kredensial channel gRPC.
+///
+/// KEAMANAN: menerima sertifikat self-signed (server dev ASP.NET) HANYA di
+/// build debug. Di release, `kDebugMode` == false → validasi sertifikat TLS
+/// penuh (default `ChannelCredentials.secure`). Guard ini struktural: build
+/// release tidak bisa menerima sertifikat sembarangan meski developer lupa —
+/// menutup celah man-in-the-middle. Produksi WAJIB memakai sertifikat tepercaya.
+ChannelCredentials _credentials() {
+  if (kDebugMode) {
+    return ChannelCredentials.secure(onBadCertificate: (cert, host) => true);
+  }
+  return const ChannelCredentials.secure();
+}
 
 void main() => runApp(const SpecaMobileApp());
 
@@ -26,7 +41,11 @@ class SpecaMobileApp extends StatelessWidget {
 /// Demo kontrak lintas-bahasa: satu `greeter.proto` = server C# + klien TS + klien Dart.
 /// Klien Dart di `lib/gen/` di-generate `pnpm buf:generate` (JANGAN diedit manual).
 class GreeterPage extends StatefulWidget {
-  const GreeterPage({super.key});
+  const GreeterPage({super.key, this.autoConnect = true});
+
+  /// Panggil SayHello otomatis saat halaman dibuka. Dimatikan di widget test
+  /// agar tidak ada koneksi gRPC / timer yang tertinggal (test tanpa server).
+  final bool autoConnect;
 
   @override
   State<GreeterPage> createState() => _GreeterPageState();
@@ -41,7 +60,9 @@ class _GreeterPageState extends State<GreeterPage> {
   @override
   void initState() {
     super.initState();
-    _sayHello(); // panggil langsung saat app dibuka — bukti round-trip tanpa interaksi
+    if (widget.autoConnect) {
+      _sayHello(); // panggil langsung saat app dibuka — bukti round-trip tanpa interaksi
+    }
   }
 
   Future<void> _sayHello() async {
@@ -53,12 +74,7 @@ class _GreeterPageState extends State<GreeterPage> {
     final channel = ClientChannel(
       kServerHost,
       port: kServerPort,
-      options: ChannelOptions(
-        // Dev-only: terima sertifikat dev ASP.NET (self-signed). Produksi harus
-        // memakai sertifikat valid dan menghapus onBadCertificate.
-        credentials:
-            ChannelCredentials.secure(onBadCertificate: (cert, host) => true),
-      ),
+      options: ChannelOptions(credentials: _credentials()),
     );
     try {
       final client = GreeterServiceClient(channel);

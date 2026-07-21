@@ -169,7 +169,7 @@
             "**/wwwroot/dist/**",
             "**/.vs/**",
             "**/.git/**",
-            "**/.github/workflows/*.cache",
+            "**/.github/workflows/**",
             "**/_pub/**",
             "**/publish/**",
             "**/certs/**",
