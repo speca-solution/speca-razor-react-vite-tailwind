@@ -1,3 +1,6 @@
+#if (useAuth)
+using Microsoft.AspNetCore.Authorization;
+#endif
 using Grpc.Core;
 using Speca.Contracts.Greeter;
 
@@ -19,8 +22,28 @@ public sealed class GreeterRpcService : GreeterService.GreeterServiceBase
             throw new RpcException(new Status(StatusCode.InvalidArgument, "Nama tidak boleh kosong."));
         }
 
-        var hasToken = context.RequestHeaders.GetValue("authorization") is not null;
-        var authNote = hasToken ? "token diterima" : "tanpa token";
+        // SayHello sengaja ANONIM (demo optional-auth). Enforcement nyata ada di
+        // StreamTicks ([Authorize]). Bila token valid ikut terkirim, identitas
+        // tervalidasi tersedia di HttpContext.User (diisi skema Bearer via StreamTicks/policy).
+        var authNote = "tanpa token";
+#if (useAuth)
+        var user = context.GetHttpContext().User;
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            // JwtBearer memetakan "sub" → NameIdentifier (MapInboundClaims default).
+            var sub = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "?";
+            authNote = $"token valid (sub={sub})";
+        }
+        else if (context.RequestHeaders.GetValue("authorization") is not null)
+        {
+            authNote = "token diterima"; // header ada tapi tak tervalidasi di jalur anonim ini
+        }
+#else
+        if (context.RequestHeaders.GetValue("authorization") is not null)
+        {
+            authNote = "token diterima";
+        }
+#endif
 
         return Task.FromResult(new SayHelloResponse
         {
@@ -30,6 +53,11 @@ public sealed class GreeterRpcService : GreeterService.GreeterServiceBase
     }
 
     // Server-streaming: kirim `count` tick (dibatasi 1..50), berhenti bila klien batal.
+    // Bukti ENFORCEMENT gRPC: butuh access JWT valid (skema Bearer). Tanpa/kedaluwarsa
+    // → Unauthenticated, sebelum satu tick pun dikirim. SayHello tetap anonim (optional-auth).
+#if (useAuth)
+    [Authorize(Policy = "BearerOnly")]
+#endif
     public override async Task StreamTicks(
         StreamTicksRequest request,
         IServerStreamWriter<TickMessage> responseStream,
