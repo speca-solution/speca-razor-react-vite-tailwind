@@ -7,6 +7,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grpc/grpc.dart';
 
 import 'gen/greeter.pbgrpc.dart';
+import 'theme/speca_theme.dart';
+import 'theme/speca_tokens.dart';
 
 /// Host server Portal dilihat dari emulator Android: 10.0.2.2 = loopback mesin host.
 /// Perangkat fisik: `--dart-define=SPECA_HOST=<IP-LAN-mesin-dev>`.
@@ -34,10 +36,18 @@ void main() => runApp(const SpecaMobileApp());
 class SpecaMobileApp extends StatelessWidget {
   const SpecaMobileApp({super.key});
 
+  /// Varian tema mengikuti sumbu yang sama dengan web (theme1 Metronic /
+  /// theme2 Vuexy). Ganti lewat `--dart-define=SPECA_THEME=theme2`.
+  static SpecaThemeVariant get _variant =>
+      const String.fromEnvironment('SPECA_THEME', defaultValue: 'theme1') == 'theme2'
+          ? SpecaThemeVariant.theme2
+          : SpecaThemeVariant.theme1;
+
   @override
   Widget build(BuildContext context) => MaterialApp(
         title: 'Speca Mobile',
-        theme: ThemeData(colorSchemeSeed: Colors.blue, useMaterial3: true),
+        theme: buildSpecaTheme(_variant),
+        darkTheme: buildSpecaTheme(_variant, brightness: Brightness.dark),
         home: const AuthDemoPage(),
       );
 }
