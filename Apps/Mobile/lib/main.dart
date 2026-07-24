@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grpc/grpc.dart';
 
 import 'gen/greeter.pbgrpc.dart';
+import 'screens/ui_kit_demo.dart';
 import 'theme/speca_theme.dart';
 import 'theme/speca_tokens.dart';
 
@@ -48,7 +49,46 @@ class SpecaMobileApp extends StatelessWidget {
         title: 'Speca Mobile',
         theme: buildSpecaTheme(_variant),
         darkTheme: buildSpecaTheme(_variant, brightness: Brightness.dark),
-        home: const AuthDemoPage(),
+        home: const HomeShell(),
+      );
+}
+
+/// Kerangka utama dengan bottom navigation — pola dasar aplikasi mobile
+/// (beberapa tab tingkat atas). NavigationBar bergaya otomatis dari token tema.
+class HomeShell extends StatefulWidget {
+  const HomeShell({super.key});
+
+  @override
+  State<HomeShell> createState() => _HomeShellState();
+}
+
+class _HomeShellState extends State<HomeShell> {
+  int _index = 0;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        body: IndexedStack(
+          index: _index,
+          // autoRun:false → tak mencoba login saat app dibuka (server mungkin
+          // belum jalan); pengguna menekan Login sendiri.
+          children: const [UiKitDemoPage(), AuthDemoPage(autoRun: false)],
+        ),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: _index,
+          onDestinationSelected: (i) => setState(() => _index = i),
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.widgets_outlined),
+              selectedIcon: Icon(Icons.widgets),
+              label: 'UI Kit',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.lock_outline),
+              selectedIcon: Icon(Icons.lock),
+              label: 'Auth gRPC',
+            ),
+          ],
+        ),
       );
 }
 
