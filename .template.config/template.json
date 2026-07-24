@@ -210,7 +210,8 @@
         {
           "condition": "(!mobile)",
           "exclude": [
-            "Apps/Mobile/**"
+            "Apps/Mobile/**",
+            "buf.gen.dart.yaml"
           ]
         },
         {
@@ -223,6 +224,8 @@
             "Apps/Portal/Assets/gen/**",
             "buf.yaml",
             "buf.gen.yaml",
+            "buf.gen.dart.yaml",
+            "scripts/buf-generate.mjs",
             "scripts/rpc-smoke.ts"
           ]
         },
@@ -289,7 +292,9 @@
       "condition": "(!skipRestore)",
       "description": "Restore .NET dependencies",
       "manualInstructions": [
-        { "text": "Jalankan 'dotnet restore', lalu 'pnpm install' di root solution (build pertama juga menjalankan 'pnpm i' otomatis), lalu F5 / 'dotnet run'." }
+        { "text": "SIAP PAKAI — cukup F5 di Visual Studio, atau 'dotnet run --project Apps/<AppName>'. Build pertama otomatis menjalankan 'pnpm install' + 'vite', dan sertifikat HTTPS dev dibuat sendiri; tidak ada konfigurasi wajib." },
+        { "text": "Cek prasyarat kapan saja: 'pnpm doctor' (menyesuaikan fitur yang Anda pilih — desktop/mobile/proto hanya dicek bila disertakan)." },
+        { "text": "Desktop (bila disertakan): 'pnpm desktop' — butuh Rust. Mobile (bila disertakan): 'flutter run' di Apps/Mobile — butuh Flutter + Android SDK." }
       ],
       "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
       "continueOnError": true

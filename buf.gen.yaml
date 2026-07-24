@@ -7,11 +7,5 @@ plugins:
     out: Apps/Portal/Assets/gen
     opt:
       - target=ts
-  #if (mobile)
-  # Klien Dart untuk Apps/Mobile (Flutter) — butuh `dart pub global activate protoc_plugin`
-  # (protoc-gen-dart di %LOCALAPPDATA%\Pub\Cache\bin, harus ada di PATH).
-  - local: protoc-gen-dart
-    out: Apps/Mobile/lib/gen
-    opt:
-      - grpc
-  #endif
+# Klien Dart (Apps/Mobile) SENGAJA dipisah ke buf.gen.dart.yaml supaya perintah
+# ini tetap jalan di mesin tanpa protoc-gen-dart. Lihat scripts/buf-generate.mjs.

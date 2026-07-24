@@ -1,0 +1,11 @@
+# Klien Dart untuk Apps/Mobile (Flutter) — TERPISAH dari buf.gen.yaml agar
+# `pnpm buf:generate` tidak gagal di mesin tanpa protoc-gen-dart.
+# Dijalankan otomatis oleh scripts/buf-generate.mjs bila plugin tersedia.
+# Pasang plugin: dart pub global activate protoc_plugin
+version: v2
+clean: true
+plugins:
+  - local: protoc-gen-dart
+    out: Apps/Mobile/lib/gen
+    opt:
+      - grpc
