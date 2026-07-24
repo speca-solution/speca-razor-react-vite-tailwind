@@ -62,6 +62,9 @@ dotnet new install . --force
 dotnet new speca-template -n Acme --app-name Web -o <temp-path> --no-restore
 # (flag pendek -a kini dibajak opsi --alias bawaan dotnet new — selalu pakai --app-name)
 dotnet build <temp-path>\Apps\Web\Acme.Web.csproj -c Debug --nologo
+# PENTING: default --platforms = web (instance TANPA Apps/Desktop & Apps/Mobile).
+# Saat mengubah hal yang menyentuh desktop/mobile, instantiate eksplisit:
+dotnet new speca-template -n Acme --platforms all -o <temp-all> --no-restore
 # content variant (when --content is touched):
 dotnet new speca-template -n Strt --content starter -o <temp-starter> --no-restore
 dotnet build <temp-starter>\Apps\Portal\Strt.Portal.csproj -c Debug --nologo

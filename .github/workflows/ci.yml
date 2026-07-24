@@ -90,9 +90,11 @@ jobs:
       - name: Install template
         run: dotnet new install .
 
-      - name: Instantiate (proto, + rename) → build
+      # --platforms all EKSPLISIT: default template = web (paling ramping), tapi uji
+      # rename non-.NET butuh Desktop+Mobile ikut ter-generate.
+      - name: Instantiate (proto, semua platform, + rename) → build
         run: |
-          dotnet new speca-template -n CiProto --app-name Web -o /tmp/ciproto --no-restore
+          dotnet new speca-template -n CiProto --app-name Web --platforms all -o /tmp/ciproto --no-restore
           test "$(grep -rIi speca /tmp/ciproto --include=*.cs --include=*.csproj --include=*.cshtml | wc -l)" = "0"
           test "$(grep -rIiw portal /tmp/ciproto --include=*.cs --include=*.csproj --include=*.cshtml | wc -l)" = "0"
           # Rename non-.NET (E10-05): Desktop/Mobile/scripts bersih dari identitas sumber
@@ -103,9 +105,10 @@ jobs:
           test -f /tmp/ciproto/scripts/desktop-publish-web.mjs
           dotnet build /tmp/ciproto/Apps/Web/CiProto.Web.csproj -c Debug --nologo
 
-      - name: Instantiate (--platforms web) → assert ramping
+      # Tanpa --platforms: membuktikan DEFAULT = web (ramping, tanpa Rust/Flutter).
+      - name: Instantiate (default) → assert ramping = web-only
         run: |
-          dotnet new speca-template -n CiLean --platforms web -o /tmp/cilean --no-restore
+          dotnet new speca-template -n CiLean -o /tmp/cilean --no-restore
           test ! -d /tmp/cilean/Apps/Desktop
           test ! -d /tmp/cilean/Apps/Mobile
           test ! -f /tmp/cilean/scripts/desktop-publish-portal.mjs

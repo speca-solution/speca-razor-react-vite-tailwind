@@ -143,8 +143,8 @@
           "description": "Web + Desktop + Mobile — ketiga platform sekaligus (butuh Rust + Flutter + Android SDK). Jalankan 'pnpm doctor' untuk cek prasyarat."
         }
       ],
-      "defaultValue": "all",
-      "description": "Platform yang disertakan. Web SELALU ada (fondasi); desktop/mobile opsional. Cek prasyarat tiap platform dengan 'pnpm doctor'."
+      "defaultValue": "web",
+      "description": "Platform yang disertakan. Default 'web' = paling ramping & langsung jalan tanpa toolchain tambahan (web sudah responsif penuh: drawer + bottom nav mobile). Tambahkan desktop/mobile saat benar-benar butuh aplikasi terinstall. Cek prasyarat dengan 'pnpm doctor'."
     },
     "desktop": {
       "type": "computed",

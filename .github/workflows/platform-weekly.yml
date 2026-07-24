@@ -74,7 +74,8 @@ jobs:
       - name: Instantiate template
         run: |
           dotnet new install .
-          dotnet new speca-template -n Wk --app-name Web -o /tmp/wk --no-restore
+          # --platforms mobile EKSPLISIT: default template = web (tanpa Apps/Mobile).
+          dotnet new speca-template -n Wk --app-name Web --platforms mobile -o /tmp/wk --no-restore
           test "$(grep -rIi speca /tmp/wk/Apps/Mobile --exclude=project.pbxproj | wc -l)" = "0"
 
       - name: flutter build apk (debug) dari instance
