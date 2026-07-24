@@ -122,17 +122,37 @@
       "type": "computed",
       "value": "(content == \"starter\")"
     },
-    "desktop": {
+    "platforms": {
       "type": "parameter",
-      "datatype": "bool",
-      "defaultValue": "true",
-      "description": "Sertakan Apps/Desktop: shell Tauri (Rust) yang membungkus frontend web — dev memuat server dev, produksi membundel server publish self-contained sebagai sidecar."
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "web",
+          "description": "Web saja — paling ramping & tercepat mulai. Hanya butuh .NET + Node + pnpm (tanpa Rust/Flutter). Web sudah responsif penuh: sidebar jadi drawer + bottom nav mobile."
+        },
+        {
+          "choice": "desktop",
+          "description": "Web + Desktop (Tauri) — memakai ULANG frontend web sebagai aplikasi desktop; produksi membundel server publish self-contained sebagai sidecar (installer offline). Butuh Rust."
+        },
+        {
+          "choice": "mobile",
+          "description": "Web + Mobile (Flutter) — aplikasi Android/iOS native dengan klien Dart gRPC dari proto yang sama + UI kit bergaya token tema web. Butuh Flutter + Android SDK."
+        },
+        {
+          "choice": "all",
+          "description": "Web + Desktop + Mobile — ketiga platform sekaligus (butuh Rust + Flutter + Android SDK). Jalankan 'pnpm doctor' untuk cek prasyarat."
+        }
+      ],
+      "defaultValue": "all",
+      "description": "Platform yang disertakan. Web SELALU ada (fondasi); desktop/mobile opsional. Cek prasyarat tiap platform dengan 'pnpm doctor'."
+    },
+    "desktop": {
+      "type": "computed",
+      "value": "(platforms == \"desktop\" || platforms == \"all\")"
     },
     "mobile": {
-      "type": "parameter",
-      "datatype": "bool",
-      "defaultValue": "true",
-      "description": "Sertakan Apps/Mobile: aplikasi Flutter (Android+iOS) dengan klien Dart gRPC dari proto yang sama (demo SayHello; butuh --data-comm proto untuk round-trip)."
+      "type": "computed",
+      "value": "(platforms == \"mobile\" || platforms == \"all\")"
     }
   },
   "SpecialCustomOperations": {

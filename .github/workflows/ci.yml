@@ -103,9 +103,9 @@ jobs:
           test -f /tmp/ciproto/scripts/desktop-publish-web.mjs
           dotnet build /tmp/ciproto/Apps/Web/CiProto.Web.csproj -c Debug --nologo
 
-      - name: Instantiate (--desktop false --mobile false) → assert ramping
+      - name: Instantiate (--platforms web) → assert ramping
         run: |
-          dotnet new speca-template -n CiLean --desktop false --mobile false -o /tmp/cilean --no-restore
+          dotnet new speca-template -n CiLean --platforms web -o /tmp/cilean --no-restore
           test ! -d /tmp/cilean/Apps/Desktop
           test ! -d /tmp/cilean/Apps/Mobile
           test ! -f /tmp/cilean/scripts/desktop-publish-portal.mjs
